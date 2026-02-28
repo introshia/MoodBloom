@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+from werkzeug.security import generate_password_hash, check_password_hash
 import mysql.connector
 import numpy as np
 from datetime import datetime
@@ -6,11 +7,14 @@ from sklearn.linear_model import LinearRegression
 
 app = Flask(__name__)
 
+# This keeps the user's login session secure!
+app.secret_key = 'super_secret_moodbloom_key'
+
 # --- DATABASE CONFIGURATION ---
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'moddbloom_3', 
+    'password': 'modbloom_3', 
     'database': 'moodbloom_db'
 }
 
@@ -56,7 +60,65 @@ def calculate_mood_trend(entries):
     status = "Blooming" if slope > 0.1 else "Cloudy" if slope < -0.1 else "Steady"
     return {"status": status, "slope": round(slope, 2), "msg": "Trend Verified.", "consistency": "Consistent."}
 
-# --- ROUTES ---
+
+# --- AUTHENTICATION ROUTES ---
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
+        # Scramble the password securely
+        hashed_password = generate_password_hash(password)
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            # Insert the new user into your moodbloom_db
+            cursor.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s)", (username, hashed_password))
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return redirect(url_for('login'))
+        except mysql.connector.Error as err:
+            # If the username already exists, it will trigger an error
+            cursor.close()
+            conn.close()
+            return f"Error: Username might already be taken. Try another!"
+
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password_attempt = request.form['password']
+        
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        
+        # Check if user exists AND if the scrambled password matches
+        if user and check_password_hash(user['password_hash'], password_attempt):
+            session['user_id'] = user['id']
+            session['username'] = user['username']
+            return redirect(url_for('dashboard')) # Send them to the app!
+        else:
+            return "Invalid username or password. Please try again."
+
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.clear() # Erases the memory of the user
+    return redirect(url_for('login'))
+
+
+# --- MAIN APP ROUTES ---
 
 @app.route('/')
 def index():
@@ -64,6 +126,7 @@ def index():
 
 @app.route('/dashboard')
 def dashboard():
+    # Optional: You can add a check here later to kick out users who aren't logged in!
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     
@@ -73,7 +136,7 @@ def dashboard():
     dates = [row['entry_date'].strftime("%b %d") for row in chart_data]
     scores = [row['mood_score'] for row in chart_data] 
     
-    # 2. Fetch Entries for Table (No Delete Logic needed here, just fetching)
+    # 2. Fetch Entries for Table 
     cursor.execute("SELECT * FROM journal_entries ORDER BY entry_date DESC")
     entries = cursor.fetchall()
     
@@ -118,8 +181,6 @@ def add_entry():
         
         return redirect(url_for('journal', quote_text=quote['text'], quote_author=quote['author']))
     return redirect(url_for('journal'))
-
-# DELETE ROUTE REMOVED COMPLETELY
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
