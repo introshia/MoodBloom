@@ -2,147 +2,150 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MoodBloom | Dashboard</title>
+    <title>MoodBloom | Your Almanac</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Pinyon+Script&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
-        /* SHARED CHIC VARIABLES */
         :root { 
-            --bg-soft: #fcf8f0; 
             --text-main: #2D3436; 
-            --accent-chic: #D4A373; /* Elegant terracotta */
+            --accent-red: #7a1d1d;  /* The new vintage red */
+            --bg-soft: #fff9e6;     /* The warm cream background */
         }
         
         body { 
             background-color: var(--bg-soft); 
             font-family: 'Inter', sans-serif; 
-            display: flex; 
             margin: 0; 
             color: var(--text-main);
+            min-height: 100vh;
         }
 
-        /* 1. SEAMLESS SIDEBAR (Matching the Journal) */
-        .sidebar { 
-            width: 240px; 
-            height: 100vh; 
-            background: transparent; 
-            padding: 60px 40px; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            display: flex; 
-            flex-direction: column; 
+        /* GLASSY BLUE NAVBAR */
+        .navbar {
+            background: rgba(199, 221, 255, 0.5); 
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4); 
+            padding: 10px 40px; 
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
             z-index: 1000;
-            border-right: 1px solid rgba(0,0,0,0.04); 
-        }
-        
-        .sidebar-logo { 
-            font-family: 'Playfair Display', serif;
-            font-size: 1.8rem; 
-            font-weight: 700; 
-            font-style: italic;
-            color: var(--text-main); 
-            text-decoration: none; 
-            margin-bottom: 60px; 
-        }
-        
-        .nav-item { 
-            padding: 10px 0; 
-            color: rgba(45, 52, 54, 0.4); 
-            text-decoration: none; 
-            font-weight: 600; 
-            margin-bottom: 15px; 
-            display: flex; 
-            align-items: center; 
-            gap: 15px; 
-            transition: all 0.4s ease; 
-        }
-        
-        .nav-item:hover { 
-            color: var(--text-main); 
-            transform: translateX(6px); 
-        }
-        
-        .nav-item.active { 
-            color: var(--accent-chic); 
         }
 
-        /* 2. MAIN DASHBOARD VIEW */
-        .main-view { 
-            margin-left: 240px; 
-            flex: 1; 
-            padding: 40px 60px; 
+        .logo-handwritten {
+            font-family: 'Pinyon Script', cursive;
+            font-size: 2.5rem; 
+            color: var(--accent-red) !important;
+            text-decoration: none;
+            line-height: 1;
+        }
+
+        .nav-link {
+            font-weight: 600;
+            font-size: 0.9rem; 
+            color: var(--text-main) !important;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            opacity: 1;
+            color: var(--accent-red) !important;
+        }
+
+        /* MAIN DASHBOARD LAYOUT */
+        .dashboard-container { 
+            padding-top: 100px; /* Accounts for the fixed navbar */
+            padding-bottom: 50px;
+            max-width: 1000px;
+            margin: 0 auto;
         }
         
-        /* 3. LIGHT, AIRY BENTO CARDS */
-        .bento-card { 
-            background: white; 
-            border-radius: 35px; 
+        /* VINTAGE CARDS (Replaces the Bento look) */
+        .vintage-card { 
+            background: #ffffff; 
+            border-radius: 15px; 
             padding: 30px; 
-            border: 1px solid rgba(0,0,0,0.04); 
+            border: 1px solid rgba(122, 29, 29, 0.15); 
             margin-bottom: 25px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.02); /* Soft, elegant shadow */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03); 
         }
         
-        /* REMOVED THE BLACK GRADIENT HERE */
         .insight-header { 
-            background: white; 
+            background: #ffffff; 
             color: var(--text-main); 
+            border-top: 4px solid var(--accent-red); /* Adds a chic ledger line at the top */
+        }
+
+        .vintage-title {
+            font-family: 'Pinyon Script', cursive;
+            font-size: 3.5rem;
+            color: var(--accent-red);
+            line-height: 1;
         }
 
         /* CUSTOM CHIC BADGE */
-        .badge-chic {
-            background-color: var(--accent-chic);
+        .badge-vintage {
+            background-color: var(--accent-red);
             color: white;
             font-weight: 600;
             letter-spacing: 1px;
+            font-size: 0.8rem;
         }
         
         /* TABLE STYLING FOR A CLEANER LOOK */
         .table-hover tbody tr:hover {
-            background-color: rgba(212, 163, 115, 0.05); /* Soft peach hover on rows */
+            background-color: rgba(122, 29, 29, 0.03); /* Soft red hover on rows */
         }
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <a href="{{ url_for('index') }}" class="sidebar-logo">MoodBloom</a>
-        <nav class="d-flex flex-column">
-            <a href="{{ url_for('index') }}" class="nav-item"><i class="fa-solid fa-house"></i> Home</a>
-            <a href="{{ url_for('dashboard') }}" class="nav-item active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-            <a href="{{ url_for('journal') }}" class="nav-item"><i class="fa-solid fa-pen-nib"></i> Journal</a>
-        </nav>
-    </div>
+    
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand logo-handwritten" href="{{ url_for('index') }}">MoodBloom</a>
+            <div class="d-flex ms-auto align-items-center">
+                <a class="nav-link me-3 d-none d-md-block" href="{{ url_for('index') }}">Home</a>
+                <a class="nav-link me-3 d-none d-md-block" href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a class="nav-link me-4" href="{{ url_for('journal') }}">Journal</a>
+                <a class="nav-link fw-bold me-3" href="/logout" style="color: var(--accent-red) !important;">Log Out</a>
+            </div>
+        </div>
+    </nav>
 
-    <div class="main-view">
+    <div class="container dashboard-container">
         <div class="row g-4">
+            
             <div class="col-12">
-                <div class="bento-card insight-header">
-                    <h6 class="text-uppercase fw-bold opacity-50 small mb-3" style="color: var(--accent-chic);">Creative Insight Dashboard</h6>
+                <div class="vintage-card insight-header">
+                    <h6 class="text-uppercase fw-bold opacity-50 small mb-3" style="color: var(--accent-red); letter-spacing: 2px;">Almanac Insights</h6>
                     <div class="row align-items-center">
                         <div class="col-md-9">
-                            <h2 class="fw-bold mb-3" style="font-family: 'Playfair Display';">"{{ trend.msg }}"</h2>
-                            <p class="opacity-75 mb-1"><i class="fa-solid fa-sparkles" style="color: var(--accent-chic);"></i> Consistency: {{ trend.consistency }}</p>
+                            <h2 class="fw-bold mb-3" style="font-family: 'Inter', sans-serif; font-weight: 300;">"{{ trend.msg }}"</h2>
+                            <p class="opacity-75 mb-1">
+                                <i class="fa-solid fa-feather" style="color: var(--accent-red);"></i> Consistency: {{ trend.consistency }}
+                            </p>
                         </div>
                         <div class="col-md-3 text-end">
-                            <div class="display-5 fw-bold" style="color: var(--accent-chic); font-family: 'Playfair Display', serif; font-style: italic;">{{ trend.status }}</div>
+                            <div class="vintage-title">{{ trend.status }}</div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="col-md-12">
-                <div class="bento-card">
+                <div class="vintage-card">
+                    <h5 class="text-uppercase fw-bold opacity-50 small mb-4" style="color: var(--text-main); letter-spacing: 1px;">Emotional Cartography</h5>
                     <canvas id="moodChart" style="max-height: 250px;"></canvas>
                 </div>
             </div>
 
             <div class="col-12">
-                <div class="bento-card">
-                    <h5 class="fw-bold mb-4" style="font-family: 'Playfair Display';">Entry Archive</h5>
+                <div class="vintage-card">
+                    <h5 class="text-uppercase fw-bold opacity-50 small mb-4" style="color: var(--text-main); letter-spacing: 1px;">The Archive</h5>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle border-white">
                             <thead>
@@ -154,9 +157,9 @@
                             </thead>
                             <tbody>
                                 {% for entry in entries %}
-                                <tr style="border-bottom: 1px solid rgba(0,0,0,0.03);">
-                                    <td class="fw-semibold text-muted">{{ entry.entry_date.strftime('%b %d, %Y') }}</td>
-                                    <td><span class="badge badge-chic rounded-pill px-3 py-2">{{ entry.mood_score }} / 5</span></td>
+                                <tr style="border-bottom: 1px solid rgba(122, 29, 29, 0.1);">
+                                    <td class="fw-semibold text-muted" style="font-family: 'Inter', sans-serif;">{{ entry.entry_date.strftime('%b %d, %Y') }}</td>
+                                    <td><span class="badge badge-vintage rounded-pill px-3 py-2">{{ entry.mood_score }} / 5</span></td>
                                     <td class="text-muted small fst-italic">"{{ entry.content[:50] }}..."</td>
                                 </tr>
                                 {% endfor %}
@@ -165,6 +168,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -176,11 +180,11 @@
                 labels: {{ dates|tojson }},
                 datasets: [{ 
                     data: {{ scores|tojson }}, 
-                    borderColor: '#D4A373', /* Changed chart line from black to chic accent */
+                    borderColor: '#7a1d1d', /* Updated line to the vintage red */
                     tension: 0.4, 
                     borderWidth: 3,
                     pointBackgroundColor: '#fff',
-                    pointBorderColor: '#D4A373',
+                    pointBorderColor: '#7a1d1d',
                     pointBorderWidth: 2,
                     pointRadius: 4
                 }]

@@ -1,3 +1,9 @@
+import os
+from dotenv import load_dotenv
+
+# Load the hidden variables from your .env file
+load_dotenv()
+
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 import mysql.connector
@@ -14,7 +20,7 @@ app.secret_key = 'super_secret_moodbloom_key'
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'fake_password', 
+    'password': os.getenv('DB_PASSWORD'), 
     'database': 'moodbloom_db'
 }
 
@@ -49,7 +55,7 @@ def get_quote_for_entry(content):
 
 def calculate_mood_trend(entries):
     if len(entries) < 2: 
-        return {"status": "Seeding", "slope": 0, "msg": "Insufficient data.", "consistency": "Write more."}
+        return {"status": "Seeding", "slope": 0, "msg": "The pages are fresh.", "consistency": "Write your first entry."}
     
     # Linear Regression Logic
     X = np.array(range(len(entries))).reshape(-1, 1)
@@ -69,20 +75,17 @@ def register():
         username = request.form['username']
         password = request.form['password']
         
-        # Scramble the password securely
         hashed_password = generate_password_hash(password)
         
         conn = get_db_connection()
         cursor = conn.cursor()
         try:
-            # Insert the new user into your moodbloom_db
             cursor.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s)", (username, hashed_password))
             conn.commit()
             cursor.close()
             conn.close()
             return redirect(url_for('login'))
         except mysql.connector.Error as err:
-            # If the username already exists, it will trigger an error
             cursor.close()
             conn.close()
             return f"Error: Username might already be taken. Try another!"
@@ -102,11 +105,10 @@ def login():
         cursor.close()
         conn.close()
         
-        # Check if user exists AND if the scrambled password matches
         if user and check_password_hash(user['password_hash'], password_attempt):
             session['user_id'] = user['id']
             session['username'] = user['username']
-            return redirect(url_for('dashboard')) # Send them to the app!
+            return redirect(url_for('dashboard')) 
         else:
             return "Invalid username or password. Please try again."
 
@@ -114,7 +116,7 @@ def login():
 
 @app.route('/logout')
 def logout():
-    session.clear() # Erases the memory of the user
+    session.clear() 
     return redirect(url_for('login'))
 
 
@@ -126,21 +128,24 @@ def index():
 
 @app.route('/dashboard')
 def dashboard():
-    # Optional: You can add a check here later to kick out users who aren't logged in!
+    # SECURITY: Kick them back to login if they aren't signed in!
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+        
+    user_id = session['user_id']
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     
-    # 1. Fetch Chart Data
-    cursor.execute("SELECT mood_score, entry_date FROM journal_entries ORDER BY entry_date ASC LIMIT 10")
+    # Fetch Chart Data (ONLY for this user)
+    cursor.execute("SELECT mood_score, entry_date FROM journal_entries WHERE user_id = %s ORDER BY entry_date ASC LIMIT 10", (user_id,))
     chart_data = cursor.fetchall()
     dates = [row['entry_date'].strftime("%b %d") for row in chart_data]
     scores = [row['mood_score'] for row in chart_data] 
     
-    # 2. Fetch Entries for Table 
-    cursor.execute("SELECT * FROM journal_entries ORDER BY entry_date DESC")
+    # Fetch Entries for Table (ONLY for this user)
+    cursor.execute("SELECT * FROM journal_entries WHERE user_id = %s ORDER BY entry_date DESC", (user_id,))
     entries = cursor.fetchall()
     
-    # 3. Calculate AI Trend
     trend = calculate_mood_trend(entries)
     conn.close()
     
@@ -148,12 +153,18 @@ def dashboard():
 
 @app.route('/journal')
 def journal():
+    # SECURITY
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+        
+    user_id = session['user_id']
     new_quote = request.args.get('quote_text')
     new_author = request.args.get('quote_author')
     
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT COUNT(*) FROM journal_entries")
+    # Count ONLY this user's entries to get their specific page number
+    cursor.execute("SELECT COUNT(*) FROM journal_entries WHERE user_id = %s", (user_id,))
     count = cursor.fetchone()[0]
     conn.close()
     
@@ -167,15 +178,21 @@ def journal():
 
 @app.route('/add', methods=['POST'])
 def add_entry():
+    # SECURITY
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+        
     content = request.form.get('content')
     if content:
         mood_score = analyze_sentiment(content)
         quote = get_quote_for_entry(content)
+        user_id = session['user_id']
         
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO journal_entries (content, mood_score, theme) VALUES (%s, %s, %s)", 
-                       (content, mood_score, 'General'))
+        # Save the new entry WITH the user's ID attached
+        cursor.execute("INSERT INTO journal_entries (content, mood_score, theme, user_id) VALUES (%s, %s, %s, %s)", 
+                       (content, mood_score, 'General', user_id))
         conn.commit()
         conn.close()
         
