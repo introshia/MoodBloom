@@ -1,41 +1,49 @@
 # 🌸 MoodBloom
-**A whimsical, AI-driven sanctuary for your thoughts.**
+**The modern almanac of a wandering mind.**
 
-MoodBloom is a full-stack digital journaling application crafted to help users understand their emotional trends. By combining a chic, distraction-free interface with a heuristic sentiment engine, the application naturally categorizes entries and maps emotional journeys over time.
+MoodBloom is a full-stack digital journaling application crafted to help users understand their emotional trends. By combining a chic, vintage interface with a heuristic sentiment engine, the application naturally categorizes entries and maps emotional journeys through the art of journaling.
 
-*Developed by Danna for Programming Languages at Universidad de Dagupan.*
+*Developed by **Danna** for Programming Languages at **Universidad de Dagupan** (March 2026).*
 
 ---
 
-## ✨ Features
-* **AI Sentiment Analysis:** A heuristic engine silently analyzes the emotional weight of your words.
-* **Predictive Trends:** Maps your journaling journey to predict whether upcoming days will be cloudy or bright.
-* **Immutable Archive:** Secure local MySQL database integration to ensure data integrity.
-* **Chic UI/UX:** A digital notebook layout with smooth scroll animations.
+## ✨ Major Updates (v1.5)
+* **Secure Authentication:** Implementation of a robust user registration and login system using hashed passwords (via `Werkzeug`) for maximum security.
+* **Private Almanac Lockers:** Individualized database sessions ensure users only ever see their own private entries, turning the database into a secure multi-user platform.
+* **Dark Academia UI:** A high-fidelity redesign featuring a custom frosted-glass navigation bar, vintage typography (**Pinyon Script**), and glassy cream-colored cards.
+* **AI Sentiment Engine:** Real-time analysis of entry text to categorize moods and provide predictive "Emotional Cartography" using Linear Regression.
+* **Security Protocols:** Full integration of environment variables (`.env`) to protect sensitive database credentials from public exposure.
 
 ## 🛠️ Tech Stack & Architecture
-**Frontend:** HTML5, CSS3, Bootstrap 5.3, Google Fonts
-**Backend:** Python 3, Flask
-**Database:** MySQL Community Server
-**Version Control:** Git & GitHub
+
+* **Frontend:** HTML5, CSS3, Bootstrap 5.3, FontAwesome 6, AOS (Animate on Scroll), Chart.js
+* **Backend:** Python 3, Flask, Scikit-learn, NumPy
+* **Database:** MySQL Community Server
+* **Security:** Python-Dotenv, Werkzeug Security (Password Hashing)
+* **Version Control:** Git & GitHub
 
 ---
 
 ## 🚀 Local Installation (For Grading)
-*(Note: If you are downloading this project to test it, run these commands in your terminal to set it up.)*
+*(Note: If you are downloading this project to test it, follow these steps to ensure the hidden vault is configured correctly.)*
 
-1. **Clone the repository:**
-   `git clone https://github.com/introshia/MoodBloom.git`
+```bash
+# 1. Clone the repository
+git clone [https://github.com/introshia/MoodBloom.git](https://github.com/introshia/MoodBloom.git)
 
-2. **Navigate into the directory:**
-   `cd MoodBloom`
+# 2. Navigate into the directory
+cd MoodBloom
 
-3. **Install the Python dependencies:**
-   `pip install -r requirements.txt`
+# 3. Install the Python dependencies
+pip3 install -r requirements.txt
 
-4. **Configure the Database:**
-   * Create a local MySQL database named `moodbloom_db`.
-   * Update the `app.py` file with your local MySQL credentials.
+# 4. Configure the Secret Vault (.env)
+# Create a file named .env and add your password:
+echo "DB_PASSWORD=your_mysql_password" > .env
 
-5. **Start the server:**
-   `python app.py`
+# 5. Configure the Database
+# Create a local MySQL database named 'moodbloom_db'
+# The app will automatically use the password from your .env
+
+# 6. Start the server
+python3 app.py

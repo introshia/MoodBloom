@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Indie+Flower&family=Pinyon+Script&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Pinyon+Script&display=swap" rel="stylesheet">
     
     <style>
         :root { 
@@ -28,17 +28,14 @@
             padding: 0;
         }
 
-        /* NAVBAR STYLING */
+        /* NAVBAR STYLING - Your Custom Glassy Blue */
         .navbar {
-            /* Your #C7DDFF at 50% opacity */
             background: rgba(199, 221, 255, 0.5); 
-            /* Creates the Figma "Frost" effect */
             backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px); /* Ensures it works on Safari */
-            /* A subtle white highlight to make the glass edge pop */
+            -webkit-backdrop-filter: blur(15px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.4); 
             padding: 10px 40px; 
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05); /* Soft drop shadow */
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
         }
 
         .logo-handwritten {
@@ -77,7 +74,7 @@
             transform: translateY(-2px);
         }
 
-        /* NEW SPLIT SCREEN HERO SECTION */
+        /* HERO SECTION */
         .split-hero {
             display: flex;
             min-height: 100vh;
@@ -85,7 +82,6 @@
             padding-top: 60px; 
         }
 
-        /* Left Side: Text and CTA */
         .hero-left {
             flex: 1;
             display: flex;
@@ -137,10 +133,8 @@
             box-shadow: 0 8px 20px rgba(122, 29, 29, 0.15);
         }
 
-        /* Right Side: Photos */
         .hero-right {
             flex: 1;
-            /* PERFECTLY MATCHES YOUR STRIPED BG FILE NAME */
             background-image: url("{{ url_for('static', filename='striped-bg.jpg') }}");
             background-size: cover;
             background-position: center;
@@ -156,45 +150,79 @@
             filter: drop-shadow(0px 20px 30px rgba(0,0,0,0.25)); 
         }
 
-        /* FEATURE SECTION */
+        /* REDESIGNED FEATURE SECTION - Vintage Almanac Style */
         .feature-section {
-            padding: 100px 20px;
-            background: white; 
-            border-top: 1px solid rgba(0,0,0,0.05);
+            padding: 120px 20px;
+            background-color: var(--bg-soft); 
+            border-top: 1px solid rgba(122, 29, 29, 0.1);
             position: relative;
-            z-index: 10;
+        }
+
+        .section-vintage-title {
+            font-family: 'Pinyon Script', cursive;
+            font-size: 3.5rem;
+            color: var(--accent-red);
+            text-align: center;
+            margin-bottom: 60px;
         }
 
         .feature-card {
-            padding: 30px;
+            padding: 40px 30px;
             text-align: center;
+            background: rgba(255, 255, 255, 0.3); 
+            border-radius: 20px;
+            border: 1px solid rgba(122, 29, 29, 0.05);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 15px 35px rgba(122, 29, 29, 0.05);
         }
 
         .feature-icon {
-            font-size: 2.5rem;
-            color: var(--accent-chic); 
-            margin-bottom: 20px;
+            font-size: 2.2rem;
+            color: var(--accent-red); 
+            margin-bottom: 25px;
+            opacity: 0.8;
         }
 
-        /* FOOTER */
+        .feature-card h4 {
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: var(--text-main);
+            margin-bottom: 15px;
+        }
+
+        .feature-card p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            opacity: 0.7;
+            font-weight: 300;
+        }
+
+        /* REDESIGNED FOOTER */
         .footer {
-            background: white;
-            padding: 30px 20px;
+            background-color: var(--bg-soft);
+            padding: 60px 20px;
             text-align: center;
-            border-top: 1px solid rgba(0,0,0,0.05);
+            border-top: 1px solid rgba(122, 29, 29, 0.1);
         }
 
-        /* MOBILE RESPONSIVENESS */
+        .footer p {
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-main);
+            opacity: 0.6;
+        }
+
         @media (max-width: 991px) {
-            .split-hero {
-                flex-direction: column;
-            }
-            .hero-right {
-                min-height: 50vh;
-            }
-            .vintage-headline {
-                font-size: 4rem;
-            }
+            .split-hero { flex-direction: column; }
+            .hero-right { min-height: 50vh; }
+            .vintage-headline { font-size: 4rem; }
         }
     </style>
 </head>
@@ -228,28 +256,29 @@
 
     <section class="feature-section">
         <div class="container">
-            <div class="row g-5">
-                <div class="col-md-4" data-aos="fade-up" data-aos-duration="1000">
+            <h2 class="section-vintage-title" data-aos="fade-up">The Almanac's Features</h2>
+            <div class="row g-4">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
                     <div class="feature-card">
-                        <i class="fa-solid fa-wand-magic-sparkles feature-icon"></i>
-                        <h4 class="mb-3 fw-bold">AI Sentiment</h4>
-                        <p class="fw-light opacity-75">Our heuristic engine silently analyzes the emotional weight of your words, categorizing your entries naturally.</p>
+                        <i class="fa-solid fa-feather-pointed feature-icon"></i>
+                        <h4>AI Sentiment</h4>
+                        <p>Our heuristic engine silently analyzes the emotional weight of your words, categorizing your entries naturally within your history.</p>
                     </div>
                 </div>
 
-                <div class="col-md-4" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
                     <div class="feature-card">
-                        <i class="fa-solid fa-lock feature-icon"></i>
-                        <h4 class="mb-3 fw-bold">Immutable Archive</h4>
-                        <p class="fw-light opacity-75">Protecting your data integrity to ensure your emotional trend lines remain beautifully honest and unbroken.</p>
+                        <i class="fa-solid fa-inkwell feature-icon"></i>
+                        <h4>Immutable Archive</h4>
+                        <p>Protecting your data integrity to ensure your emotional trend lines remain beautifully honest, private, and unbroken.</p>
                     </div>
                 </div>
 
-                <div class="col-md-4" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="400">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
                     <div class="feature-card">
-                        <i class="fa-solid fa-chart-line feature-icon"></i>
-                        <h4 class="mb-3 fw-bold">Predictive Trends</h4>
-                        <p class="fw-light opacity-75">Watch your thoughts bloom. We map your journey to predict whether upcoming days will be cloudy or bright.</p>
+                        <i class="fa-solid fa-compass feature-icon"></i>
+                        <h4>Predictive Trends</h4>
+                        <p>Watch your thoughts bloom. We map your journey to predict whether upcoming days will be cloudy or bright.</p>
                     </div>
                 </div>
             </div>
@@ -257,10 +286,13 @@
     </section>
 
     <footer class="footer">
-        <p class="small text-muted mb-0">
-            &copy; 2026 MoodBloom. Crafted for Programming Languages. <br>
-            <span class="opacity-50">Universidad de Dagupan</span>
-        </p>
+        <div class="container">
+            <p class="mb-2">MoodBloom &mdash; A Digital Inscription Tool</p>
+            <p class="small mb-0 opacity-50">
+                &copy; 2026 Crafted for Programming Languages <br>
+                Universidad de Dagupan
+            </p>
+        </div>
     </footer>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
