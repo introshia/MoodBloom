@@ -14,7 +14,7 @@ app.secret_key = 'super_secret_moodbloom_key'
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'modbloom_3', 
+    'password': 'fake_password', 
     'database': 'moodbloom_db'
 }
 
