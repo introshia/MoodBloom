@@ -126,6 +126,10 @@ def logout():
 def index():
     return render_template('pages/index.html')
 
+@app.route('/debug-gsap')
+def debug_gsap():
+    return render_template('pages/index.html')
+
 @app.route('/install')
 def install():
     return render_template('pages/install.html')
@@ -231,6 +235,11 @@ def add_entry():
 @app.route('/sw.js')
 def serve_sw():
     return app.send_static_file('sw.js')
+
+# --- ERROR HANDLERS ---
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('pages/404.html'), 404
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
