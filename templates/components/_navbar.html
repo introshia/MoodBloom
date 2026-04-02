@@ -15,6 +15,9 @@
         </div>
 
         <div class="navbar-right">
+            <button id="theme-toggle" class="theme-btn" aria-label="Toggle Dark Mode">
+                <i class="fa-solid fa-moon"></i>
+            </button>
             {% if session.get('user_id') %}
             <a href="{{ url_for('logout') }}" class="navbar-contact">Log Out</a>
             {% else %}
