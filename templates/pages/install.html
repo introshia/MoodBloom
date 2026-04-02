@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoodBloom | Install the App</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <link rel="manifest" href="/static/manifest.json">
+
+    <style>
+        :root {
+            --text-primary: #000000;
+            --bg-primary: #ffffff;
+            --accent-yellow: #FFEA00;
+            --accent-cyan: #00FFFF;
+            --brutal-border: 2px solid #000000;
+            --brutal-shadow: 4px 4px 0px #000000;
+            --brutal-shadow-hover: 6px 6px 0px #000000;
+            --brutal-radius: 12px;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 0;
+            position: relative;
+        }
+
+        .install-card {
+            background: var(--bg-primary);
+            border: var(--brutal-border);
+            border-radius: var(--brutal-radius);
+            padding: 40px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--brutal-shadow);
+            text-align: center;
+        }
+
+        .brutal-title {
+            font-family: 'Inter', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--text-primary);
+            line-height: 1.2;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+
+        .instruction-box {
+            background: var(--accent-yellow);
+            border: var(--brutal-border);
+            border-radius: var(--brutal-radius);
+            padding: 20px;
+            margin: 25px 0;
+            font-size: 1rem;
+            text-align: left;
+            box-shadow: 2px 2px 0px #000000;
+            position: relative;
+        }
+
+        .instruction-box strong {
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-weight: 800;
+            font-size: 1.1rem;
+            display: block;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .instruction-box ul {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 0;
+        }
+
+        .instruction-box ul li {
+            margin-bottom: 5px;
+        }
+
+        .btn-install {
+            background-color: var(--accent-cyan);
+            color: var(--text-primary);
+            border: var(--brutal-border);
+            border-radius: 50px;
+            padding: 15px 30px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+            display: none;
+            width: 100%;
+            box-shadow: var(--brutal-shadow);
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-install:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: var(--brutal-shadow-hover);
+        }
+
+        .btn-install:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0px #000000;
+        }
+
+        .ios-instruction {
+            display: none;
+            text-align: center;
+            color: var(--text-primary);
+            border: 2px dashed #000000;
+            background-color: #f8f9fa;
+            border-radius: var(--brutal-radius);
+            padding: 15px;
+        }
+
+        .ios-instruction p {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .logo-back {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            text-decoration: none;
+            border: var(--brutal-border);
+            border-radius: var(--brutal-radius);
+            padding: 10px 15px;
+            background-color: var(--bg-primary);
+            box-shadow: 2px 2px 0px #000000;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        .logo-back:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 4px 4px 0px #000000;
+            color: var(--text-primary);
+            background-color: var(--accent-yellow);
+        }
+
+        .logo-back:active {
+            transform: translate(2px, 2px);
+            box-shadow: 0px 0px 0px #000000;
+        }
+
+        @media (min-width: 768px) {
+            .logo-back {
+                top: 30px;
+                left: 40px;
+                font-size: 1.2rem;
+                padding: 12px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <a href="{{ url_for('index') }}" class="logo-back"><i class="fa fa-arrow-left me-2"></i>MoodBloom</a>
+
+    <div class="install-card">
+        <i class="fa-solid fa-download"
+            style="font-size: 3rem; color: var(--text-primary); margin-bottom: 20px; text-shadow: 2px 2px 0px var(--accent-cyan);"></i>
+        <h1 class="brutal-title">Get MoodBloom</h1>
+        <p class="fw-bold" style="font-size: 1.05rem;">Install the almanac directly to your device for a seamless,
+            full-screen journaling experience.</p>
+
+        <div class="instruction-box">
+            <strong>Why install?</strong>
+            <ul class="ps-3">
+                <li>No app store required</li>
+                <li>One-tap access from your Home Screen</li>
+                <li>Distraction-free, full-screen writing</li>
+            </ul>
+        </div>
+
+        <button id="install-button" class="btn-install"><i class="fa-solid fa-mobile-screen-button me-2"></i> Install
+            App</button>
+
+        <div id="ios-instruction" class="ios-instruction mt-4">
+            <p class="mb-2 fw-bold text-uppercase" style="letter-spacing: 0.5px; font-size: 0.9rem;">To install on
+                iPhone/iPad:</p>
+            <p class="small mb-0">Tap the <i class="fa-solid fa-arrow-up-from-bracket mx-1"></i>
+                <strong>Share</strong> icon at the bottom of your screen, then scroll down and tap <strong
+                    style="background-color: var(--accent-yellow); padding: 0 4px; border: 1px solid #000;">"Add to Home
+                    Screen"</strong>.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js');
+            });
+        }
+
+        let deferredPrompt;
+        const installButton = document.getElementById('install-button');
+        const iosInstruction = document.getElementById('ios-instruction');
+
+        // Detect if the user is on an iOS device (Safari doesn't support the install button)
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+        if (isIOS) {
+            iosInstruction.style.display = 'block';
+        }
+
+        // Catch the automatic install prompt from the browser
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // Show our custom vintage button
+            installButton.style.display = 'block';
+        });
+
+        // When the user clicks our button, trigger the native browser prompt
+        installButton.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                    installButton.style.display = 'none';
+                }
+                deferredPrompt = null;
+            }
+        });
+    </script>
+</body>
+
+</html>

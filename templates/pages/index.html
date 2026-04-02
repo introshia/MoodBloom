@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoodBloom | Welcome</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="manifest" href="/static/manifest.json">
+
+    <style>
+        :root {
+            --bg-canvas: #F7F7F8;
+            --text-black: #000000;
+            --text-gray: #333333;
+            --color-cyan: #00D9FF;
+            --color-yellow: #FFEB3B;
+            --color-mint: #00E5A0;
+            --white: #FFFFFF;
+            --border: 1px solid #000000;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-black);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        main {
+            position: relative;
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+
+        /* NAVBAR */
+        .navbar-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 40px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: var(--bg-canvas);
+            z-index: 100;
+        }
+
+        .navbar-logo {
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: var(--text-black);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        .navbar-center {
+            display: flex;
+            gap: 0;
+            background: var(--white);
+            border: var(--border);
+            border-radius: 50px;
+            padding: 8px 20px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .navbar-link {
+            color: var(--text-black);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 6px 14px;
+            transition: color 0.25s;
+        }
+
+        .navbar-link:hover {
+            color: var(--color-cyan);
+        }
+
+        .navbar-right {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .navbar-contact {
+            color: var(--text-black);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .btn-collaborate {
+            background: var(--color-cyan);
+            color: var(--text-black);
+            border: var(--border);
+            border-radius: 50px;
+            padding: 10px 22px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: inline-block;
+        }
+
+        .btn-collaborate:hover {
+            background: var(--text-black);
+            color: var(--color-cyan);
+        }
+
+        /* HERO SECTION (unified container) */
+        .hero-section {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding-top: 80px;
+            /* offset for fixed navbar */
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 800px;
+            padding: 0 40px;
+        }
+
+        .hero-headline {
+            font-size: 4.5rem;
+            font-weight: 300;
+            line-height: 1.25;
+            margin-bottom: 28px;
+            color: var(--text-black);
+            letter-spacing: -1.5px;
+        }
+
+        .hero-word-highlighted {
+            position: relative;
+            display: inline-block;
+        }
+
+        .hero-word-pill {
+            background: var(--white);
+            border: var(--border);
+            border-radius: 50px;
+            padding: 6px 18px;
+            display: inline-block;
+            position: relative;
+        }
+
+        .hero-word-pill-text {
+            font-style: italic;
+            font-weight: 500;
+        }
+
+        .hero-close {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8rem;
+            color: var(--text-black);
+            cursor: pointer;
+        }
+
+        .icon-float {
+            position: absolute;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-chat {
+            width: 28px;
+            height: 28px;
+            background: var(--color-cyan);
+            border-radius: 50%;
+            top: -14px;
+            right: -14px;
+        }
+
+        .icon-map {
+            width: 28px;
+            height: 28px;
+            background: var(--color-yellow);
+            border-radius: 50%;
+            bottom: -14px;
+            right: -18px;
+        }
+
+        .hero-subheadline {
+            font-size: 1.05rem;
+            font-weight: 400;
+            color: var(--text-gray);
+            margin: 0 auto 40px;
+            max-width: 600px;
+            line-height: 1.7;
+            text-align: center;
+        }
+
+        .hero-social-proof {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 60px;
+        }
+
+        .avatar-group {
+            display: flex;
+            position: relative;
+            width: 120px;
+            height: 40px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--color-cyan);
+            border: var(--border);
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.7rem;
+            color: var(--text-black);
+        }
+
+        .avatar:nth-child(1) {
+            left: 0;
+            background: var(--color-cyan);
+            z-index: 4;
+        }
+
+        .avatar:nth-child(2) {
+            left: 28px;
+            background: var(--color-mint);
+            z-index: 3;
+        }
+
+        .avatar:nth-child(3) {
+            left: 56px;
+            background: var(--color-yellow);
+            z-index: 2;
+        }
+
+        .avatar:nth-child(4) {
+            left: 84px;
+            background: #FFB3BA;
+            z-index: 1;
+        }
+
+        .social-text {
+            font-size: 0.95rem;
+            color: var(--text-black);
+            font-weight: 500;
+        }
+
+        /* FLOATING CARDS — absolutely positioned inside .hero-section */
+        .cards-container {
+            position: absolute;
+            inset: 0;
+            /* top:0 right:0 bottom:0 left:0 */
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floating-card {
+            position: absolute;
+            background: var(--white);
+            border: var(--border);
+            border-radius: 16px;
+            padding: 0;
+            overflow: hidden;
+            pointer-events: auto;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .floating-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .card-chip {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: var(--color-mint);
+            border: var(--border);
+            border-radius: 50px;
+            padding: 6px 14px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-black);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 10;
+        }
+
+        .card-chip.yellow {
+            background: var(--color-yellow);
+        }
+
+        .card-chip.cyan {
+            background: var(--color-cyan);
+        }
+
+        /* Card 1 — Top Left */
+        .card-1 {
+            width: 160px;
+            height: 210px;
+            top: 10%;
+            left: 4%;
+            animation-delay: 0s;
+        }
+
+        /* Card 2 — Bottom Right */
+        .card-2 {
+            width: 180px;
+            height: 230px;
+            bottom: 8%;
+            right: 4%;
+            animation-delay: 1s;
+        }
+
+        /* Card 3 — Mid Right */
+        .card-3 {
+            width: 160px;
+            height: 200px;
+            top: 30%;
+            right: 4%;
+            animation-delay: 2s;
+        }
+
+        /* Card 4 — Bottom Left */
+        .card-4 {
+            width: 180px;
+            height: 230px;
+            bottom: 8%;
+            left: 4%;
+            animation-delay: 0.5s;
+        }
+
+        /* FOOTER BANNER */
+        .footer-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 80px;
+            background: var(--color-yellow);
+            border-top: var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 40px;
+            z-index: 99;
+        }
+
+        .footer-content {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        .footer-link {
+            text-decoration: none;
+            color: var(--text-black);
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            transition: opacity 0.25s;
+        }
+
+        .footer-link:hover {
+            opacity: 0.7;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .navbar-center {
+                display: none;
+            }
+
+            .hero-section {
+                padding-top: 60px;
+            }
+
+            .hero-headline {
+                font-size: 2.8rem;
+            }
+
+            .card-1,
+            .card-2,
+            .card-3,
+            .card-4 {
+                display: none;
+            }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .navbar-center {
+                display: none;
+            }
+
+            .hero-section {
+                padding-top: 60px;
+            }
+
+            .hero-headline {
+                font-size: 2.8rem;
+            }
+
+            .card-1,
+            .card-2,
+            .card-3,
+            .card-4 {
+                display: none;
+            }
+        }
+
+        /* CONTENT SECTIONS */
+        .content-section {
+            padding: 100px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+            background: var(--bg-canvas);
+        }
+
+        .section-heading {
+            font-size: 3rem;
+            font-weight: 200;
+            margin-bottom: 60px;
+            color: var(--text-black);
+            line-height: 1.2;
+            max-width: 800px;
+        }
+
+        .section-subheading {
+            font-size: 1.1rem;
+            color: var(--text-gray);
+            margin-bottom: 40px;
+            line-height: 1.7;
+            max-width: 800px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .feature-item {
+            background: var(--white);
+            border: var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            position: relative;
+        }
+
+        .feature-item-chip {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: var(--color-cyan);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .feature-item-chip.yellow {
+            background: var(--color-yellow);
+        }
+
+        .feature-item-chip.mint {
+            background: var(--color-mint);
+        }
+
+        .feature-item-icon {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+            color: var(--text-black);
+        }
+
+        .feature-item h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-black);
+        }
+
+        .feature-item p {
+            font-size: 0.95rem;
+            color: var(--text-gray);
+            line-height: 1.6;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--color-cyan);
+            color: var(--text-black);
+            border: var(--border);
+            border-radius: 50px;
+            padding: 14px 32px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.25s;
+            cursor: pointer;
+            margin-right: 12px;
+            margin-bottom: 12px;
+        }
+
+        .cta-button:hover {
+            background: var(--text-black);
+            color: var(--color-cyan);
+        }
+
+        .cta-button-secondary {
+            background: transparent;
+            border: 2px solid var(--text-black);
+        }
+
+        .cta-button-secondary:hover {
+            background: var(--text-black);
+            color: var(--white);
+        }
+
+        .how-it-works {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .step-card {
+            position: relative;
+            padding: 24px;
+        }
+
+        .step-number {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--color-cyan);
+            margin-bottom: 12px;
+            opacity: 0.3;
+        }
+
+        .step-card h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-black);
+        }
+
+        .step-card p {
+            font-size: 0.95rem;
+            color: var(--text-gray);
+            line-height: 1.6;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--text-black);
+            margin: 80px 0;
+            opacity: 0.2;
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: 80px 40px;
+            background: var(--text-black);
+            color: var(--white);
+            border: var(--border);
+            border-radius: 16px;
+            margin: 80px 0;
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            font-weight: 200;
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+
+        .cta-section p {
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-button-light {
+            background: var(--white);
+            color: var(--text-black);
+            border: var(--border);
+        }
+
+        .cta-button-light:hover {
+            background: var(--color-yellow);
+        }
+
+        @media (max-width: 768px) {
+            .content-section {
+                padding: 60px 20px;
+            }
+
+            .section-heading {
+                font-size: 2rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-section {
+                padding: 60px 20px;
+                margin: 60px 0;
+            }
+
+            .cta-section h2 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    {% include 'components/_navbar.html' %}
+
+    <main>
+        <!-- HERO SECTION (unified: cards + text in one container) -->
+        <section class="hero-section">
+            <!-- FLOATING CARDS -->
+            <div class="cards-container">
+                <!-- Card 1: NEWS — Top Left -->
+                <div class="floating-card card-1">
+                    <div class="card-chip">News</div>
+                    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=320&h=400&fit=crop"
+                        alt="News">
+                </div>
+                <!-- Card 2: VOLUNTEER — Bottom Right -->
+                <div class="floating-card card-2">
+                    <div class="card-chip yellow">Volunteer</div>
+                    <img src="{{ url_for('static', filename='images/journal-landing.png') }}" alt="Journal">
+                </div>
+                <!-- Card 3: Update — Mid Right -->
+                <div class="floating-card card-3">
+                    <div class="card-chip cyan">Update</div>
+                    <img src="https://images.unsplash.com/photo-1517842645767-c639042777db?w=320&h=400&fit=crop"
+                        alt="Update">
+                </div>
+                <!-- Card 4: Impact — Bottom Left -->
+                <div class="floating-card card-4">
+                    <div class="card-chip yellow">Impact</div>
+                    <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=320&h=400&fit=crop"
+                        alt="Impact">
+                </div>
+            </div>
+
+            <!-- CENTRAL TEXT -->
+            <div class="hero-content">
+                <h1 class="hero-headline">
+                    Where
+                    <span class="hero-word-highlighted">
+                        <span class="hero-word-pill">
+                            <span class="hero-word-pill-text">emotions</span>
+                            <span class="hero-close">×</span>
+                        </span>
+                        <span class="icon-float icon-chat">
+                            <i class="fa-solid fa-heart"></i>
+                        </span>
+                    </span>
+                    meet
+                    <span class="hero-word-highlighted">
+                        <span class="hero-word-pill">
+                            <span class="hero-word-pill-text">clarity</span>
+                            <span class="hero-close">×</span>
+                        </span>
+                        <span class="icon-float icon-map">
+                            <i class="fa-solid fa-lightbulb"></i>
+                        </span>
+                    </span>
+                </h1>
+
+                <p class="hero-subheadline">
+                    Track your mood, understand your patterns, and bloom into your best self through intelligent
+                    journaling and AI-powered sentiment analysis.
+                </p>
+            </div>
+        </section>
+
+        <!-- FEATURES SECTION -->
+        <section id="features" class="content-section">
+            <h2 class="section-heading">What Makes MoodBloom Different</h2>
+            <p class="section-subheadline">A complete mood tracking and journaling platform designed to help you
+                understand your emotional patterns and grow.</p>
+
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-item-chip">Advanced</div>
+                    <div class="feature-item-icon">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <h3>AI Sentiment Analysis</h3>
+                    <p>Our intelligent engine analyzes the emotional weight of your words, helping you understand the
+                        true nature of your feelings.</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-item-chip yellow">Secure</div>
+                    <div class="feature-item-icon">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <h3>Immutable Archive</h3>
+                    <p>Your entries are permanently preserved with complete data integrity. Your emotional journey is
+                        private, honest, and secure.</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-item-chip mint">Predictive</div>
+                    <div class="feature-item-icon">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <h3>Predictive Trends</h3>
+                    <p>Discover patterns in your mood fluctuations and get insights about what drives your emotional
+                        landscape.</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-item-chip">Accessible</div>
+                    <div class="feature-item-icon">
+                        <i class="fa-solid fa-mobile"></i>
+                    </div>
+                    <h3>Mobile & Desktop</h3>
+                    <p>Access your journal anywhere, anytime. Installable as a progressive web app for offline mood
+                        tracking.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- HOW IT WORKS -->
+        <section id="how-it-works" class="content-section">
+            <h2 class="section-heading">How MoodBloom Works</h2>
+
+            <div class="how-it-works">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h4>Create an Account</h4>
+                    <p><a href="{{ url_for('register') }}"
+                            style="color: var(--color-cyan); text-decoration: none; font-weight: 600;">Sign up</a> in
+                        seconds. No complex forms—just you and your journey.</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h4>Write Your Thoughts</h4>
+                    <p><a href="{{ url_for('journal') }}"
+                            style="color: var(--color-cyan); text-decoration: none; font-weight: 600;">Open the
+                            journal</a> and freely express whatever's on your mind. No judgment, just reflection.</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h4>Get AI Insights</h4>
+                    <p>Our sentiment analyzer processes your words to identify emotional patterns and give you clarity.
+                    </p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <h4>Track & Grow</h4>
+                    <p>Watch your mood trends unfold over time. Bloom into understanding. Bloom into growth.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- CTA SECTION -->
+        <section class="cta-section">
+            <h2>Ready to Start Blooming?</h2>
+            <p>Join hundreds of people tracking their emotional journey and discovering clarity through reflection.</p>
+
+            <a href="{{ url_for('register') }}" class="cta-button cta-button-light">Get Started Free</a>
+            <a href="{{ url_for('install') }}" class="cta-button cta-button-light">Install App</a>
+        </section>
+
+        <!-- WHY MOOD TRACKING -->
+        <section id="benefits" class="content-section">
+            <h2 class="section-heading">Why Track Your Mood?</h2>
+            <p class="section-subheadline">Understanding yourself is the first step to thriving. MoodBloom helps you:
+            </p>
+
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-item-icon">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <h3>Find Clarity</h3>
+                    <p>Understand what triggers your emotions and how your thoughts shape your feelings.</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-item-icon">
+                        <i class="fa-solid fa-circle-nodes"></i>
+                    </div>
+                    <h3>Identify Patterns</h3>
+                    <p>Spot recurring emotional cycles and the events that influence your wellbeing.</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-item-icon">
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+                    <h3>Practice Self-Care</h3>
+                    <p>Use insights to make intentional choices that support your mental health journey.</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-item-icon">
+                        <i class="fa-solid fa-rocket"></i>
+                    </div>
+                    <h3>Grow & Thrive</h3>
+                    <p>Transform self-awareness into personal growth and emotional resilience.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- QUICK ACCESS LINKS -->
+        <section class="content-section" style="text-align: center;">
+            <h2 class="section-heading" style="margin-bottom: 40px;">Quick Access</h2>
+            <a href="{{ url_for('journal') }}" class="cta-button">Open Journal</a>
+            <a href="{{ url_for('dashboard') }}" class="cta-button cta-button-secondary">View Dashboard</a>
+            <a href="{{ url_for('login') }}" class="cta-button cta-button-secondary">Log In</a>
+        </section>
+    </main>
+
+    <!-- FOOTER BANNER -->
+    <footer class="footer-banner">
+        <div class="footer-content">
+            <a href="{{ url_for('index') }}" class="footer-link">
+                <i class="fa-solid fa-arrow-left"></i>
+                Visit site
+            </a>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker Registered!', reg))
+                    .catch(err => console.log('Service Worker Failed!', err));
+            });
+        }
+    </script>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>AOS.init({ once: true, offset: 50, duration: 800 });</script>
+</body>
+
+</html>

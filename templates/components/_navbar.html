@@ -1,0 +1,25 @@
+    <!-- NAVBAR -->
+    <div class="navbar-container">
+        <a href="{{ url_for('index') }}" class="navbar-logo">MoodBloom</a>
+
+        <div class="navbar-center">
+            {% if session.get('user_id') %}
+            <a href="{{ url_for('index') }}" class="navbar-link">Home</a>
+            <a href="{{ url_for('dashboard') }}" class="navbar-link {% if request.endpoint == 'dashboard' %}active{% endif %}">Dashboard</a>
+            <a href="{{ url_for('journal') }}" class="navbar-link {% if request.endpoint == 'journal' %}active{% endif %}">Journal</a>
+            {% else %}
+            <a href="{{ url_for('index') }}#features" class="navbar-link">Features</a>
+            <a href="{{ url_for('index') }}#how-it-works" class="navbar-link">How it Works</a>
+            <a href="{{ url_for('index') }}#benefits" class="navbar-link">Benefits</a>
+            {% endif %}
+        </div>
+
+        <div class="navbar-right">
+            {% if session.get('user_id') %}
+            <a href="{{ url_for('logout') }}" class="navbar-contact">Log Out</a>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="navbar-contact">Log In</a>
+            <a href="{{ url_for('install') }}" class="btn-collaborate">Install App</a>
+            {% endif %}
+        </div>
+    </div>
