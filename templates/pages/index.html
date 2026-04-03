@@ -11,7 +11,8 @@
             <div class="cards-container">
                 <div class="floating-card card-1" id="js-card-1">
                     <div class="card-chip">News</div>
-                    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=320&h=400&fit=crop" alt="News">
+                    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=320&h=400&fit=crop"
+                        alt="News">
                 </div>
                 <div class="floating-card card-2" id="js-card-2">
                     <div class="card-chip yellow">Volunteer</div>
@@ -19,11 +20,13 @@
                 </div>
                 <div class="floating-card card-3" id="js-card-3">
                     <div class="card-chip cyan">Update</div>
-                    <img src="https://images.unsplash.com/photo-1517842645767-c639042777db?w=320&h=400&fit=crop" alt="Update">
+                    <img src="https://images.unsplash.com/photo-1517842645767-c639042777db?w=320&h=400&fit=crop"
+                        alt="Update">
                 </div>
                 <div class="floating-card card-4" id="js-card-4">
                     <div class="card-chip yellow">Impact</div>
-                    <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=320&h=400&fit=crop" alt="Impact">
+                    <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=320&h=400&fit=crop"
+                        alt="Impact">
                 </div>
             </div>
 
@@ -47,8 +50,15 @@
                     </span>
                 </h1>
                 <p class="hero-subheadline">
-                    Track your mood, understand your patterns, and bloom into your best self through intelligent journaling and AI-powered sentiment analysis.
+                    Track your mood, understand your patterns, and bloom into your best self through intelligent
+                    journaling and AI-powered sentiment analysis.
                 </p>
+                <div class="hero-cta-group" style="margin-top: 32px;">
+                    <button id="hero-install-btn" class="cta-button">
+                        <i class="fa-solid fa-cloud-arrow-down me-2"></i> Install MoodBloom
+                    </button>
+                    <a href="{{ url_for('register') }}" class="cta-button cta-button-secondary">Get Started</a>
+                </div>
             </div>
         </section>
     </div>
@@ -67,28 +77,27 @@
             begins.
         </h2>
         <p class="journal-interior-sub">
-            Every page is a new beginning. MoodBloom transforms your daily reflections into meaningful insights that help you understand yourself better, one entry at a time.
+            Every page is a new beginning. MoodBloom transforms your daily reflections into meaningful insights that
+            help you understand yourself better, one entry at a time.
         </p>
-        <div class="journal-lines">
-            <div class="journal-line"></div>
-            <div class="journal-line"></div>
-            <div class="journal-line"></div>
-        </div>
+
     </section>
 </div>
 
 <!-- FEATURES SECTION -->
 <section id="features" class="content-section">
     <h2 class="section-heading">What Makes MoodBloom Different</h2>
-    <p class="section-subheadline">A complete mood tracking and journaling platform designed to help you understand your emotional patterns and grow.</p>
+    <p class="section-subheadline">A complete mood tracking and journaling platform designed to help you understand your
+        emotional patterns and grow.</p>
 
     <div class="features-grid">
         <div class="feature-item">
             <div class="feature-item-chip">Advanced</div>
             <div class="feature-item-icon"><i class="fa-solid fa-brain"></i></div>
             <h3>AI Sentiment Analysis</h3>
-            <p>Our intelligent engine analyzes the emotional weight of your words, helping you understand the true nature of your feelings.</p>
-            
+            <p>Our intelligent engine analyzes the emotional weight of your words, helping you understand the true
+                nature of your feelings.</p>
+
             <!-- LIVE AI DEMO -->
             <div class="ai-demo">
                 <div class="ai-demo-input-group">
@@ -107,26 +116,29 @@
             <div class="feature-item-chip yellow">Secure</div>
             <div class="feature-item-icon"><i class="fa-solid fa-lock"></i></div>
             <h3>Immutable Archive</h3>
-            <p>Your entries are permanently preserved with complete data integrity. Your emotional journey is private, honest, and secure.</p>
+            <p>Your entries are permanently preserved with complete data integrity. Your emotional journey is private,
+                honest, and secure.</p>
         </div>
 
         <div class="feature-item">
             <div class="feature-item-chip mint">Predictive</div>
             <div class="feature-item-icon"><i class="fa-solid fa-chart-line"></i></div>
             <h3>Predictive Trends</h3>
-            <p>Discover patterns in your mood fluctuations and get insights about what drives your emotional landscape.</p>
+            <p>Discover patterns in your mood fluctuations and get insights about what drives your emotional landscape.
+            </p>
         </div>
 
         <div class="feature-item">
             <div class="feature-item-chip">Accessible</div>
             <div class="feature-item-icon"><i class="fa-solid fa-mobile"></i></div>
             <h3>Mobile & Desktop</h3>
-            <p>Access your journal anywhere, anytime. Installable as a progressive web app for offline mood tracking.</p>
+            <p>Access your journal anywhere, anytime. Installable as a progressive web app for offline mood tracking.
+            </p>
         </div>
     </div>
 </section>
 
-<div class="divider"></div>
+
 
 <!-- HOW IT WORKS -->
 <section id="how-it-works" class="content-section">
@@ -135,12 +147,16 @@
         <div class="step-card">
             <div class="step-number">1</div>
             <h4>Create an Account</h4>
-            <p><a href="{{ url_for('register') }}" style="color: var(--color-cyan); text-decoration: none; font-weight: 600;">Sign up</a> in seconds. No complex forms—just you and your journey.</p>
+            <p><a href="{{ url_for('register') }}"
+                    style="color: var(--color-cyan); text-decoration: none; font-weight: 600;">Sign up</a> in seconds.
+                No complex forms—just you and your journey.</p>
         </div>
         <div class="step-card">
             <div class="step-number">2</div>
             <h4>Write Your Thoughts</h4>
-            <p><a href="{{ url_for('journal') }}" style="color: var(--color-cyan); text-decoration: none; font-weight: 600;">Open the journal</a> and freely express whatever's on your mind. No judgment, just reflection.</p>
+            <p><a href="{{ url_for('journal') }}"
+                    style="color: var(--color-cyan); text-decoration: none; font-weight: 600;">Open the journal</a> and
+                freely express whatever's on your mind. No judgment, just reflection.</p>
         </div>
         <div class="step-card">
             <div class="step-number">3</div>
@@ -155,7 +171,7 @@
     </div>
 </section>
 
-<div class="divider"></div>
+
 
 <!-- CTA SECTION -->
 <section class="cta-section">
@@ -193,13 +209,7 @@
     </div>
 </section>
 
-<!-- QUICK ACCESS LINKS -->
-<section class="content-section" style="text-align: center;">
-    <h2 class="section-heading" style="margin-bottom: 40px;">Quick Access</h2>
-    <a href="{{ url_for('journal') }}" class="cta-button">Open Journal</a>
-    <a href="{{ url_for('dashboard') }}" class="cta-button cta-button-secondary">View Dashboard</a>
-    <a href="{{ url_for('login') }}" class="cta-button cta-button-secondary">Log In</a>
-</section>
+
 
 <!-- TACTILE SOUND DESIGN -->
 <audio id="page-turn-sound" src="https://www.soundjay.com/print/sounds/paper-slide-6.mp3" preload="auto"></audio>
@@ -227,6 +237,7 @@
                 end: '+=120%',
                 pin: true,
                 scrub: 1,
+                invalidateOnRefresh: true,
                 anticipatePin: 1,
                 onEnter: () => {
                     const sound = document.getElementById('page-turn-sound');
@@ -237,13 +248,16 @@
                 }
             }
         })
-        .to(cover, {
-            rotateX: 90,
-            transformOrigin: 'bottom center',
-            opacity: 0,
-            ease: 'power2.inOut',
-            duration: 1,
-        });
+            .fromTo(cover,
+                { rotateX: 0, opacity: 1 },
+                {
+                    rotateX: 90,
+                    transformOrigin: 'bottom center',
+                    opacity: 0,
+                    ease: 'power2.inOut',
+                    duration: 1,
+                }
+            );
 
         if (card1) gsap.to(card1, { y: -80, x: -10, ease: 'none', scrollTrigger: { trigger: container, start: 'top top', end: '+=120%', scrub: 2 } });
         if (card2) gsap.to(card2, { y: -40, x: 20, ease: 'none', scrollTrigger: { trigger: container, start: 'top top', end: '+=120%', scrub: 3 } });
@@ -301,11 +315,11 @@
 
                 badge.innerText = finalMood;
                 badge.style.background = finalColor;
-                
+
                 btn.innerText = 'Analyze';
                 btn.disabled = false;
                 result.style.display = 'flex';
-                
+
                 gsap.from(result, { y: 10, opacity: 0, duration: 0.5, ease: "power2.out" });
             }, 800);
         });

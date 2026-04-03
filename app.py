@@ -198,6 +198,11 @@ def journal():
                            page_number=page_num,
                            entries=formatted_entries)
 
+@app.route('/almanac')
+def almanac():
+    return redirect(url_for('journal'))
+
+
 @app.route('/add', methods=['POST'])
 def add_entry():
     # SECURITY

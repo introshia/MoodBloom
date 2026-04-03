@@ -1,1033 +1,596 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MoodBloom | Inscribe</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-        rel="stylesheet" />
-
-    <link rel="manifest" href="/static/manifest.json">
-
-    <style>
-        :root {
-            --bg-canvas: #F7F7F8;
-            --text-black: #000000;
-            --text-gray: #333333;
-            --color-cyan: #00D9FF;
-            --color-yellow: #FFEB3B;
-            --color-mint: #00E5A0;
-            --white: #FFFFFF;
-            --border: 1px solid #000000;
-        }
-
-        body {
-            background-color: var(--bg-canvas);
-            color: var(--text-black);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            font-size: 16px;
-            line-height: 1.6;
-            min-height: 100vh;
-            overflow-x: hidden;
-            margin: 0;
-        }
-
-        /* NAVBAR */
-        .navbar-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 20px 40px;
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: var(--bg-canvas);
-            z-index: 1000;
-        }
-
-        .navbar-logo {
-            font-weight: 800;
-            font-size: 1.4rem;
-            color: var(--text-black);
-            text-decoration: none;
-            letter-spacing: -0.5px;
-        }
-
-        .navbar-center {
-            display: flex;
-            gap: 0;
-            background: var(--white);
-            border: var(--border);
-            border-radius: 50px;
-            padding: 8px 20px;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .navbar-link {
-            color: var(--text-black);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            padding: 6px 14px;
-            transition: color 0.25s;
-        }
-
-        .navbar-link:hover, .navbar-link.active {
-            color: var(--color-cyan);
-            font-weight: 800;
-        }
-
-        .navbar-right {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .navbar-contact {
-            color: var(--text-black);
-            text-decoration: none;
-            font-weight: 800;
-            font-size: 0.9rem;
-            border: var(--border);
-            padding: 8px 16px;
-            border-radius: 50px;
-            background-color: var(--color-yellow);
-        }
-
-        .navbar-contact:hover {
-            background-color: var(--white);
-            color: var(--text-black);
-        }
-
-        /* PAGE HEADER */
-        .page-header {
-            position: relative;
-            z-index: 1;
-            padding: 120px 0 40px;
-            text-align: center;
-        }
-
-        .page-header .eyebrow {
-            font-size: 0.8rem;
-            font-weight: 800;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: var(--text-black);
-            margin-bottom: 10px;
-        }
-
-        .page-header h1 {
-            font-family: 'Inter', sans-serif;
-            font-size: 3rem;
-            font-weight: 900;
-            color: var(--text-black);
-            line-height: 1.2;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-        }
-
-        .page-header .subtitle {
-            font-size: 1.1rem;
-            color: var(--text-gray);
-            font-weight: 500;
-        }
-
-        /* BRUTAL CARD BASE */
-        .brutal-card {
-            background: var(--white);
-            border: var(--border);
-            border-radius: 16px;
-            padding: 32px;
-            transition: all 0.2s ease;
-        }
-
-        /* MAIN LAYOUT GRID */
-        .journal-layout {
-            position: relative;
-            z-index: 1;
-            display: grid;
-            grid-template-columns: 1fr 340px;
-            gap: 24px;
-            padding-bottom: 60px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        @media (max-width: 900px) {
-            .journal-layout {
-                grid-template-columns: 1fr;
-            }
-            .navbar-center {
-                display: none;
-            }
-        }
-
-        /* COMPOSER CARD */
-        .composer-toolbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--text-black);
-        }
-
-        .composer-meta {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .composer-date-label {
-            font-size: 0.95rem;
-            font-weight: 800;
-            color: var(--text-black);
-        }
-
-        .composer-page-label {
-            font-size: 0.85rem;
-            font-weight: 800;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: var(--text-black);
-        }
-
-        /* Status badge */
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
-            border-radius: 50px;
-            border: var(--border);
-            font-size: 0.8rem;
-            font-weight: 800;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }
-
-        .status-badge.analyzed {
-            background: var(--color-mint);
-            color: var(--text-black);
-        }
-
-        .status-badge.awaiting {
-            background: var(--white);
-            color: var(--text-black);
-        }
-
-        /* Textarea */
-        .ruled-area {
-            position: relative;
-            margin-bottom: 20px;
-            border: var(--border);
-            border-radius: 16px;
-            background: var(--bg-canvas);
-        }
-
-        .notebook-textarea {
-            width: 100%;
-            min-height: 300px;
-            background: transparent;
-            border: none;
-            outline: none;
-            font-family: 'Inter', sans-serif;
-            font-size: 1.1rem;
-            line-height: 1.6;
-            color: var(--text-black);
-            resize: vertical;
-            padding: 24px;
-            font-weight: 500;
-        }
-
-        .notebook-textarea::placeholder {
-            font-size: 1.1rem;
-            color: var(--text-gray);
-            font-weight: 500;
-        }
-
-        /* Mood chips */
-        .mood-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid var(--text-black);
-        }
-
-        .mood-label {
-            font-size: 0.9rem;
-            font-weight: 800;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: var(--text-black);
-            margin-right: 10px;
-        }
-
-        .mood-chip {
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 800;
-            background: var(--white);
-            border: var(--border);
-            color: var(--text-black);
-            cursor: pointer;
-            transition: all 0.2s;
-            text-transform: uppercase;
-        }
-
-        .mood-chip:hover,
-        .mood-chip.active {
-            background: var(--color-yellow);
-        }
-
-        /* Composer footer */
-        .composer-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 30px;
-        }
-
-        .word-count {
-            font-size: 0.9rem;
-            font-weight: 800;
-            color: var(--text-black);
-        }
-
-        .btn-bloom {
-            background: var(--color-cyan);
-            color: var(--text-black);
-            border: var(--border);
-            border-radius: 50px;
-            padding: 12px 24px;
-            font-size: 0.95rem;
-            font-weight: 800;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-        }
-
-        .btn-bloom:hover {
-            background: var(--text-black);
-            color: var(--color-cyan);
-        }
-
-        /* QUOTE / AI PANEL */
-        .quote-panel {
-            position: sticky;
-            top: 120px;
-            align-self: start;
-            height: fit-content;
-        }
-
-        .panel-heading {
-            font-size: 0.85rem;
-            font-weight: 800;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: var(--text-black);
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--text-black);
-            padding-bottom: 8px;
-        }
-
-        /* Quote display */
-        .vintage-quote-wrap {
-            padding: 0 0 20px 0;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--text-black);
-        }
-
-        .vintage-quote-text {
-            font-size: 1.1rem;
-            line-height: 1.5;
-            color: var(--text-black);
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-
-        .vintage-quote-author {
-            font-size: 0.85rem;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            color: var(--text-gray);
-        }
-
-        /* Sentiment bloom meter */
-        .bloom-section {
-            margin-top: 20px;
-        }
-
-        .bloom-meter-label {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 12px;
-        }
-
-        .score-val {
-            font-family: 'Inter', sans-serif;
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: var(--text-black);
-            line-height: 1;
-        }
-
-        .score-desc {
-            font-size: 0.9rem;
-            font-weight: 800;
-            color: var(--text-black);
-            text-transform: uppercase;
-        }
-
-        .bloom-track {
-            width: 100%;
-            height: 12px;
-            background: var(--white);
-            border: var(--border);
-            border-radius: 50px;
-            overflow: hidden;
-            margin-bottom: 24px;
-        }
-
-        .bloom-fill {
-            height: 100%;
-            background: var(--color-cyan);
-            border-right: var(--border);
-            border-radius: 50px;
-            transition: width 1s cubic-bezier(.4, 0, .2, 1);
-            width: 0%;
-        }
-
-        /* Emotion bars */
-        .emotion-spectrum {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .emotion-bar-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .emotion-bar-label {
-            font-size: 0.85rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            color: var(--text-black);
-            width: 80px;
-            flex-shrink: 0;
-        }
-
-        .emotion-bar-track {
-            flex: 1;
-            height: 10px;
-            background: var(--white);
-            border: var(--border);
-            border-radius: 50px;
-            overflow: hidden;
-        }
-
-        .emotion-bar-fill {
-            height: 100%;
-            background: var(--color-cyan);
-            border-right: var(--border);
-            border-radius: 50px;
-            width: 0%;
-            transition: width 1.2s cubic-bezier(.4, 0, .2, 1);
-        }
-
-        .emotion-pct {
-            font-size: 0.85rem;
-            font-weight: 800;
-            color: var(--text-black);
-            width: 40px;
-            text-align: right;
-        }
-
-        /* Bloom flower */
-        .bloom-flower {
-            display: flex;
-            justify-content: center;
-            padding: 24px 0 12px;
-        }
-
-        .bloom-flower svg {
-            width: 80px;
-            height: 80px;
-            fill: var(--text-black);
-            transition: transform 0.6s, opacity 0.6s;
-            opacity: 0.1;
-        }
-
-        .bloom-flower svg.active {
-            opacity: 1;
-            transform: rotate(15deg) scale(1.1);
-            fill: var(--color-yellow);
-        }
-
-        .bloom-hint {
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--text-black);
-            text-align: center;
-            margin-top: 12px;
-        }
-
-        /* AI engine strip */
-        .ai-engine-strip {
-            margin-top: 24px;
-            padding-top: 16px;
-            border-top: 2px solid var(--text-black);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .ai-engine-strip span {
-            font-size: 0.8rem;
-            font-weight: 800;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: var(--text-black);
-        }
-
-        /* ARCHIVE CARD */
-        .archive-card {
-            grid-column: 1 / -1;
-            margin-top: 16px;
-        }
-
-        .archive-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 32px;
-            border-bottom: 2px solid var(--text-black);
-            padding-bottom: 16px;
-        }
-
-        .archive-header h2 {
-            font-family: 'Inter', sans-serif;
-            font-size: 2rem;
-            font-weight: 900;
-            color: var(--text-black);
-            text-transform: uppercase;
-            line-height: 1;
-            margin: 0;
-        }
-
-        .archive-filter {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .filter-chip {
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 800;
-            background: var(--white);
-            border: var(--border);
-            color: var(--text-black);
-            cursor: pointer;
-            transition: all 0.2s;
-            text-transform: uppercase;
-        }
-
-        .filter-chip:hover,
-        .filter-chip.active {
-            background: var(--text-black);
-            color: var(--color-cyan);
-        }
-
-        .entries-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 24px;
-        }
-
-        .entry-preview {
-            background: var(--white);
-            border: var(--border);
-            border-radius: 16px;
-            padding: 24px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            position: relative;
-        }
-
-        .entry-preview:hover {
-            transform: translate(-4px, -4px);
-            box-shadow: 4px 4px 0px #000000;
-        }
-
-        .ep-meta {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-        }
-
-        .ep-date {
-            font-size: 0.85rem;
-            font-weight: 800;
-            color: var(--text-black);
-            text-transform: uppercase;
-        }
-
-        .ep-mood-chip {
-            padding: 4px 12px;
-            border-radius: 50px;
-            border: var(--border);
-            font-size: 0.75rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            color: var(--text-black);
-        }
-
-        .ep-mood-chip.positive { background: var(--color-mint); }
-        .ep-mood-chip.neutral { background: var(--color-yellow); }
-        .ep-mood-chip.negative { background: var(--color-cyan); } /* Or red, assuming cyan fits aesthetic */
-
-        .ep-excerpt {
-            font-size: 1rem;
-            color: var(--text-gray);
-            line-height: 1.6;
-            font-weight: 500;
-            display: -webkit-box;
-            -webkit-line-clamp: 4;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .entries-empty {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 60px 0;
-            border: var(--border);
-            border-radius: 16px;
-            background: var(--bg-canvas);
-        }
-
-        .entries-empty i {
-            font-size: 3rem;
-            color: var(--text-black);
-            display: block;
-            margin-bottom: 16px;
-        }
-
-        .entries-empty p {
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: var(--text-black);
-            text-transform: uppercase;
-        }
-
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--bg-canvas);
-            border-left: var(--border);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--text-black);
-            border: 2px solid var(--bg-canvas);
-            border-radius: 10px;
-        }
-
-    </style>
-</head>
-
-<body>
-
-    <!-- NAVBAR -->
-    <div class="navbar-container">
-        <a href="{{ url_for('index') }}" class="navbar-logo">MoodBloom</a>
-
-        <div class="navbar-center">
-            <a href="{{ url_for('index') }}" class="navbar-link">Home</a>
-            <a href="{{ url_for('dashboard') }}" class="navbar-link">Dashboard</a>
-            <a href="{{ url_for('journal') }}" class="navbar-link active">Journal</a>
-        </div>
-
-        <div class="navbar-right">
-            <a class="navbar-contact" href="/logout">Log Out</a>
-        </div>
-    </div>
-
-
-    <div style="padding-top: 10px;">
-
-        <div class="page-header" data-aos="fade-down" data-aos-duration="600">
-            <div class="eyebrow">✦ New Entry ✦</div>
-            <h1>The Almanac</h1>
-            <p class="subtitle">Write freely. The bloom reads between the lines.</p>
-        </div>
-
-        <div class="container-fluid px-4 px-md-5">
-            <div class="journal-layout">
-
-                <div class="brutal-card composer-card" data-aos="fade-up" data-aos-duration="500">
-
-                    <div class="composer-toolbar">
-                        <div class="composer-meta">
-                            <span class="composer-date-label">
-                                <i class="fa fa-calendar-alt me-1"></i>
-                                {{ current_date }}
-                            </span>
-                            <span class="composer-page-label">Pg. {{ page_number }}</span>
-                        </div>
-
-                        {% if display_quote %}
-                        <span class="status-badge analyzed">
-                            <i class="fa fa-wand-magic-sparkles"></i> Analysis Complete
-                        </span>
-                        {% else %}
-                        <span class="status-badge awaiting">
-                            <i class="fa fa-feather"></i> Awaiting Entry
-                        </span>
-                        {% endif %}
-                    </div>
-
-                    <form action="/add" method="POST" id="journalForm">
-                        <input type="hidden" name="mood" id="mood-hidden" />
-
-                        <div class="ruled-area">
-                            <textarea name="content" id="journalInput" class="notebook-textarea"
-                                placeholder="What stirs in you today? Let the words bloom…" required
-                                oninput="onBodyInput(this)"></textarea>
-                        </div>
-
-                        <div class="mood-row">
-                            <span class="mood-label"><i class="fa fa-heart me-2"></i>Mood</span>
-                            <div class="mood-chip" data-mood="joyful">Joyful</div>
-                            <div class="mood-chip" data-mood="calm">Calm</div>
-                            <div class="mood-chip" data-mood="melancholy">Melancholy</div>
-                            <div class="mood-chip" data-mood="anxious">Anxious</div>
-                            <div class="mood-chip" data-mood="grateful">Grateful</div>
-                            <div class="mood-chip" data-mood="numb">Numb</div>
-                        </div>
-
-                        <div class="composer-footer">
-                            <span class="word-count"><span id="word-count">0</span> words</span>
-                            <button type="submit" class="btn-bloom">
-                                <i class="fa fa-seedling"></i> Bloom this Entry
-                            </button>
-                        </div>
-                    </form>
-
+{% extends "base.html" %}
+
+{% block title %}Inscribe & The Almanac{% endblock %}
+
+{% block head %}
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --paper:      #fcfbf9;
+        --paper-back: #f3f0ea;
+        --paper-dot:  rgba(155, 155, 155, 0.65);
+        --hole:       #111111;
+    }
+
+    /* ── LAYOUT ───────────────────────────────────── */
+    .journal-page-wrapper {
+        padding-top: 100px;
+        background: var(--bg-canvas);
+        min-height: 100vh;
+    }
+
+    /* ── DESK (COMPOSER) ──────────────────────────── */
+    .desk-container {
+        max-width: 1200px;
+        margin: 0 auto 80px;
+        padding: 0 20px;
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 32px;
+    }
+
+    @media (max-width: 992px) {
+        .desk-container { grid-template-columns: 1fr; }
+    }
+
+    .brutal-card {
+        background: var(--white);
+        border: var(--border);
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 8px 8px 0px rgba(0,0,0,0.05);
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 14px;
+        border-radius: 50px;
+        border: var(--border);
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        background: var(--color-mint);
+    }
+
+    .ruled-area {
+        background: var(--bg-canvas);
+        border: var(--border);
+        border-radius: 16px;
+        margin: 20px 0;
+        position: relative;
+    }
+
+    .notebook-textarea {
+        width: 100%;
+        min-height: 320px;
+        background: transparent;
+        border: none;
+        outline: none;
+        padding: 24px;
+        font-family: inherit;
+        font-size: 1.1rem;
+        font-weight: 500;
+        resize: vertical;
+    }
+
+    .mood-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+        padding-top: 20px;
+        border-top: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .mood-btn {
+        padding: 8px 18px;
+        border-radius: 50px;
+        border: var(--border);
+        background: var(--white);
+        font-size: 0.85rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .mood-btn.active, .mood-btn:hover { background: var(--color-yellow); }
+
+    .btn-bloom {
+        background: var(--color-cyan);
+        border: var(--border);
+        border-radius: 50px;
+        padding: 12px 28px;
+        font-weight: 800;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .btn-bloom:hover { transform: translateY(-3px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+
+    /* QUOTE PANEL */
+    .quote-content { border-bottom: 2px solid var(--text-black); padding-bottom: 16px; margin-bottom: 16px; }
+    .quote-text { font-size: 1.2rem; font-weight: 700; line-height: 1.4; color: var(--text-black); }
+    .quote-author { font-size: 0.8rem; font-weight: 800; opacity: 0.5; text-transform: uppercase; margin-top: 8px; }
+
+    /* ══════════════════════════════════════════════
+       VAULT / ALMANAC — SKEUOMORPHIC RING BINDER
+    ══════════════════════════════════════════════ */
+    .vault-section {
+        background: #ECEAE4;
+        padding: 100px 20px 120px;
+        border-top: 1px solid rgba(0,0,0,0.06);
+        display: flex; flex-direction: column;
+        align-items: center; gap: 48px;
+    }
+    .dark-theme .vault-section { background: #1C1B1A; }
+
+    .al-header { text-align: center; }
+    .al-eyebrow { font-size: 0.7rem; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; opacity: 0.45; }
+    .al-title { font-size: 3.5rem; font-weight: 900; margin-top: 8px; letter-spacing: -2px; }
+
+    .al-progress-wrap { width: 95vw; max-width: 1400px; height: 2px; background: rgba(0,0,0,0.08); border-radius: 2px; overflow: hidden; }
+    .dark-theme .al-progress-wrap { background: rgba(255,255,255,0.1); }
+    .al-progress-fill { height: 100%; width: 0%; background: var(--color-cyan); transition: width 0.5s ease; }
+
+    /* ── perspective wrapper ── */
+    .al-book-wrap { 
+        perspective: 2200px; 
+        perspective-origin: 50% 45%; 
+        width: 90vw; 
+        max-width: 1200px; 
+        aspect-ratio: 1.6 / 1; 
+        height: auto; 
+        margin: 0 auto;
+        padding-bottom: 50px; 
+    }
+
+    /* ── BINDER COVER (the physical black binder) ── */
+    .binder-cover {
+        position: relative;
+        perspective: 2200px;
+        perspective-origin: 50% 45%;
+        padding: 40px;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+        background-color: #181818;
+        background-image:
+            repeating-linear-gradient(0deg,   transparent, transparent 3px, rgba(255,255,255,0.013) 3px, rgba(255,255,255,0.013) 4px),
+            repeating-linear-gradient(90deg,  transparent, transparent 3px, rgba(255,255,255,0.013) 3px, rgba(255,255,255,0.013) 4px),
+            linear-gradient(160deg, #2c2c2c 0%, #141414 55%, #0d0d0d 100%);
+        border-radius: 14px;
+        box-shadow:
+            0 50px 120px rgba(0,0,0,0.6),
+            0 14px 40px rgba(0,0,0,0.35),
+            inset 0 1px 0 rgba(255,255,255,0.05),
+            inset 0 -2px 0 rgba(0,0,0,0.6);
+    }
+
+    /* Center spine crease */
+    .binder-cover::before {
+        content: '';
+        position: absolute; left: 50%; top: 6%; height: 88%; width: 3px;
+        transform: translateX(-50%);
+        background: linear-gradient(to bottom,
+            transparent,
+            rgba(0,0,0,0.85) 20%,
+            rgba(0,0,0,0.9) 50%,
+            rgba(0,0,0,0.85) 80%,
+            transparent
+        );
+        box-shadow: 1px 0 2px rgba(255,255,255,0.025);
+        border-radius: 2px;
+        z-index: 2; pointer-events: none;
+    }
+
+    /* ── THE BOOK SPREAD ── */
+    .al-book {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d;
+        backface-visibility: hidden;
+        z-index: 5;
+    }
+
+    /* Dark left panel visible before any pages flip */
+    .binder-left-panel {
+        position: absolute; left: 0; top: 0; width: 52.08%; height: 100%;
+        background: #141414;
+        border-radius: 14px 0 0 14px;
+        z-index: 0;
+    }
+
+    /* ── PAGES ── */
+    .al-page {
+        position: absolute; left: 47.92%; top: 0;
+        width: 52.08%; height: 100%;
+        transform-style: preserve-3d;
+        transform-origin: 4% 50%;
+        cursor: pointer;
+    }
+
+    .al-pf, .al-pb {
+        position: absolute; inset: 0;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        overflow: hidden;
+    }
+
+    /* ── FRONT FACE — optical illusion paper ── */
+    .al-pf {
+        background-color: #fcfbf9 !important;
+        background-image: url('/static/images/page-bg.png');
+        background-size: 100% 100%;
+        background-position: center;
+        background-repeat: no-repeat;
+        padding: 28px 28px 20px 36px;
+        display: flex; flex-direction: column;
+    }
+
+    /* ── BACK FACE — shown on left after flip ── */
+    .al-pb {
+        background-color: #fcfbf9 !important;
+        background-image: url('/static/images/page-bg.png');
+        background-size: 100% 100%;
+        background-position: center;
+        background-repeat: no-repeat;
+        transform: rotateY(180deg);
+        display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── IMMERSIVE NAVBAR ── */
+    .navbar-container {
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        pointer-events: none;
+        z-index: 2000;
+        position: fixed; top: 0; left: 0; right: 0;
+    }
+    body:hover .navbar-container, 
+    .navbar-container:hover {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: all;
+    }
+    /* Invisible hit area at the top to trigger navbar */
+    body::before {
+        content: '';
+        position: fixed; top: 0; left: 0; width: 100%; height: 60px;
+        z-index: 1999; pointer-events: auto;
+    }
+
+    /* Page content */
+    .al-pg-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding-bottom: 12px; margin-bottom: 16px;
+        border-bottom: 1px solid rgba(0,0,0,0.09);
+    }
+    .al-pg-date { font-size: 0.62rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: rgba(0,0,0,0.35); }
+    .al-mood-chip { font-size: 0.56rem; font-weight: 800; text-transform: uppercase; padding: 3px 9px; border-radius: 50px; color: #000; }
+    .al-mood-chip.positive { background: #00E5A0; }
+    .al-mood-chip.neutral  { background: #FFEB3B; }
+    .al-mood-chip.negative { background: #00D9FF; }
+    .al-pg-body { flex: 1; overflow: hidden; }
+    .al-pg-text { font-family: 'Lora', serif; font-size: clamp(0.8rem, 1.3vw, 0.96rem); line-height: 1.88; color: #252525; word-break: break-word; }
+    .al-pg-footer { display: flex; justify-content: flex-end; margin-top: 10px; }
+    .al-pg-num { font-size: 0.54rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: rgba(0,0,0,0.18); }
+    .al-pb-mark { text-align: center; opacity: 0.08; }
+    .al-pb-mark .bm { font-family: 'Lora', serif; font-size: 4.5rem; font-weight: 900; letter-spacing: -5px; color: #000; line-height: 1; }
+
+    /* ── BINDER RINGS OVERLAY ── */
+    .spine-container {
+        position: absolute;
+        left: 50%; top: 5%; bottom: 5%;
+        width: 80px;
+        margin-left: -40px;
+        z-index: auto; /* Avoid stacking context so z-index layers interleave with .al-book */
+        pointer-events: none;
+    }
+    .rings-back {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        position: absolute;
+        z-index: 1;
+        top: 0; left: 0;
+    }
+    .rings-front {
+        width: 100%;
+        height: auto;
+        position: absolute;
+        left: 0;
+        z-index: 100;
+        pointer-events: none;
+        top: 10%; /* Tweak this in DevTools to perfectly overlap rings-back */
+    }
+
+    /* ── CONTROLS ── */
+    .al-controls { display: flex; align-items: center; gap: 32px; }
+    .al-nav-btn {
+        background: var(--white); border: var(--border); border-radius: 50px;
+        padding: 10px 24px; font-weight: 800; text-transform: uppercase; cursor: pointer;
+        display: flex; align-items: center; gap: 8px; font-size: 0.8rem; transition: all 0.2s;
+    }
+    .al-nav-btn:hover:not(:disabled) { background: var(--text-black); color: var(--color-cyan); }
+    .al-nav-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+    .al-counter { font-size: 0.8rem; font-weight: 800; letter-spacing: 2px; opacity: 0.5; text-transform: uppercase; }
+
+    /* DARK THEME */
+    .dark-theme .brutal-card, .dark-theme .journal-page-wrapper { background: var(--bg-canvas); }
+    .dark-theme .notebook-textarea, .dark-theme .ruled-area { background: rgba(255,255,255,0.03); }
+    .dark-theme .al-progress-wrap { background: rgba(255,255,255,0.1); }
+
+    @media (max-width: 680px) {
+        .al-book { width: 88vw; height: 66vw; }
+        .binder-cover { padding: 14px 16px; }
+        .al-progress-wrap { width: 88vw; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="journal-page-wrapper">
+
+    <!-- DESK SECTION -->
+    <div class="desk-container">
+        
+        <!-- COMPOSER -->
+        <div class="brutal-card" data-aos="fade-up">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <span class="status-badge">
+                    <i class="fa-solid fa-feather-pointed me-2"></i> New Entry
+                </span>
+                <span class="al-pg-date">{{ current_date }}</span>
+            </div>
+
+            <form action="{{ url_for('add_entry') }}" method="POST">
+                <div class="ruled-area">
+                    <textarea name="content" class="notebook-textarea" placeholder="Start your emotional bloom here..." required></textarea>
                 </div>
+
+                <div class="mood-row">
+                    <span style="font-size:0.75rem; font-weight:800; text-transform:uppercase; margin-right:8px;">Tone:</span>
+                    <button type="button" class="mood-btn" data-mood="General">General</button>
+                    <button type="button" class="mood-btn" data-mood="Reflection">Reflection</button>
+                    <button type="button" class="mood-btn" data-mood="Gratitude">Gratitude</button>
+                    <button type="button" class="mood-btn" data-mood="Vent">Vent</button>
+                    <input type="hidden" name="mood" id="selected-mood" value="General">
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-4 border-top">
+                    <span style="font-size:0.8rem; font-weight:800; opacity:0.6;">PAGE {{ page_number }}</span>
+                    <button type="submit" class="btn-bloom">
+                        Save to Archive <i class="fa-solid fa-bookmark"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- QUOTE / STATS -->
+        <div class="quote-panel" data-aos="fade-left" data-aos-delay="200">
+            <div class="brutal-card mb-4">
+                <p style="font-size:0.65rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; opacity:0.5; margin-bottom:16px;">✦ Inspiration ✦</p>
+                {% if display_quote %}
+                <div class="quote-content">
+                    <p class="quote-text">"{{ display_quote.text }}"</p>
+                    <p class="quote-author">— {{ display_quote.author }}</p>
+                </div>
+                {% else %}
+                <div class="quote-content">
+                    <p class="quote-text">"Your journal is the garden where your soul blooms."</p>
+                    <p class="quote-author">— MoodBloom AI</p>
+                </div>
+                {% endif %}
                 
-                <div class="brutal-card quote-panel" data-aos="fade-left" data-aos-duration="500" data-aos-delay="100">
+                <p style="font-size:0.8rem; font-weight:500; line-height:1.6; margin-top:16px; opacity:0.8;">
+                    Every word recorded today contributes to your emotional clarity. Keep blooming.
+                </p>
+            </div>
 
-                    <div class="panel-heading">
-                        {% if display_quote %}Reflected Wisdom{% else %}Emotional Bloom{% endif %}
-                    </div>
-
-                    <div class="vintage-quote-wrap">
-                        {% if display_quote %}
-                        <div class="vintage-quote-text">"{{ display_quote.text }}"</div>
-                        <div class="vintage-quote-author">— {{ display_quote.author }}</div>
-                        {% else %}
-                        <div class="vintage-quote-text">"The lines you write today become the seeds of tomorrow's
-                            bloom."</div>
-                        <div class="vintage-quote-author">— MoodBloom</div>
-                        {% endif %}
-                    </div>
-
-                    <div class="bloom-section">
-                        <div class="bloom-meter-label">
-                            <div class="score-val" id="sentiment-score">—</div>
-                            <div class="score-desc" id="sentiment-label">Awaiting your words…</div>
-                        </div>
-                        <div class="bloom-track">
-                            <div class="bloom-fill" id="bloom-fill"></div>
-                        </div>
-
-                        <div class="emotion-spectrum">
-                            <div class="emotion-bar-row">
-                                <span class="emotion-bar-label">Joy</span>
-                                <div class="emotion-bar-track">
-                                    <div class="emotion-bar-fill" data-key="joy"></div>
-                                </div>
-                                <span class="emotion-pct" data-pct="joy">—</span>
-                            </div>
-                            <div class="emotion-bar-row">
-                                <span class="emotion-bar-label">Sadness</span>
-                                <div class="emotion-bar-track">
-                                    <div class="emotion-bar-fill" data-key="sadness"></div>
-                                </div>
-                                <span class="emotion-pct" data-pct="sadness">—</span>
-                            </div>
-                            <div class="emotion-bar-row">
-                                <span class="emotion-bar-label">Calm</span>
-                                <div class="emotion-bar-track">
-                                    <div class="emotion-bar-fill" data-key="calm"></div>
-                                </div>
-                                <span class="emotion-pct" data-pct="calm">—</span>
-                            </div>
-                            <div class="emotion-bar-row">
-                                <span class="emotion-bar-label">Tension</span>
-                                <div class="emotion-bar-track">
-                                    <div class="emotion-bar-fill" data-key="tension"></div>
-                                </div>
-                                <span class="emotion-pct" data-pct="tension">—</span>
-                            </div>
-                            <div class="emotion-bar-row">
-                                <span class="emotion-bar-label">Gratitude</span>
-                                <div class="emotion-bar-track">
-                                    <div class="emotion-bar-fill" data-key="gratitude"></div>
-                                </div>
-                                <span class="emotion-pct" data-pct="gratitude">—</span>
-                            </div>
-                        </div>
-
-                        <div class="bloom-flower">
-                            <svg id="bloom-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                                <g transform="translate(50,50)">
-                                    <ellipse rx="10" ry="22" transform="rotate(0)" />
-                                    <ellipse rx="10" ry="22" transform="rotate(60)" />
-                                    <ellipse rx="10" ry="22" transform="rotate(120)" />
-                                    <ellipse rx="10" ry="22" transform="rotate(180)" />
-                                    <ellipse rx="10" ry="22" transform="rotate(240)" />
-                                    <ellipse rx="10" ry="22" transform="rotate(300)" />
-                                    <circle r="8" />
-                                </g>
-                            </svg>
-                        </div>
-                        <p class="bloom-hint" id="bloom-hint">Start writing.</p>
-                    </div>
-
-                    <div class="ai-engine-strip">
-                        <span><i class="fa fa-microchip me-1"></i> AI Engine</span>
-                        <span><i class="fa fa-check-double me-1"></i> Active</span>
-                    </div>
-
-                </div>
-                
-                <div class="brutal-card archive-card" data-aos="fade-up" data-aos-duration="500" data-aos-delay="150">
-
-                    <div class="archive-header">
-                        <h2>Past Entries</h2>
-                        <div class="archive-filter">
-                            <div class="filter-chip active" data-filter="all">All</div>
-                            <div class="filter-chip" data-filter="positive">Joyful</div>
-                            <div class="filter-chip" data-filter="neutral">Calm</div>
-                            <div class="filter-chip" data-filter="negative">Low</div>
-                        </div>
-                    </div>
-
-                    <div class="entries-grid" id="entries-grid">
-                        {% if entries %}
-                        {% for entry in entries %}
-                        {% if entry.mood_score >= 60 %}
-                        {% set dot = 'positive' %}
-                        {% elif entry.mood_score >= 40 %}
-                        {% set dot = 'neutral' %}
-                        {% else %}
-                        {% set dot = 'negative' %}
-                        {% endif %}
-                        <div class="entry-preview" data-valence="{{ entry.mood_score }}">
-                            <div class="ep-meta">
-                                <span class="ep-date">{{ entry.date }}</span>
-                                <div class="ep-mood-chip {{ dot }}">Score: {{ entry.mood_score }}</div>
-                            </div>
-                            <div class="ep-excerpt">{{ entry.content }}</div>
-                        </div>
-                        {% endfor %}
-                        {% else %}
-                        <div class="entries-empty">
-                            <i class="fa fa-feather-alt"></i>
-                            <p>No entries yet. Begin your first bloom.</p>
-                        </div>
-                        {% endif %}
-                    </div>
-
-                </div>
+            <div class="brutal-card" style="background: var(--color-mint);">
+                <h4 style="font-weight:900; font-size:1.1rem; margin-bottom:8px;">Live Sentiment</h4>
+                <p style="font-size:0.85rem; font-weight:700;">Write more to activate live AI analysis.</p>
             </div>
         </div>
+
     </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('Service Worker Registered!', reg))
-                    .catch(err => console.log('Service Worker Failed!', err));
-            });
-        }
-    </script>
+    <!-- VAULT SECTION (ALMANAC) -->
+    <div class="vault-section" id="archive-vault">
+        <div class="al-header" data-aos="fade-up">
+            <p class="al-eyebrow">✦ Your Physical Archive ✦</p>
+            <h1 class="al-title">The Almanac</h1>
+        </div>
 
-    <script>
-        AOS.init({ once: true, offset: 40 });
+        <div class="al-progress-wrap" data-aos="fade-up" data-aos-delay="100">
+            <div class="al-progress-fill" id="al-progress"></div>
+        </div>
 
-        /* ─────────────────────────────────────────
-           MOOD CHIPS → hidden form field
-        ───────────────────────────────────────── */
-        document.querySelectorAll('.mood-chip').forEach(chip => {
-            chip.addEventListener('click', () => {
-                document.querySelectorAll('.mood-chip').forEach(c => c.classList.remove('active'));
-                chip.classList.add('active');
-                document.getElementById('mood-hidden').value = chip.dataset.mood;
+        <div class="al-book-wrap" data-aos="zoom-out-up" data-aos-duration="1200">
+            <div class="binder-cover">
+
+                <div class="al-book" id="al-book">
+                    <!-- Dark left panel (shows before pages flip over) -->
+                    <div class="binder-left-panel"></div>
+
+                    <!-- Pages Stack -->
+                    {% if entries %}
+                        {% for entry in entries %}
+                        {% if   entry.mood_score >= 60 %}{% set mc='positive' %}{% set ml='Radiant' %}
+                        {% elif entry.mood_score >= 40 %}{% set mc='neutral'  %}{% set ml='Serene'  %}
+                        {% else                        %}{% set mc='negative' %}{% set ml='Pensive' %}
+                        {% endif %}
+                        <div class="al-page" data-index="{{ loop.index0 }}">
+                            <div class="al-pf">
+                                <div class="al-pg-header">
+                                    <span class="al-pg-date">{{ entry.date }}</span>
+                                    <span class="al-mood-chip {{ mc }}">{{ ml }}</span>
+                                </div>
+                                <div class="al-pg-body">
+                                    <p class="al-pg-text">{{ entry.content }}</p>
+                                </div>
+                                <div class="al-pg-footer">
+                                    <span class="al-pg-num">Page {{ loop.index }} / {{ entries|length }}</span>
+                                </div>
+                            </div>
+                            <div class="al-pb">
+                                <div class="al-pb-mark">
+                                    <div class="bm">MB</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="al-page" data-index="0">
+                            <div class="al-pf">
+                                <div class="al-pg-header">
+                                    <span class="al-pg-date">{{ current_date }}</span>
+                                </div>
+                                <div class="al-pg-body" style="display:flex;align-items:center;justify-content:center;text-align:center;opacity:0.3;">
+                                    <div>
+                                        <i class="fa-solid fa-feather-pointed mb-3" style="font-size:2rem;"></i>
+                                        <p style="font-family:'Lora',serif;font-size:0.9rem;margin-top:12px;">Your archive is empty.<br>Write your first entry to begin.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="al-pb"></div>
+                        </div>
+                    {% endif %}
+
+                </div><!-- /al-book -->
+
+                <!-- Rings Spine Overlay Container -->
+                <div class="spine-container">
+                    <img src="{{ url_for('static', filename='images/binder-rings.png') }}" class="rings-back" alt="Back Rings">
+                    <img src="{{ url_for('static', filename='images/rings-front.png') }}" class="rings-front" alt="Front Rings">
+                </div>
+                
+            </div><!-- /binder-cover -->
+
+        </div><!-- /al-book-wrap -->
+
+        <!-- BOOK CONTROLS -->
+        <div class="al-controls" data-aos="fade-up">
+            <button class="al-nav-btn" id="book-prev" disabled>
+                <i class="fa-solid fa-chevron-left"></i> Previous
+            </button>
+            <span class="al-counter" id="book-counter">
+                {% if entries %}Page 1 / {{ entries|length }}{% else %}No entries{% endif %}
+            </span>
+            <button class="al-nav-btn" id="book-next" {% if not entries or entries|length <= 1 %}disabled{% endif %}>
+                Next <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    (function () {
+        const pages = Array.from(document.querySelectorAll('.al-page'));
+        const total = pages.length;
+        const prevBtn = document.getElementById('book-prev');
+        const nextBtn = document.getElementById('book-next');
+        const counter = document.getElementById('book-counter');
+        const progress = document.getElementById('al-progress');
+        const book = document.getElementById('al-book');
+        const moodBtns = document.querySelectorAll('.mood-btn');
+        const moodInput = document.getElementById('selected-mood');
+
+        // --- Mood Selection ---
+        moodBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                moodBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                moodInput.value = btn.dataset.mood;
             });
         });
+        // Default active
+        moodBtns[0].classList.add('active');
 
-        /* ─────────────────────────────────────────
-           WORD COUNT + LIVE SENTIMENT TRIGGER
-        ───────────────────────────────────────── */
-        let sentimentDebounce;
+        // --- 3D Book Logic ---
+        if (!total) return;
 
-        function onBodyInput(el) {
-            const words = el.value.trim().split(/\s+/).filter(Boolean).length;
-            document.getElementById('word-count').textContent = words;
-            clearTimeout(sentimentDebounce);
-            if (words >= 3) {
-                sentimentDebounce = setTimeout(() => runSentiment(el.value), 600);
-            } else {
-                resetSentiment();
-            }
+        let cur = 0;
+        let busy = false;
+
+        // Initial Z-stacking
+        pages.forEach((p, i) => {
+            gsap.set(p, { zIndex: total + 1 - i, rotateY: 0 });
+        });
+
+        function updateUI() {
+            if (counter) counter.textContent = `Page ${cur + 1} / ${total}`;
+            if (progress) progress.style.width = `${(cur / Math.max(1, total - 1)) * 100}%`;
+            if (prevBtn) prevBtn.disabled = cur === 0;
+            if (nextBtn) nextBtn.disabled = cur >= total - 1;
         }
 
-        /* ─────────────────────────────────────────
-           CLIENT-SIDE KEYWORD SENTIMENT
-        ───────────────────────────────────────── */
-        const LEXICON = {
-            joy: [
-                'happy', 'joy', 'joyful', 'wonderful', 'great', 'love', 'excited', 'bliss', 'delight',
-                'laugh', 'smile', 'cheerful', 'amazing', 'fantastic', 'elated', 'gleeful', 'thrilled',
-                'good', 'beautiful', 'proud', 'triumph', 'ecstatic', 'radiant', 'sunny', 'bright',
-                'glad', 'victory', 'success', 'hope', 'hopeful', 'awesome', 'perfect', 'yay', 'fun'
-            ],
-            sadness: [
-                'sad', 'cry', 'tears', 'lonely', 'lost', 'grief', 'hurt', 'miss', 'pain', 'sorrow',
-                'weep', 'despair', 'heartbreak', 'gloomy', 'miserable', 'heavy', 'ache', 'dark',
-                'dull', 'empty', 'tear', 'tragic', 'tragedy', 'woe', 'mourn', 'melancholy',
-                'depressed', 'down', 'upset', 'broken', 'heartbroken', 'devastated'
-            ],
-            calm: [
-                'calm', 'peace', 'still', 'quiet', 'serene', 'gentle', 'soft', 'breathe', 'slow',
-                'rest', 'ease', 'tranquil', 'relax', 'soothe', 'steady', 'clear', 'balanced',
-                'grounded', 'smooth', 'flow', 'light', 'cozy', 'comfortable', 'safe', 'silent',
-                'silence', 'harmony', 'zen', 'chilling', 'relaxed', 'okay', 'fine', 'content'
-            ],
-            tension: [
-                'anxious', 'worry', 'stress', 'fear', 'dread', 'panic', 'nervous', 'restless',
-                'tight', 'overwhelm', 'tense', 'uneasy', 'frantic', 'racing', 'pressure', 'hard',
-                'difficult', 'exam', 'deadline', 'busy', 'rush', 'rushed', 'stuck', 'trapped',
-                'afraid', 'scary', 'scared', 'angry', 'mad', 'rage', 'furious', 'frustrated', 'annoyed'
-            ],
-            gratitude: [
-                'grateful', 'thankful', 'blessed', 'appreciate', 'thanks', 'fortune', 'lucky',
-                'privilege', 'abundance', 'gift', 'grace', 'honor', 'family', 'friend', 'friends',
-                'support', 'helped', 'helping', 'kindness', 'generous', 'give', 'gave', 'received',
-                'loved', 'cared'
-            ]
-        };
-
-        function runSentiment(text) {
-            const words = text.toLowerCase().split(/\W+/).filter(Boolean);
-            const scores = { joy: 0, sadness: 0, calm: 0, tension: 0, gratitude: 0 };
-            words.forEach(w => {
-                for (const [cat, list] of Object.entries(LEXICON)) {
-                    if (list.includes(w)) scores[cat]++;
+        function flipNext() {
+            if (busy || cur >= total - 1) return;
+            busy = true;
+            const page = pages[cur];
+            
+            // Rotate the page smoothly around the binder hole offset (CSS transform-origin)
+            gsap.to(page, {
+                rotateY: -180, duration: 1, ease: 'power2.inOut',
+                onComplete() {
+                    page.classList.add('flipped');
+                    cur++;
+                    updateUI();
+                    busy = false;
                 }
             });
-            const total = Object.values(scores).reduce((a, b) => a + b, 0) || 1;
-            const pcts = {};
-            for (const [k, v] of Object.entries(scores)) pcts[k] = Math.round((v / total) * 100);
-            const pos = scores.joy + scores.calm + scores.gratitude;
-            const neg = scores.sadness + scores.tension;
-            const valence = Math.round(50 + ((pos - neg) / (pos + neg + 1)) * 50);
-            updateSentimentUI(valence, pcts);
         }
 
-        function updateSentimentUI(valence, pcts) {
-            document.getElementById('sentiment-score').textContent = valence;
-            const labels = ['Distressed', 'Melancholic', 'Mixed', 'Serene', 'Radiant'];
-            document.getElementById('sentiment-label').textContent = labels[Math.min(4, Math.floor(valence / 22))];
-            document.getElementById('bloom-fill').style.width = valence + '%';
-            for (const [k, pct] of Object.entries(pcts)) {
-                const fill = document.querySelector(`.emotion-bar-fill[data-key="${k}"]`);
-                const lbl = document.querySelector(`.emotion-pct[data-pct="${k}"]`);
-                if (fill) fill.style.width = pct + '%';
-                if (lbl) lbl.textContent = pct + '%';
-            }
-            const svg = document.getElementById('bloom-svg');
-            const hint = document.getElementById('bloom-hint');
-            if (valence > 50) {
-                svg.classList.add('active');
-                hint.textContent = valence > 75 ? 'Your bloom is radiant today.' : 'A gentle warmth stirs within.';
-            } else {
-                svg.classList.remove('active');
-                hint.textContent = 'Some shadows pass. This too is part of the bloom.';
-            }
-        }
+        function flipBack() {
+            if (busy || cur <= 0) return;
+            busy = true;
+            cur--;
+            const page = pages[cur];
 
-        function resetSentiment() {
-            document.getElementById('sentiment-score').textContent = '—';
-            document.getElementById('sentiment-label').textContent = 'Awaiting your words…';
-            document.getElementById('bloom-fill').style.width = '0%';
-            document.querySelectorAll('.emotion-bar-fill').forEach(el => el.style.width = '0%');
-            document.querySelectorAll('.emotion-pct').forEach(el => el.textContent = '—');
-            document.getElementById('bloom-svg').classList.remove('active');
-            document.getElementById('bloom-hint').textContent = 'Start writing to see your bloom come alive.';
-        }
-
-        /* ─────────────────────────────────────────
-           ENTER TO SUBMIT
-        ───────────────────────────────────────── */
-        document.getElementById('journalInput').addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                document.getElementById('journalForm').submit();
-            }
-        });
-
-        /* ─────────────────────────────────────────
-           ARCHIVE FILTER
-        ───────────────────────────────────────── */
-        document.querySelectorAll('.filter-chip').forEach(chip => {
-            chip.addEventListener('click', () => {
-                document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-                chip.classList.add('active');
-                const filter = chip.dataset.filter;
-                document.querySelectorAll('.entry-preview').forEach(card => {
-                    const v = parseInt(card.dataset.valence) || 50;
-                    let show = true;
-                    if (filter === 'positive') show = v >= 60;
-                    if (filter === 'neutral') show = v >= 40 && v < 60;
-                    if (filter === 'negative') show = v < 40;
-                    card.style.display = show ? '' : 'none';
-                });
+            // Rotate the page smoothly around the binder hole offset
+            gsap.to(page, {
+                rotateY: 0, duration: 1, ease: 'power2.inOut',
+                onComplete() {
+                    page.classList.remove('flipped');
+                    updateUI();
+                    busy = false;
+                }
             });
-        });
-    </script>
-</body>
+        }
 
-</html>
+        pages.forEach(p => p.addEventListener('click', () => {
+            if (!p.classList.contains('flipped')) flipNext();
+            // Optional: allow clicking left side flipped pages to flip back?
+        }));
+
+        if (nextBtn) nextBtn.addEventListener('click', flipNext);
+        if (prevBtn) prevBtn.addEventListener('click', flipBack);
+
+        // --- Subtle Tilt ---
+        const wrap = book.parentElement;
+        wrap.addEventListener('mousemove', e => {
+            const r = wrap.getBoundingClientRect();
+            const x = (e.clientX - r.left) / r.width - 0.5;
+            const y = (e.clientY - r.top) / r.height - 0.5;
+            gsap.to(book, { rotateX: -y * 8, rotateY: x * 10, duration: 0.6, ease: 'power1.out' });
+        });
+        wrap.addEventListener('mouseleave', () => {
+            gsap.to(book, { rotateX: 0, rotateY: 0, duration: 0.8, ease: 'power2.out' });
+        });
+
+        // Initialize progress bar correctly if only 1 page
+        if (total === 1) progress.style.width = "100%";
+        updateUI();
+    })();
+</script>
+{% endblock %}
