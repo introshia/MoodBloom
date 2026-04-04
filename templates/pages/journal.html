@@ -3,13 +3,20 @@
 {% block title %}Inscribe & The Almanac{% endblock %}
 
 {% block head %}
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link
+    href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Cormorant+Garamond:wght@300;600;700&display=swap"
+    rel="stylesheet">
 <style>
+    /* Hide global PWA button on this page */
+    #pwa-global-btn {
+        display: none !important;
+    }
+
     :root {
-        --paper:      #fcfbf9;
+        --paper: #fcfbf9;
         --paper-back: #f3f0ea;
-        --paper-dot:  rgba(155, 155, 155, 0.65);
-        --hole:       #111111;
+        --paper-dot: rgba(155, 155, 155, 0.65);
+        --hole: #111111;
     }
 
     /* ── LAYOUT ───────────────────────────────────── */
@@ -30,7 +37,9 @@
     }
 
     @media (max-width: 992px) {
-        .desk-container { grid-template-columns: 1fr; }
+        .desk-container {
+            grid-template-columns: 1fr;
+        }
     }
 
     .brutal-card {
@@ -38,7 +47,7 @@
         border: var(--border);
         border-radius: 16px;
         padding: 32px;
-        box-shadow: 8px 8px 0px rgba(0,0,0,0.05);
+        box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.05);
     }
 
     .status-badge {
@@ -81,7 +90,7 @@
         align-items: center;
         flex-wrap: wrap;
         padding-top: 20px;
-        border-top: 1px solid rgba(0,0,0,0.1);
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
     }
 
     .mood-btn {
@@ -94,7 +103,11 @@
         cursor: pointer;
         transition: all 0.2s;
     }
-    .mood-btn.active, .mood-btn:hover { background: var(--color-yellow); }
+
+    .mood-btn.active,
+    .mood-btn:hover {
+        background: var(--color-yellow);
+    }
 
     .btn-bloom {
         background: var(--color-cyan);
@@ -109,12 +122,33 @@
         align-items: center;
         gap: 10px;
     }
-    .btn-bloom:hover { transform: translateY(-3px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+
+    .btn-bloom:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
 
     /* QUOTE PANEL */
-    .quote-content { border-bottom: 2px solid var(--text-black); padding-bottom: 16px; margin-bottom: 16px; }
-    .quote-text { font-size: 1.2rem; font-weight: 700; line-height: 1.4; color: var(--text-black); }
-    .quote-author { font-size: 0.8rem; font-weight: 800; opacity: 0.5; text-transform: uppercase; margin-top: 8px; }
+    .quote-content {
+        border-bottom: 2px solid var(--text-black);
+        padding-bottom: 16px;
+        margin-bottom: 16px;
+    }
+
+    .quote-text {
+        font-size: 1.2rem;
+        font-weight: 700;
+        line-height: 1.4;
+        color: var(--text-black);
+    }
+
+    .quote-author {
+        font-size: 0.8rem;
+        font-weight: 800;
+        opacity: 0.5;
+        text-transform: uppercase;
+        margin-top: 8px;
+    }
 
     /* ══════════════════════════════════════════════
        VAULT / ALMANAC — SKEUOMORPHIC RING BINDER
@@ -122,69 +156,81 @@
     .vault-section {
         background: #ECEAE4;
         padding: 100px 20px 120px;
-        border-top: 1px solid rgba(0,0,0,0.06);
-        display: flex; flex-direction: column;
-        align-items: center; gap: 48px;
+        border-top: 1px solid rgba(0, 0, 0, 0.06);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 48px;
     }
-    .dark-theme .vault-section { background: #1C1B1A; }
 
-    .al-header { text-align: center; }
-    .al-eyebrow { font-size: 0.7rem; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; opacity: 0.45; }
-    .al-title { font-size: 3.5rem; font-weight: 900; margin-top: 8px; letter-spacing: -2px; }
+    .dark-theme .vault-section {
+        background: #1C1B1A;
+    }
 
-    .al-progress-wrap { width: 95vw; max-width: 1400px; height: 2px; background: rgba(0,0,0,0.08); border-radius: 2px; overflow: hidden; }
-    .dark-theme .al-progress-wrap { background: rgba(255,255,255,0.1); }
-    .al-progress-fill { height: 100%; width: 0%; background: var(--color-cyan); transition: width 0.5s ease; }
+    .al-header {
+        text-align: center;
+    }
+
+    .al-eyebrow {
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        opacity: 0.45;
+    }
+
+    .al-title {
+        font-size: 3.5rem;
+        font-weight: 900;
+        margin-top: 8px;
+        letter-spacing: -2px;
+    }
+
+    .al-progress-wrap {
+        width: 95vw;
+        max-width: 1400px;
+        height: 2px;
+        background: rgba(0, 0, 0, 0.08);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    .dark-theme .al-progress-wrap {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .al-progress-fill {
+        height: 100%;
+        width: 0%;
+        background: var(--color-cyan);
+        transition: width 0.5s ease;
+    }
 
     /* ── perspective wrapper ── */
-    .al-book-wrap { 
-        perspective: 2200px; 
-        perspective-origin: 50% 45%; 
-        width: 90vw; 
-        max-width: 1200px; 
-        aspect-ratio: 1.6 / 1; 
-        height: auto; 
+    .al-book-wrap {
+        perspective: 2200px;
+        perspective-origin: 50% 45%;
+        width: 94vw;
+        max-width: 1400px;
+        aspect-ratio: 1.6 / 1;
+        height: auto;
         margin: 0 auto;
-        padding-bottom: 50px; 
+        padding-bottom: 50px;
+        background-image: url('/static/images/perfect-page.png?v=7');
+        background-size: 100% 100%;
+        background-position: center;
+        background-repeat: no-repeat;
     }
 
-    /* ── BINDER COVER (the physical black binder) ── */
+    /* ── BINDER COVER (now a transparent container for layout) ── */
     .binder-cover {
         position: relative;
         perspective: 2200px;
         perspective-origin: 50% 45%;
-        padding: 40px;
         width: 100%;
         height: 100%;
         box-sizing: border-box;
-        background-color: #181818;
-        background-image:
-            repeating-linear-gradient(0deg,   transparent, transparent 3px, rgba(255,255,255,0.013) 3px, rgba(255,255,255,0.013) 4px),
-            repeating-linear-gradient(90deg,  transparent, transparent 3px, rgba(255,255,255,0.013) 3px, rgba(255,255,255,0.013) 4px),
-            linear-gradient(160deg, #2c2c2c 0%, #141414 55%, #0d0d0d 100%);
-        border-radius: 14px;
-        box-shadow:
-            0 50px 120px rgba(0,0,0,0.6),
-            0 14px 40px rgba(0,0,0,0.35),
-            inset 0 1px 0 rgba(255,255,255,0.05),
-            inset 0 -2px 0 rgba(0,0,0,0.6);
-    }
-
-    /* Center spine crease */
-    .binder-cover::before {
-        content: '';
-        position: absolute; left: 50%; top: 6%; height: 88%; width: 3px;
-        transform: translateX(-50%);
-        background: linear-gradient(to bottom,
-            transparent,
-            rgba(0,0,0,0.85) 20%,
-            rgba(0,0,0,0.9) 50%,
-            rgba(0,0,0,0.85) 80%,
-            transparent
-        );
-        box-shadow: 1px 0 2px rgba(255,255,255,0.025);
-        border-radius: 2px;
-        z-index: 2; pointer-events: none;
+        background: transparent;
     }
 
     /* ── THE BOOK SPREAD ── */
@@ -199,7 +245,11 @@
 
     /* Dark left panel visible before any pages flip */
     .binder-left-panel {
-        position: absolute; left: 0; top: 0; width: 52.08%; height: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 52.08%;
+        height: 100%;
         background: #141414;
         border-radius: 14px 0 0 14px;
         z-index: 0;
@@ -207,129 +257,275 @@
 
     /* ── PAGES ── */
     .al-page {
-        position: absolute; left: 47.92%; top: 0;
-        width: 52.08%; height: 100%;
+        position: absolute;
+        left: 50%;
+        top: 9.7%;
+        width: 42%;
+        height: 86.9%;
         transform-style: preserve-3d;
-        transform-origin: 4% 50%;
+        transform-origin: 0% 50%;
         cursor: pointer;
     }
 
-    .al-pf, .al-pb {
-        position: absolute; inset: 0;
+    .al-pf,
+    .al-pb {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 6.4%;
+        width: 93%;
+        /* True 3D spatial gap from the pivot spine */
         backface-visibility: hidden;
         -webkit-backface-visibility: hidden;
         overflow: hidden;
     }
 
-    /* ── FRONT FACE — optical illusion paper ── */
+    /* ── FRONT FACE — uses right-page.png asset ── */
     .al-pf {
-        background-color: #fcfbf9 !important;
-        background-image: url('/static/images/page-bg.png');
+        background-color: transparent !important;
+        background-image: url('/static/images/right-page.png?v=7');
         background-size: 100% 100%;
         background-position: center;
         background-repeat: no-repeat;
-        padding: 28px 28px 20px 36px;
-        display: flex; flex-direction: column;
+        padding: 40px 40px 30px 45px;
+        /* Better internal balance */
+        display: flex;
+        flex-direction: column;
+        box-shadow: inset 15px 0 30px rgba(0, 0, 0, 0.02);
+        /* Subtle spine shadow */
     }
 
-    /* ── BACK FACE — shown on left after flip ── */
+    /* ── BACK FACE — uses left-page.png asset ── */
     .al-pb {
-        background-color: #fcfbf9 !important;
-        background-image: url('/static/images/page-bg.png');
+        background-color: transparent !important;
+        background-image: url('/static/images/left-page.png?v=7');
         background-size: 100% 100%;
         background-position: center;
         background-repeat: no-repeat;
         transform: rotateY(180deg);
-        display: flex; align-items: center; justify-content: center;
+        padding: 40px 45px 30px 40px;
+        /* Reverse of front-face padding for symmetry */
+        display: flex;
+        flex-direction: column;
+        box-shadow: inset -15px 0 30px rgba(0, 0, 0, 0.02);
     }
 
     /* ── IMMERSIVE NAVBAR ── */
     .navbar-container {
         opacity: 0;
-        transform: translateY(-10px);
+        transform: translateY(-20px);
         transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         pointer-events: none;
         z-index: 2000;
-        position: fixed; top: 0; left: 0; right: 0;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
     }
-    body:hover .navbar-container, 
-    .navbar-container:hover {
-        opacity: 1;
-        transform: translateY(0);
-        pointer-events: all;
-    }
-    /* Invisible hit area at the top to trigger navbar */
-    body::before {
-        content: '';
-        position: fixed; top: 0; left: 0; width: 100%; height: 60px;
-        z-index: 1999; pointer-events: auto;
-    }
+
+    /* Hover area handled by JavaScript for pixel-perfection */
 
     /* Page content */
     .al-pg-header {
-        display: flex; align-items: center; justify-content: space-between;
-        padding-bottom: 12px; margin-bottom: 16px;
-        border-bottom: 1px solid rgba(0,0,0,0.09);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 12px;
+        margin-bottom: 16px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.09);
     }
-    .al-pg-date { font-size: 0.62rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: rgba(0,0,0,0.35); }
-    .al-mood-chip { font-size: 0.56rem; font-weight: 800; text-transform: uppercase; padding: 3px 9px; border-radius: 50px; color: #000; }
-    .al-mood-chip.positive { background: #00E5A0; }
-    .al-mood-chip.neutral  { background: #FFEB3B; }
-    .al-mood-chip.negative { background: #00D9FF; }
-    .al-pg-body { flex: 1; overflow: hidden; }
-    .al-pg-text { font-family: 'Lora', serif; font-size: clamp(0.8rem, 1.3vw, 0.96rem); line-height: 1.88; color: #252525; word-break: break-word; }
-    .al-pg-footer { display: flex; justify-content: flex-end; margin-top: 10px; }
-    .al-pg-num { font-size: 0.54rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: rgba(0,0,0,0.18); }
-    .al-pb-mark { text-align: center; opacity: 0.08; }
-    .al-pb-mark .bm { font-family: 'Lora', serif; font-size: 4.5rem; font-weight: 900; letter-spacing: -5px; color: #000; line-height: 1; }
+
+    .al-pg-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2.4rem;
+        font-weight: 300;
+        margin-bottom: 5px;
+        color: #1a1a1a;
+        letter-spacing: -0.5px;
+    }
+
+    .al-pg-date {
+        font-size: 0.7rem;
+        font-weight: 400;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: rgba(0, 0, 0, 0.4);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .al-mood-chip {
+        font-size: 0.56rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        padding: 3px 9px;
+        border-radius: 50px;
+        color: #000;
+    }
+
+    .al-mood-chip.positive {
+        background: #00E5A0;
+    }
+
+    .al-mood-chip.neutral {
+        background: #FFEB3B;
+    }
+
+    .al-mood-chip.negative {
+        background: #00D9FF;
+    }
+
+    .al-pg-body {
+        flex: 1;
+        overflow: hidden;
+        margin-top: 20px;
+    }
+
+    .al-pg-text {
+        font-family: 'Lora', serif;
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: #333;
+        word-break: break-word;
+    }
+
+    .al-pg-footer {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 10px;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        padding-top: 10px;
+    }
+
+    .al-pg-num {
+        font-size: 0.54rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: rgba(0, 0, 0, 0.18);
+    }
+
+    .al-pb-mark {
+        text-align: center;
+        opacity: 0;
+        display: none;
+    }
 
     /* ── BINDER RINGS OVERLAY ── */
+    :root {
+        --ring-scale: 8.8%;
+        /* Tweak this ONE number to resize the rings! */
+    }
+
     .spine-container {
         position: absolute;
-        left: 50%; top: 5%; bottom: 5%;
-        width: 80px;
-        margin-left: -40px;
-        z-index: auto; /* Avoid stacking context so z-index layers interleave with .al-book */
+        left: 50.0%;
+        top: 5%;
+        bottom: 5%;
+        width: var(--ring-scale);
+        margin-left: calc(var(--ring-scale) / -2);
+        /* Automatic centering math */
+        z-index: auto;
         pointer-events: none;
     }
+
     .rings-back {
         width: 100%;
         height: 100%;
         object-fit: contain;
         position: absolute;
         z-index: 1;
-        top: 0; left: 0;
+        top: 0;
+        left: 0;
     }
+
     .rings-front {
         width: 100%;
-        height: auto;
+        top: 20.3%;
+        height: 58.6%;
+        /* Force stretch to match background holes */
+        object-fit: fill;
+        /* Ensure it covers the vertical span */
         position: absolute;
         left: 0;
         z-index: 100;
         pointer-events: none;
-        top: 10%; /* Tweak this in DevTools to perfectly overlap rings-back */
+        transform: scaleX(1.03);
     }
 
     /* ── CONTROLS ── */
-    .al-controls { display: flex; align-items: center; gap: 32px; }
-    .al-nav-btn {
-        background: var(--white); border: var(--border); border-radius: 50px;
-        padding: 10px 24px; font-weight: 800; text-transform: uppercase; cursor: pointer;
-        display: flex; align-items: center; gap: 8px; font-size: 0.8rem; transition: all 0.2s;
+    .al-controls {
+        display: flex;
+        align-items: center;
+        gap: 32px;
     }
-    .al-nav-btn:hover:not(:disabled) { background: var(--text-black); color: var(--color-cyan); }
-    .al-nav-btn:disabled { opacity: 0.25; cursor: not-allowed; }
-    .al-counter { font-size: 0.8rem; font-weight: 800; letter-spacing: 2px; opacity: 0.5; text-transform: uppercase; }
+
+    .al-nav-btn {
+        background: var(--white);
+        border: var(--border);
+        border-radius: 50px;
+        padding: 10px 24px;
+        font-weight: 800;
+        text-transform: uppercase;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.8rem;
+        transition: all 0.2s;
+    }
+
+    .al-nav-btn:hover:not(:disabled) {
+        background: var(--text-black);
+        color: var(--color-cyan);
+    }
+
+    .al-nav-btn:disabled {
+        opacity: 0.25;
+        cursor: not-allowed;
+    }
+
+    .al-counter {
+        font-size: 0.8rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        opacity: 0.5;
+        text-transform: uppercase;
+    }
 
     /* DARK THEME */
-    .dark-theme .brutal-card, .dark-theme .journal-page-wrapper { background: var(--bg-canvas); }
-    .dark-theme .notebook-textarea, .dark-theme .ruled-area { background: rgba(255,255,255,0.03); }
-    .dark-theme .al-progress-wrap { background: rgba(255,255,255,0.1); }
+    .dark-theme .brutal-card,
+    .dark-theme .journal-page-wrapper {
+        background: var(--bg-canvas);
+    }
+
+    .dark-theme .notebook-textarea,
+    .dark-theme .ruled-area {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .dark-theme .al-progress-wrap {
+        background: rgba(255, 255, 255, 0.1);
+    }
 
     @media (max-width: 680px) {
-        .al-book { width: 88vw; height: 66vw; }
-        .binder-cover { padding: 14px 16px; }
-        .al-progress-wrap { width: 88vw; }
+        .al-book-wrap {
+            width: 92vw;
+            /* Comfortable margin on phones */
+            margin-bottom: 40px;
+        }
+
+        .al-book {
+            width: 88vw;
+            height: 66vw;
+        }
+
+        .binder-cover {
+            padding: 14px 16px;
+        }
+
+        .al-progress-wrap {
+            width: 88vw;
+        }
     }
 </style>
 {% endblock %}
@@ -339,7 +535,7 @@
 
     <!-- DESK SECTION -->
     <div class="desk-container">
-        
+
         <!-- COMPOSER -->
         <div class="brutal-card" data-aos="fade-up">
             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -351,11 +547,13 @@
 
             <form action="{{ url_for('add_entry') }}" method="POST">
                 <div class="ruled-area">
-                    <textarea name="content" class="notebook-textarea" placeholder="Start your emotional bloom here..." required></textarea>
+                    <textarea name="content" class="notebook-textarea" placeholder="Start your emotional bloom here..."
+                        required></textarea>
                 </div>
 
                 <div class="mood-row">
-                    <span style="font-size:0.75rem; font-weight:800; text-transform:uppercase; margin-right:8px;">Tone:</span>
+                    <span
+                        style="font-size:0.75rem; font-weight:800; text-transform:uppercase; margin-right:8px;">Tone:</span>
                     <button type="button" class="mood-btn" data-mood="General">General</button>
                     <button type="button" class="mood-btn" data-mood="Reflection">Reflection</button>
                     <button type="button" class="mood-btn" data-mood="Gratitude">Gratitude</button>
@@ -375,7 +573,9 @@
         <!-- QUOTE / STATS -->
         <div class="quote-panel" data-aos="fade-left" data-aos-delay="200">
             <div class="brutal-card mb-4">
-                <p style="font-size:0.65rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; opacity:0.5; margin-bottom:16px;">✦ Inspiration ✦</p>
+                <p
+                    style="font-size:0.65rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; opacity:0.5; margin-bottom:16px;">
+                    ✦ Inspiration ✦</p>
                 {% if display_quote %}
                 <div class="quote-content">
                     <p class="quote-text">"{{ display_quote.text }}"</p>
@@ -387,7 +587,7 @@
                     <p class="quote-author">— MoodBloom AI</p>
                 </div>
                 {% endif %}
-                
+
                 <p style="font-size:0.8rem; font-weight:500; line-height:1.6; margin-top:16px; opacity:0.8;">
                     Every word recorded today contributes to your emotional clarity. Keep blooming.
                 </p>
@@ -416,61 +616,89 @@
             <div class="binder-cover">
 
                 <div class="al-book" id="al-book">
-                    <!-- Dark left panel (shows before pages flip over) -->
-                    <div class="binder-left-panel"></div>
-
                     <!-- Pages Stack -->
                     {% if entries %}
-                        {% for entry in entries %}
-                        {% if   entry.mood_score >= 60 %}{% set mc='positive' %}{% set ml='Radiant' %}
-                        {% elif entry.mood_score >= 40 %}{% set mc='neutral'  %}{% set ml='Serene'  %}
-                        {% else                        %}{% set mc='negative' %}{% set ml='Pensive' %}
-                        {% endif %}
-                        <div class="al-page" data-index="{{ loop.index0 }}">
-                            <div class="al-pf">
-                                <div class="al-pg-header">
+                    {% for pair in entries|batch(2) %}
+                    {% set sheet_idx = loop.index0 %}
+                    <div class="al-page" data-index="{{ sheet_idx }}">
+                        <!-- Front Face (pf) -->
+                        <div class="al-pf">
+                            {% set entry = pair[0] %}
+                            {% if entry.mood_score >= 60 %}{% set mc='positive' %}{% set ml='Radiant' %}
+                            {% elif entry.mood_score >= 40 %}{% set mc='neutral' %}{% set ml='Serene' %}
+                            {% else %}{% set mc='negative' %}{% set ml='Pensive' %}
+                            {% endif %}
+                            <div class="al-pg-header"
+                                style="flex-direction: column; align-items: flex-start; border: none;">
+                                <div class="al-pg-title">Daily Entry</div>
+                                <div class="d-flex justify-content-between w-100 align-items-center">
                                     <span class="al-pg-date">{{ entry.date }}</span>
                                     <span class="al-mood-chip {{ mc }}">{{ ml }}</span>
                                 </div>
-                                <div class="al-pg-body">
-                                    <p class="al-pg-text">{{ entry.content }}</p>
-                                </div>
-                                <div class="al-pg-footer">
-                                    <span class="al-pg-num">Page {{ loop.index }} / {{ entries|length }}</span>
-                                </div>
                             </div>
-                            <div class="al-pb">
-                                <div class="al-pb-mark">
-                                    <div class="bm">MB</div>
-                                </div>
+                            <div class="al-pg-body">
+                                <p class="al-pg-text">{{ entry.content }}</p>
+                            </div>
+                            <div class="al-pg-footer">
+                                <span class="al-pg-num">Page {{ (sheet_idx * 2) + 1 }}</span>
                             </div>
                         </div>
-                        {% endfor %}
+
+                        <!-- Back Face (pb) -->
+                        <div class="al-pb">
+                            {% if pair|length > 1 %}
+                            {% set entry = pair[1] %}
+                            {% if entry.mood_score >= 60 %}{% set mc='positive' %}{% set ml='Radiant' %}
+                            {% elif entry.mood_score >= 40 %}{% set mc='neutral' %}{% set ml='Serene' %}
+                            {% else %}{% set mc='negative' %}{% set ml='Pensive' %}
+                            {% endif %}
+                            <div class="al-pg-header"
+                                style="flex-direction: column; align-items: flex-start; border: none;">
+                                <div class="al-pg-title">Daily Entry</div>
+                                <div class="d-flex justify-content-between w-100 align-items-center">
+                                    <span class="al-pg-date">{{ entry.date }}</span>
+                                    <span class="al-mood-chip {{ mc }}">{{ ml }}</span>
+                                </div>
+                            </div>
+                            <div class="al-pg-body">
+                                <p class="al-pg-text">{{ entry.content }}</p>
+                            </div>
+                            <div class="al-pg-footer">
+                                <span class="al-pg-num">Page {{ (sheet_idx * 2) + 2 }}</span>
+                            </div>
+                            {% else %}
+                            <!-- Empty back for the last sheet if odd number of entries -->
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
                     {% else %}
-                        <div class="al-page" data-index="0">
-                            <div class="al-pf">
-                                <div class="al-pg-header">
-                                    <span class="al-pg-date">{{ current_date }}</span>
-                                </div>
-                                <div class="al-pg-body" style="display:flex;align-items:center;justify-content:center;text-align:center;opacity:0.3;">
-                                    <div>
-                                        <i class="fa-solid fa-feather-pointed mb-3" style="font-size:2rem;"></i>
-                                        <p style="font-family:'Lora',serif;font-size:0.9rem;margin-top:12px;">Your archive is empty.<br>Write your first entry to begin.</p>
-                                    </div>
+                    <div class="al-page" data-index="0">
+                        <div class="al-pf">
+                            <div class="al-pg-header">
+                                <span class="al-pg-date">{{ current_date }}</span>
+                            </div>
+                            <div class="al-pg-body"
+                                style="display:flex;align-items:center;justify-content:center;text-align:center;opacity:0.3;">
+                                <div>
+                                    <i class="fa-solid fa-feather-pointed mb-3" style="font-size:2rem;"></i>
+                                    <p style="font-family:'Lora',serif;font-size:0.9rem;margin-top:12px;">Your archive
+                                        is empty.<br>Write your first entry to begin.</p>
                                 </div>
                             </div>
-                            <div class="al-pb"></div>
                         </div>
+                        <div class="al-pb"></div>
+                    </div>
                     {% endif %}
 
                 </div><!-- /al-book -->
 
-                <!-- Rings Spine Overlay Container -->
+                <!-- Rings Spine Overlay Container (Front arches only) -->
                 <div class="spine-container">
-                    <img src="{{ url_for('static', filename='images/binder-rings.png') }}" class="rings-back" alt="Back Rings">
-                    <img src="{{ url_for('static', filename='images/rings-front.png') }}" class="rings-front" alt="Front Rings">
+                    <img src="{{ url_for('static', filename='images/rings-front.png') }}?v=7" class="rings-front"
+                        alt="Front Rings">
                 </div>
-                
+
             </div><!-- /binder-cover -->
 
         </div><!-- /al-book-wrap -->
@@ -483,7 +711,7 @@
             <span class="al-counter" id="book-counter">
                 {% if entries %}Page 1 / {{ entries|length }}{% else %}No entries{% endif %}
             </span>
-            <button class="al-nav-btn" id="book-next" {% if not entries or entries|length <= 1 %}disabled{% endif %}>
+            <button class="al-nav-btn" id="book-next" {% if not entries or entries|length <=1 %}disabled{% endif %}>
                 Next <i class="fa-solid fa-chevron-right"></i>
             </button>
         </div>
@@ -528,8 +756,8 @@
         });
 
         function updateUI() {
-            if (counter) counter.textContent = `Page ${cur + 1} / ${total}`;
-            if (progress) progress.style.width = `${(cur / Math.max(1, total - 1)) * 100}%`;
+            if (counter) counter.textContent = `Sheet ${cur + 1} / ${total}`;
+            if (progress) progress.style.width = `${((cur + 1) / total) * 100}%`;
             if (prevBtn) prevBtn.disabled = cur === 0;
             if (nextBtn) nextBtn.disabled = cur >= total - 1;
         }
@@ -538,12 +766,15 @@
             if (busy || cur >= total - 1) return;
             busy = true;
             const page = pages[cur];
-            
-            // Rotate the page smoothly around the binder hole offset (CSS transform-origin)
+
             gsap.to(page, {
                 rotateY: -180, duration: 1, ease: 'power2.inOut',
+                onStart() {
+                    gsap.set(page, { zIndex: 101 });
+                },
                 onComplete() {
                     page.classList.add('flipped');
+                    gsap.set(page, { zIndex: cur + 1 });
                     cur++;
                     updateUI();
                     busy = false;
@@ -557,21 +788,39 @@
             cur--;
             const page = pages[cur];
 
-            // Rotate the page smoothly around the binder hole offset
             gsap.to(page, {
                 rotateY: 0, duration: 1, ease: 'power2.inOut',
+                onStart() {
+                    gsap.set(page, { zIndex: 101 });
+                },
                 onComplete() {
                     page.classList.remove('flipped');
+                    gsap.set(page, { zIndex: total + 1 - cur });
                     updateUI();
                     busy = false;
                 }
             });
         }
 
-        pages.forEach(p => p.addEventListener('click', () => {
-            if (!p.classList.contains('flipped')) flipNext();
-            // Optional: allow clicking left side flipped pages to flip back?
-        }));
+        // ── Bi-directional Clicking ──
+        pages.forEach((page, idx) => {
+            const front = page.querySelector('.al-pf');
+            const back = page.querySelector('.al-pb');
+
+            if (front) {
+                front.addEventListener('click', () => {
+                    // Only flip forward if this is the topmost 'available' page on the right
+                    if (idx === cur) flipNext();
+                });
+            }
+
+            if (back) {
+                back.addEventListener('click', () => {
+                    // Only flip back if this is the topmost 'available' page on the left
+                    if (idx === cur - 1) flipBack();
+                });
+            }
+        });
 
         if (nextBtn) nextBtn.addEventListener('click', flipNext);
         if (prevBtn) prevBtn.addEventListener('click', flipBack);
@@ -591,6 +840,26 @@
         // Initialize progress bar correctly if only 1 page
         if (total === 1) progress.style.width = "100%";
         updateUI();
+
+        // ── IMMERSIVE NAVBAR PEEK LOGIC ──
+        const navbar = document.querySelector('.navbar-container');
+        const triggerZone = 60; // top 60px
+
+        window.addEventListener('mousemove', (e) => {
+            if (!navbar) return;
+            const isAtTop = e.clientY < triggerZone;
+            const isHoveringNav = navbar.matches(':hover');
+
+            if (isAtTop || isHoveringNav) {
+                navbar.style.opacity = '1';
+                navbar.style.transform = 'translateY(0)';
+                navbar.style.pointerEvents = 'all';
+            } else {
+                navbar.style.opacity = '0';
+                navbar.style.transform = 'translateY(-20px)';
+                navbar.style.pointerEvents = 'none';
+            }
+        });
     })();
 </script>
 {% endblock %}
