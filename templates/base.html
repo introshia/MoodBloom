@@ -16,7 +16,7 @@
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
 
     <!-- Core Styles -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=8">
     
     {% block head %}{% endblock %}
 </head>
@@ -28,7 +28,9 @@
         {% block content %}{% endblock %}
     </main>
 
-    {% include 'components/_footer.html' %}
+    {% block footer %}
+        {% include 'components/_footer.html' %}
+    {% endblock %}
 
     <!-- Floating PWA Installer -->
     <button id="pwa-global-btn" style="display: block;">

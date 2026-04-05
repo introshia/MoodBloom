@@ -4,14 +4,17 @@ from dotenv import load_dotenv
 # Load the hidden variables from your .env file
 load_dotenv()
 
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file, Response
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 import mysql.connector
 import numpy as np
 from datetime import datetime
+import io
 from sklearn.linear_model import LinearRegression
 
 app = Flask(__name__)
+app.debug = True
 
 # This keeps the user's login session secure!
 app.secret_key = 'super_secret_moodbloom_key'
@@ -173,7 +176,7 @@ def journal():
     cursor = conn.cursor(dictionary=True) # Fetch as dictionary so we can access columns by name
     
     # Fetch all past entries for this user to populate the Archive grid
-    cursor.execute("SELECT * FROM journal_entries WHERE user_id = %s ORDER BY entry_date DESC", (user_id,))
+    cursor.execute("SELECT * FROM journal_entries WHERE user_id = %s ORDER BY entry_date ASC", (user_id,))
     past_entries = cursor.fetchall()
     conn.close()
     
@@ -235,6 +238,59 @@ def add_entry():
             return redirect(url_for('journal'))
             
     return redirect(url_for('journal'))
+
+@app.route('/upload_media', methods=['POST'])
+def upload_media():
+    if 'user_id' not in session:
+        return {"error": "Unauthorized"}, 401
+    
+    if 'file' not in request.files:
+        return {"error": "No file part"}, 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return {"error": "No selected file"}, 400
+    
+    if file:
+        filename = secure_filename(file.filename)
+        mimetype = file.mimetype
+        user_id = session['user_id']
+        file_data = file.read()
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO user_media (user_id, filename, mimetype, media_data) VALUES (%s, %s, %s, %s)",
+            (user_id, filename, mimetype, file_data)
+        )
+        media_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
+        
+        return {
+            "url": f"/get_media/{media_id}",
+            "type": "video" if filename.lower().endswith(('.mp4', '.webm', '.mov')) else "image"
+        }
+
+@app.route('/get_media/<int:media_id>')
+def get_media(media_id):
+    if 'user_id' not in session:
+        return "Unauthorized", 401
+        
+    user_id = session['user_id']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM user_media WHERE id = %s AND user_id = %s", (media_id, user_id))
+    media = cursor.fetchone()
+    conn.close()
+    
+    if media:
+        return send_file(
+            io.BytesIO(media['media_data']),
+            mimetype=media['mimetype'],
+            download_name=media['filename']
+        )
+    return "Not Found", 404
 
 # --- PWA SERVICE WORKER ROUTE ---
 @app.route('/sw.js')
