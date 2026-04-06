@@ -3,13 +3,17 @@
 {% block title %}Inscribe & The Almanac{% endblock %}
 
 {% block head %}
-<link
-    href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Cormorant+Garamond:wght@300;600;700&display=swap"
-    rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet" />
+
 <style>
     /* Prevent horizontal scroll caused by sticker handles extending outside page */
     body {
         overflow-x: hidden;
+        background: #F5F3EF;
+        font-family: 'DM Sans', sans-serif;
+        color: #1C1917;
     }
 
     /* Hide global PWA button on this page */
@@ -18,10 +22,14 @@
     }
 
     :root {
-        --paper: #fcfbf9;
-        --paper-back: #f3f0ea;
-        --paper-dot: rgba(155, 155, 155, 0.65);
-        --hole: #111111;
+        --paper: #F5F3EF;
+        --paper-back: #EDEAE3;
+        --text-black: #1C1917;
+        --text-gray: #8C877E;
+        --border: 1px solid #D9D5CC;
+        --paper-dot: rgba(140, 135, 126, 0.3);
+        --hole: #1C1917;
+        --bg-canvas: #F5F3EF;
     }
 
     /* Universal Box Sizing */
@@ -53,30 +61,42 @@
     }
 
     .brutal-card {
-        background: var(--white);
+        background: #FDFCFB;
         border: var(--border);
-        border-radius: 16px;
+        border-radius: 8px;
         padding: 32px;
-        box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.05);
+        box-shadow: none;
+    }
+
+    .section-label {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 11.5px;
+        font-weight: 400;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #8C877E;
+        margin-bottom: 16px;
+        display: block;
     }
 
     .status-badge {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 4px 14px;
+        padding: 6px 14px;
         border-radius: 50px;
         border: var(--border);
-        font-size: 0.75rem;
-        font-weight: 800;
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.05em;
         text-transform: uppercase;
-        background: var(--color-mint);
+        background: #EDEAE3;
+        color: #8C877E;
     }
 
     .ruled-area {
-        background: var(--bg-canvas);
-        border: var(--border);
-        border-radius: 16px;
+        background: transparent;
+        border-bottom: var(--border);
         margin: 20px 0;
         position: relative;
     }
@@ -107,56 +127,65 @@
         padding: 8px 18px;
         border-radius: 50px;
         border: var(--border);
-        background: var(--white);
-        font-size: 0.85rem;
-        font-weight: 800;
+        background: transparent;
+        font-size: 11px;
+        font-weight: 500;
         cursor: pointer;
         transition: all 0.2s;
+        color: #8C877E;
+        letter-spacing: 0.05em;
     }
 
     .mood-btn.active,
     .mood-btn:hover {
-        background: var(--color-yellow);
+        background: #EDEAE3;
+        color: #1C1917;
     }
 
     .btn-bloom {
-        background: var(--color-cyan);
-        border: var(--border);
+        background: #1C1917;
+        border: none;
         border-radius: 50px;
         padding: 12px 28px;
-        font-weight: 800;
+        font-weight: 500;
+        font-size: 13px;
+        letter-spacing: 0.05em;
         text-transform: uppercase;
         cursor: pointer;
         transition: all 0.2s;
         display: inline-flex;
         align-items: center;
         gap: 10px;
+        color: #FFF;
     }
 
     .btn-bloom:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+        opacity: 0.9;
     }
 
     /* QUOTE PANEL */
     .quote-content {
-        border-bottom: 2px solid var(--text-black);
+        border-bottom: 1px solid #D9D5CC;
         padding-bottom: 16px;
         margin-bottom: 16px;
     }
 
     .quote-text {
+        font-family: 'Lora', serif;
         font-size: 1.2rem;
-        font-weight: 700;
-        line-height: 1.4;
+        font-weight: 400;
+        line-height: 1.5;
         color: var(--text-black);
     }
 
     .quote-author {
-        font-size: 0.8rem;
-        font-weight: 800;
-        opacity: 0.5;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 10px;
+        font-weight: 500;
+        color: var(--text-gray);
         text-transform: uppercase;
+        letter-spacing: 0.1em;
         margin-top: 8px;
     }
 
@@ -164,9 +193,9 @@
        VAULT / ALMANAC — SKEUOMORPHIC RING BINDER
     ══════════════════════════════════════════════ */
     .vault-section {
-        background: #ECEAE4;
+        background: #EDEAE3;
         padding: 100px 40px 120px;
-        border-top: 1px solid rgba(0, 0, 0, 0.06);
+        border-top: 1px solid #D9D5CC;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -178,6 +207,7 @@
 
     .dark-theme .vault-section {
         background: #1C1B1A;
+        border-color: rgba(255, 255, 255, 0.1);
     }
 
     .al-header {
@@ -185,18 +215,20 @@
     }
 
     .al-eyebrow {
-        font-size: 0.7rem;
-        font-weight: 800;
-        letter-spacing: 3px;
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.22em;
         text-transform: uppercase;
-        opacity: 0.45;
+        color: #8C877E;
     }
 
     .al-title {
-        font-size: 3.5rem;
-        font-weight: 900;
+        font-family: 'Lora', serif;
+        font-size: 3rem;
+        font-weight: 400;
         margin-top: 8px;
-        letter-spacing: -2px;
+        letter-spacing: -0.02em;
+        color: #1C1917;
     }
 
     .al-progress-wrap {
@@ -301,7 +333,7 @@
         background-size: 100% 100%;
         background-position: center;
         background-repeat: no-repeat;
-        padding: 40px 40px 30px 45px;
+        padding: 40px 40px 15px 45px;
         /* Better internal balance */
         display: flex;
         flex-direction: column;
@@ -317,7 +349,7 @@
         background-position: center;
         background-repeat: no-repeat;
         transform: rotateY(180deg);
-        padding: 40px 45px 30px 40px;
+        padding: 40px 45px 15px 40px;
         /* Reverse of front-face padding for symmetry */
         display: flex;
         flex-direction: column;
@@ -405,8 +437,7 @@
     .al-pg-footer {
         display: flex;
         justify-content: flex-end;
-        margin-top: 10px;
-        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        margin-top: auto;
         padding-top: 10px;
     }
 
@@ -988,7 +1019,7 @@
                             {% endif %}
                             <div class="al-pg-header"
                                 style="flex-direction: column; align-items: flex-start; border: none;">
-                                <div class="al-pg-title">Daily Entry</div>
+
                                 <div class="d-flex justify-content-between w-100 align-items-center">
                                     <span class="al-pg-date">{{ entry.date }}</span>
                                     <span class="al-mood-chip {{ mc }}">{{ ml }}</span>
@@ -1014,7 +1045,7 @@
                             {% endif %}
                             <div class="al-pg-header"
                                 style="flex-direction: column; align-items: flex-start; border: none;">
-                                <div class="al-pg-title">Daily Entry</div>
+
                                 <div class="d-flex justify-content-between w-100 align-items-center">
                                     <span class="al-pg-date">{{ entry.date }}</span>
                                     <span class="al-mood-chip {{ mc }}">{{ ml }}</span>
@@ -1042,7 +1073,7 @@
                         <!-- Front Face -->
                         <div class="al-pf">
                             <div class="al-pg-header">
-                                <div class="al-pg-title">Blank Page</div>
+
                                 <span class="al-pg-date">No entry yet</span>
                             </div>
                             <div class="al-pg-body">
@@ -1055,7 +1086,7 @@
                         <!-- Back Face -->
                         <div class="al-pb">
                             <div class="al-pg-header">
-                                <div class="al-pg-title">Blank Page</div>
+
                                 <span class="al-pg-date">No entry yet</span>
                             </div>
                             <div class="al-pg-body">

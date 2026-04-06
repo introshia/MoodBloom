@@ -2,307 +2,1114 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <title>MoodBloom | Your Almanac</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Folio — Your Journals</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    :root {
+      --bg: #F5F3EF;
+      --surface: #EDEAE3;
+      --text: #1C1917;
+      --muted: #8C877E;
+      --rule: #D9D5CC;
+      --nav-height: 52px;
+    }
 
-    <link rel="manifest" href="/static/manifest.json">
+    body {
+      background: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
 
-    <style>
-        :root {
-            --bg-canvas: #F7F7F8;
-            --text-black: #000000;
-            --text-gray: #333333;
-            --color-cyan: #00D9FF;
-            --color-yellow: #FFEB3B;
-            --color-mint: #00E5A0;
-            --white: #FFFFFF;
-            --border: 1px solid #000000;
-        }
+    /* ── NAV ─────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--nav-height);
+      background: var(--bg);
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 52px;
+      z-index: 100;
+    }
 
-        body {
-            background-color: var(--bg-canvas);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            margin: 0;
-            color: var(--text-black);
-            min-height: 100vh;
-            font-size: 16px;
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
+    .nav-logo {
+      font-family: 'Lora', serif;
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
 
-        /* NAVBAR */
-        .navbar-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 20px 40px;
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: var(--bg-canvas);
-            z-index: 100;
-        }
+    .nav-logo span {
+      font-size: 13px;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      letter-spacing: 0.03em;
+    }
 
-        .navbar-logo {
-            font-weight: 800;
-            font-size: 1.4rem;
-            color: var(--text-black);
-            text-decoration: none;
-            letter-spacing: -0.5px;
-        }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
 
-        .navbar-center {
-            display: flex;
-            gap: 0;
-            background: var(--white);
-            border: var(--border);
-            border-radius: 50px;
-            padding: 8px 20px;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-        }
+    .nav-link {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.01em;
+      transition: color 0.15s;
+    }
 
-        .navbar-link {
-            color: var(--text-black);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            padding: 6px 14px;
-            transition: color 0.25s;
-        }
+    .nav-link:hover {
+      color: var(--text);
+    }
 
-        .navbar-link:hover, .navbar-link.active {
-            color: var(--color-cyan);
-            font-weight: 800;
-        }
+    .nav-link.active {
+      color: var(--text);
+    }
 
-        .navbar-right {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
+    .nav-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--rule);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--muted);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
 
-        .navbar-contact {
-            color: var(--text-black);
-            text-decoration: none;
-            font-weight: 800;
-            font-size: 0.9rem;
-            border: var(--border);
-            padding: 8px 16px;
-            border-radius: 50px;
-            background-color: var(--color-yellow);
-        }
+    .nav-avatar:hover {
+      border-color: var(--muted);
+      transform: scale(1.05);
+      color: var(--text);
+    }
 
-        .navbar-contact:hover {
-            background-color: var(--white);
-            color: var(--text-black);
-        }
+    /* ── MAIN ────────────────────────────────── */
+    main {
+      padding-top: calc(var(--nav-height) + 44px);
+      padding-bottom: 80px;
+    }
 
-        /* MAIN DASHBOARD LAYOUT */
-        .dashboard-container {
-            padding-top: 120px;
-            padding-bottom: 50px;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
+    /* ── SECTION ─────────────────────────────── */
+    .section {
+      margin-bottom: 48px;
+    }
 
-        /* CARDS */
-        .brutal-card {
-            background: var(--white);
-            border: var(--border);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 24px;
-        }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 52px 18px;
+      border-bottom: 1px solid var(--rule);
+      margin-bottom: 36px;
+    }
 
-        .insight-header {
-            border-left: 8px solid var(--color-cyan);
-        }
+    .section-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11.5px;
+      font-weight: 400;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
 
-        .brutal-title {
-            font-family: 'Inter', sans-serif;
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: var(--text-black);
-            line-height: 1.2;
-        }
+    .section-count {
+      font-size: 11.5px;
+      color: var(--rule);
+      letter-spacing: 0.08em;
+    }
 
-        .title-label {
-            text-transform: uppercase;
-            font-weight: 800;
-            font-size: 0.8rem;
-            color: var(--text-black);
-            letter-spacing: 1px;
-            margin-bottom: 16px;
-            display: block;
-        }
+    .section-header {
+      display: flex;
+      justify-content: center;
+      align-items: baseline;
+      gap: 16px;
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 12px;
+      margin-bottom: 40px;
+    }
 
-        .title-status {
-            background-color: var(--color-yellow);
-            border: var(--border);
-            border-radius: 50px;
-            padding: 8px 16px;
-            font-weight: 800;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            display: inline-block;
-        }
+    .shelf {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      padding-bottom: 100px;
+      justify-content: center;
+    }
 
-        /* ENTRIES GRID */
-        .entries-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
+    /* ── INSIGHTS SECTION ────────────────────────── */
+    .insights-section {
+      padding: 40px 52px 60px;
+      display: grid;
+      grid-template-columns: 1fr 1.8fr;
+      gap: 60px;
+      align-items: flex-start;
+      position: relative;
+    }
 
-        .entry-card {
-            background: var(--white);
-            border: var(--border);
-            border-radius: 16px;
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
+    .left-column {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
 
-        .chip-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+    .insight-content {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
 
-        .chip {
-            padding: 6px 14px;
-            border-radius: 50px;
-            border: var(--border);
-            font-size: 0.75rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            color: var(--text-black);
-        }
+    .greeting-block h1 {
+      font-family: 'Lora', serif;
+      font-size: 32px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
 
-        .chip-cyan { background-color: var(--color-cyan); }
-        .chip-mint { background-color: var(--color-mint); }
-        .chip-yellow { background-color: var(--color-yellow); }
-        
-        .entry-content {
-            font-size: 1rem;
-            color: var(--text-gray);
-            line-height: 1.6;
-            font-weight: 600;
-        }
+    .stats-block {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 300;
+      letter-spacing: 0.01em;
+      margin-bottom: 20px;
+    }
 
-        @media (max-width: 768px) {
-            .navbar-center {
-                display: none;
-            }
-        }
-    </style>
+    /* Daily Pulse Check-in */
+    .pulse-check {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 12px 0 32px;
+      border-top: 1px solid rgba(140, 135, 126, 0.1);
+    }
+
+    .pulse-label {
+      font-family: 'Lora', serif;
+      font-size: 13.5px;
+      font-style: italic;
+      color: var(--muted);
+    }
+
+    .pulse-icons {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .pulse-icon-link {
+      color: #D9D5CC;
+      font-size: 18px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      text-decoration: none;
+      position: relative;
+    }
+
+    .pulse-icon-link:hover {
+      color: #8C877E;
+      transform: translateY(-3px) scale(1.1);
+    }
+
+    .pulse-icon-link[data-mood="5"]:hover {
+      color: #A08242;
+    }
+
+    /* Sun-ish */
+    .pulse-icon-link[data-mood="1"]:hover {
+      color: #C17A6F;
+    }
+
+    /* Storm-ish */
+
+    .insight-card {
+      background: #FDFCFB;
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 24px;
+      position: relative;
+    }
+
+    .insight-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .trend-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 50px;
+      font-size: 11px;
+      font-weight: 500;
+      margin-top: 8px;
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    .trend-Blooming {
+      background: rgba(140, 166, 140, 0.2);
+      color: #4A5D4A;
+    }
+
+    .trend-Cloudy {
+      background: rgba(166, 140, 140, 0.2);
+      color: #5D4A4A;
+    }
+
+    .chart-container {
+      position: relative;
+      background: #FDFCFB;
+      border: 1px solid var(--rule);
+      border-radius: 22px;
+      padding: 32px;
+      min-height: 360px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .aw-h {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 24px;
+    }
+
+    .aw-t {
+      font-family: 'Lora', serif;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .aw-r {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .aw-canvas {
+      display: block;
+      width: 100%;
+      height: 250px;
+      cursor: crosshair;
+    }
+
+    .atip {
+      position: absolute;
+      background: #fff;
+      border-radius: 12px;
+      padding: 10px 16px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s, transform 0.15s;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+      z-index: 1000;
+      white-space: nowrap;
+    }
+
+    .atip-s {
+      font-family: 'Lora', serif;
+      font-size: 24px;
+      font-weight: 500;
+      line-height: 1.1;
+      margin-bottom: 2px;
+    }
+
+    .atip-l {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 300;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    /* ── COMPANION WIDGET 2.0 ────────────────────── */
+    .blob-card {
+      background: transparent;
+      width: 100%;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      transition: transform 0.3s ease;
+    }
+
+    .blob-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .blob-stage {
+      width: 200px;
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .blob-main {
+      width: 130px;
+      height: 130px;
+      position: relative;
+      animation: blobFloat var(--speed, 3s) ease-in-out infinite;
+      transition: transform 0.2s;
+    }
+
+    .blob-main:hover {
+      transform: scale(1.07);
+    }
+
+    .blob-body {
+      width: 100%;
+      height: 100%;
+      border-radius: 50% 40% 60% 40% / 40% 50% 40% 60%;
+      background: radial-gradient(circle at 35% 30%, var(--light), var(--base));
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      animation: blobMorph var(--speed, 3s) ease-in-out infinite alternate;
+    }
+
+    .blob-face {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .blob-eyes {
+      display: flex;
+      gap: 14px;
+    }
+
+    .blob-eye {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    .blob-mini {
+      position: absolute;
+      border-radius: 50% 40% 55% 45% / 45% 55% 40% 55%;
+      background: var(--dark);
+      animation: miniFloat var(--mspeed, 4s) ease-in-out infinite;
+      opacity: 0.6;
+    }
+
+    .blob-mini.m1 {
+      width: 38px;
+      height: 38px;
+      top: 10px;
+      left: -10px;
+      animation-delay: -1.2s;
+    }
+
+    .blob-mini.m2 {
+      width: 22px;
+      height: 22px;
+      top: 65%;
+      left: 75%;
+      animation-delay: -2.5s;
+      animation-direction: alternate-reverse;
+    }
+
+    .blob-score-num {
+      font-family: 'Lora', serif;
+      font-size: 52px;
+      font-weight: 500;
+      line-height: 1;
+      color: var(--base);
+      text-align: center;
+    }
+
+    .blob-score-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--base);
+      opacity: 0.7;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      text-align: center;
+    }
+
+    .blob-entry-hint {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      color: var(--base);
+      opacity: 0.5;
+      margin-top: 2px;
+      text-align: center;
+    }
+
+    @keyframes blobFloat {
+      0% {
+        transform: translateY(0px) translateX(0px);
+      }
+
+      30% {
+        transform: translateY(-10px) translateX(3px);
+      }
+
+      60% {
+        transform: translateY(-6px) translateX(-2px);
+      }
+
+      100% {
+        transform: translateY(0px) translateX(0px);
+      }
+    }
+
+    @keyframes blobMorph {
+      0% {
+        border-radius: 50% 40% 60% 40% / 40% 50% 40% 60%;
+      }
+
+      50% {
+        border-radius: 42% 55% 45% 58% / 55% 42% 60% 38%;
+      }
+
+      100% {
+        border-radius: 58% 38% 52% 46% / 44% 60% 38% 52%;
+      }
+    }
+
+    @keyframes miniFloat {
+      0% {
+        transform: translateY(0) rotate(0deg);
+      }
+
+      50% {
+        transform: translateY(-7px) rotate(8deg);
+      }
+
+      100% {
+        transform: translateY(0) rotate(0deg);
+      }
+    }
+
+    @keyframes orbit {
+      from {
+        transform: rotate(0deg) translateX(40px) rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg) translateX(40px) rotate(-360deg);
+      }
+    }
+
+    .blob-area:hover .blob {
+      transform: scale(1.05);
+    }
+
+    /* ── SHELF ROW ───────────────────────────── */
+    .shelf {
+      display: flex;
+      align-items: flex-end;
+      gap: 15px;
+      padding: 20px 52px 24px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      -webkit-mask-image: linear-gradient(to right, black 88%, transparent 100%);
+      mask-image: linear-gradient(to right, black 88%, transparent 100%);
+    }
+
+    .shelf::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* ── JOURNAL CARD ────────────────────────── */
+    .journal-wrap {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      cursor: pointer;
+      width: 156px;
+      text-decoration: none;
+      position: relative;
+      z-index: 5;
+    }
+
+    .journal-3d {
+      width: 140px;
+      height: 204px;
+      position: relative;
+      transform: perspective(800px) rotateY(-18deg) rotateX(2deg);
+      transform-style: preserve-3d;
+      transition: transform 0.25s cubic-bezier(0.23, 1, 0.32, 1),
+        filter 0.25s ease;
+      filter: drop-shadow(8px 10px 18px rgba(0, 0, 0, 0.13));
+      margin-bottom: 16px;
+    }
+
+    .journal-wrap:hover .journal-3d {
+      transform: perspective(800px) rotateY(-4deg) rotateX(0deg) translateY(-4px);
+      filter: drop-shadow(12px 18px 28px rgba(0, 0, 0, 0.18));
+    }
+
+    .journal-cover {
+      width: 140px;
+      height: 204px;
+      border-radius: 3px 6px 6px 3px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 18px 16px;
+      background: #8C877E;
+      /* fallback */
+    }
+
+    .journal-cover::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
+      pointer-events: none;
+      border-radius: inherit;
+      mix-blend-mode: multiply;
+    }
+
+    .journal-spine {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 11px;
+      border-radius: 2px 0 0 2px;
+      filter: brightness(0.78);
+      background: inherit;
+    }
+
+    .journal-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.55);
+      flex-shrink: 0;
+    }
+
+    .journal-title-inner {
+      font-family: 'Lora', serif;
+      font-size: 11px;
+      line-height: 1.4;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.95);
+      letter-spacing: -0.01em;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+      max-width: 80px;
+      word-break: break-word;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      line-clamp: 4;
+      -webkit-box-orient: vertical;
+    }
+
+    .journal-lines {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .journal-line {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.22);
+      border-radius: 1px;
+    }
+
+    .journal-line:nth-child(1) {
+      width: 80%;
+    }
+
+    .journal-line:nth-child(2) {
+      width: 55%;
+    }
+
+    .journal-line:nth-child(3) {
+      width: 65%;
+    }
+
+    .journal-meta-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.35;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 104px;
+    }
+
+    .journal-meta-sub {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 300;
+      letter-spacing: 0.01em;
+    }
+
+    /* ── NEW JOURNAL BUTTON ───────────────────── */
+    .journal-new .journal-cover {
+      background: transparent !important;
+      border: 1.5px dashed var(--rule);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .journal-new .journal-spine {
+      display: none;
+    }
+
+    .journal-new .journal-cover::after {
+      display: none;
+    }
+
+    .new-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--muted);
+      line-height: 1;
+      font-weight: 300;
+      margin-bottom: 6px;
+      flex-shrink: 0;
+    }
+
+    .new-label {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+    }
+
+    /* ── JOURNAL COLORS ─────────────────────── */
+    .c-rose {
+      background: #C17A6F;
+    }
+
+    .c-slate {
+      background: #4F6A80;
+    }
+
+    .c-sage {
+      background: #5E7A63;
+    }
+
+    .c-ochre {
+      background: #A08242;
+    }
+
+    .c-indigo {
+      background: #4F5580;
+    }
+
+    .c-terr {
+      background: #9A5B45;
+    }
+
+    .c-olive {
+      background: #6B7242;
+    }
+
+    .c-dust {
+      background: #7A6A8A;
+    }
+
+    .c-teal2 {
+      background: #3D7A75;
+    }
+
+    .c-clay {
+      background: #8C6B55;
+    }
+
+    .c-navy {
+      background: #3A4A6B;
+    }
+
+    .c-rust {
+      background: #8C4A2F;
+    }
+  </style>
 </head>
 
 <body>
 
-    {% include 'components/_navbar.html' %}
+  {% set blob_speed = '2s' if companion.mood == 'energized' else '3s' if companion.mood == 'balanced' else '4s' if
+  companion.mood == 'neutral' else '5s' if companion.mood == 'low' else '8s' %}
 
-    <div class="container dashboard-container">
-        <div class="row g-4">
+  <nav>
+    <a class="nav-logo" href="{{ url_for('dashboard') }}">
+      ✦ Folio
+      <span>/ journals</span>
+    </a>
+    <div class="nav-right">
+      <a href="{{ url_for('dashboard') }}" class="nav-link active">Folio</a>
+      <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+      <a href="{{ url_for('profile') }}" class="nav-avatar" title="{{ session.get('username', 'Explorer') }}">
+        {{ session.get('username', 'A')[0].upper() }}
+      </a>
+    </div>
+  </nav>
 
-            <div class="col-12">
-                <div class="brutal-card insight-header">
-                    <span class="title-label">Almanac Insights</span>
-                    <div class="row align-items-center">
-                        <div class="col-md-9">
-                            <h2 class="brutal-title mb-3">"{{ trend.msg }}"</h2>
-                            <p class="fw-bold mb-1" style="color: var(--text-gray);">
-                                <i class="fa-solid fa-feather me-2"></i> Consistency: {{ trend.consistency }}
-                            </p>
-                        </div>
-                        <div class="col-md-3 text-md-end mt-3 mt-md-0">
-                            <div class="title-status">{{ trend.status }}</div>
-                        </div>
-                    </div>
-                </div>
+  <main>
+
+    <!-- DASHBOARD HERO (Rebalanced 2-Column) -->
+    <div class="insights-section">
+      <div class="left-column">
+        <div class="insight-content">
+          <div class="greeting-block">
+            <h1>{{ greeting }}</h1>
+            <div class="stats-block">{{ stats_msg }}</div>
+
+            <div class="pulse-check">
+              <span class="pulse-label">How's the weather inside today?</span>
+              <div class="pulse-icons">
+                {% for m in [5,4,3,2,1] %}
+                <a href="{{ url_for('journal', mood=m) }}" class="pulse-icon-link" data-mood="{{ m }}">
+                  <i
+                    class="fa-solid {% if m==5 %}fa-sun{% elif m==4 %}fa-cloud-sun{% elif m==3 %}fa-smog{% elif m==2 %}fa-cloud-showers-heavy{% else %}fa-bolt-lightning{% endif %}"></i>
+                </a>
+                {% endfor %}
+              </div>
             </div>
+          </div>
 
-            <div class="col-md-12">
-                <div class="brutal-card">
-                    <span class="title-label">Emotional Cartography</span>
-                    <canvas id="moodChart" style="max-height: 250px;"></canvas>
-                </div>
-            </div>
-
-            <div class="col-12">
-                <div class="brutal-card">
-                    <span class="title-label mb-4">The Archive</span>
-                    
-                    <div class="entries-grid">
-                        {% for entry in entries %}
-                        <div class="entry-card">
-                            <div class="chip-group">
-                                <span class="chip chip-mint">{{ entry.entry_date.strftime('%b %d, %Y') }}</span>
-                                <span class="chip chip-cyan">Score: {{ entry.mood_score }} / 5</span>
-                            </div>
-                            <div class="entry-content">
-                                "{{ entry.content[:150] }}{% if entry.content|length > 150 %}...{% endif %}"
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-
-                </div>
-            </div>
-
+          <div class="insight-card">
+            <span class="insight-label">AI Sentiment Analysis</span>
+            <h2 style="font-size: 1.4rem; font-family: 'Lora', serif; font-weight: 400; margin-bottom: 4px;">Trend
+              Update
+            </h2>
+            <div class="trend-badge trend-{{ trend.status }}">Trending: {{ trend.status }}</div>
+            <p style="font-size: 13px; color: var(--muted); margin-top: 16px; line-height: 1.5;">
+              {{ trend.msg }} Your mood history shows a {{ trend.status|lower }} pattern.
+            </p>
+          </div>
         </div>
+
+        <!-- ATMOSPHERE COMPANION 2.0 (Left Column) -->
+        <div class="blob-card mood-{{ companion.mood }}"
+          style="--base: {{ companion.color }}; --light: {{ companion.light }}; --dark: {{ companion.dark }}; --speed: {{ blob_speed }}; --mspeed: 5s;">
+          <div class="blob-stage" style="width: 150px; height: 150px;">
+            <div class="blob-main">
+              <div class="blob-body"></div>
+              <div class="blob-face">
+                <div class="blob-eyes">
+                  <div class="blob-eye"></div>
+                  <div class="blob-eye"></div>
+                </div>
+                <div class="blob-mouth">
+                  <svg width="22" height="10" viewBox="0 0 22 10" fill="none">
+                    <path d="{{ companion.mouth }}" stroke="rgba(0,0,0,0.55)" stroke-width="2.5" stroke-linecap="round"
+                      fill="none" />
+                  </svg>
+                </div>
+              </div>
+              <div class="blob-mini m1"></div>
+              <div class="blob-mini m2"></div>
+            </div>
+          </div>
+          <div class="blob-info">
+            <div class="blob-score-num">{{ companion.score }}</div>
+            <div class="blob-score-label">Energy score</div>
+            <div class="blob-entry-hint">{{ companion.label }} · from today's entry</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ATMOSPHERE MAP (Right Column) -->
+      <div class="chart-container" id="aw">
+        <div class="aw-h">
+          <div class="aw-t">Atmosphere Map</div>
+          <div class="aw-r">
+            {% if chart_labels and chart_labels|length > 0 %}
+            {{ chart_labels[0] }} – {{ chart_labels[-1] }}
+            {% else %}
+            Chronicle History
+            {% endif %}
+          </div>
+        </div>
+        <canvas id="atmosphereChart" class="aw-canvas" data-labels='{{ chart_labels | tojson }}'
+          data-scores='{{ chart_scores | tojson }}' data-colors='{{ chart_colors | tojson }}'
+          data-moods='{{ chart_moods | tojson }}'></canvas>
+
+        <div class="atip" id="atip">
+          <div class="atip-s" id="atip-s">--</div>
+          <div class="atip-l" id="atip-l">--</div>
+        </div>
+      </div>
     </div>
 
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('Service Worker Registered!', reg))
-                    .catch(err => console.log('Service Worker Failed!', err));
-            });
-        }
-    </script>
+    {% for shelf in shelves %}
+    {% if shelf.featured or shelf.label == 'Currently Writing' %}
+    <div class="section">
+      <div class="section-header">
+        <span class="section-label">{{ shelf.label }}</span>
+        <span class="section-count">
+          {% if shelf.archive_count > 0 %}
+          {{ shelf.featured|length + shelf.archive_count }} journals
+          {% else %}
+          {{ shelf.featured|length }} journals
+          {% endif %}
+        </span>
+      </div>
+      <div class="shelf">
 
-    <script id="chart-dates" type="application/json">
-        {{ dates | tojson | safe }}
-    </script>
-    <script id="chart-scores" type="application/json">
-        {{ scores | tojson | safe }}
-    </script>
-    <script>
-        const chartDates = JSON.parse(document.getElementById('chart-dates').textContent);
-        const chartScores = JSON.parse(document.getElementById('chart-scores').textContent);
-        
-        const ctx = document.getElementById('moodChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: chartDates,
-                datasets: [{
-                    data: chartScores,
-                    borderColor: '#000000',
-                    tension: 0,
-                    borderWidth: 2,
-                    pointBackgroundColor: '#00D9FF',
-                    pointBorderColor: '#000000',
-                    pointBorderWidth: 2,
-                    pointRadius: 6,
-                    backgroundColor: '#F7F7F8',
-                    fill: false
-                }]
-            },
-            options: { plugins: { legend: { display: false } }, scales: { y: { min: 1, max: 5 } } }
+        {% if shelf.label == 'Currently Writing' %}
+        <!-- New journal button -->
+        <a href="{{ url_for('journal') }}" class="journal-wrap journal-new">
+          <div class="journal-3d">
+            <div class="journal-cover">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+                <div class="new-icon">+</div>
+                <span class="new-label">New journal</span>
+              </div>
+            </div>
+          </div>
+          <div class="journal-meta-title" style="color:var(--muted);">Start writing</div>
+          <div class="journal-meta-sub">new entry</div>
+        </a>
+        {% endif %}
+
+        {% for entry in shelf.featured %}
+        <a href="{{ url_for('journal') }}" class="journal-wrap">
+          <div class="journal-3d">
+            <div class="journal-cover {{ entry.color_class }}">
+              <div class="journal-spine {{ entry.color_class }}"></div>
+              <div class="journal-dot"></div>
+              <div>
+                <div class="journal-title-inner">{{ entry.display_text }}</div>
+                <div class="journal-lines">
+                  <div class="journal-line"></div>
+                  <div class="journal-line"></div>
+                  <div class="journal-line"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="journal-meta-title">{{ entry.display_text }}</div>
+          <div class="journal-meta-sub">{{ entry.formatted_date }} · Score {{ entry.mood_score }}</div>
+        </a>
+        {% endfor %}
+
+        {% if shelf.archive_count > 0 %}
+        <!-- Archive Volume -->
+        <a href="{{ url_for('journal') }}" class="journal-wrap">
+          <div class="journal-3d">
+            <div class="journal-cover c-dust">
+              <div class="journal-spine c-dust"></div>
+              <div class="journal-dot"></div>
+              <div>
+                <div class="journal-title-inner">Archive Volume: {{ shelf.label }}</div>
+                <div class="journal-lines">
+                  <div class="journal-line"></div>
+                  <div class="journal-line"></div>
+                  <div class="journal-line"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="journal-meta-title">+{{ shelf.archive_count }} More Entries</div>
+          <div class="journal-meta-sub">View full archive</div>
+        </a>
+        {% endif %}
+
+      </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+
+  </main>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('Service Worker Registered!', reg))
+          .catch(err => console.log('Service Worker Failed!', err));
+      });
+    }
+
+    // HALFTONE ATMOSPHERE MAP (Halftone 2.0)
+    (function () {
+      const AW = document.getElementById('aw'), C = document.getElementById('atmosphereChart');
+      if (!C) return;
+      const TIP = document.getElementById('atip'), TS = document.getElementById('atip-s'), TL = document.getElementById('atip-l');
+      const data = C.dataset;
+      const chartLabels = JSON.parse(data.labels || '[]');
+      const chartScores = JSON.parse(data.scores || '[]');
+      const chartMoods = JSON.parse(data.moods || '[]');
+      const chartColors = JSON.parse(data.colors || '[]');
+
+      const D = chartLabels.map((l, i) => ({
+        date: l,
+        score: chartScores[i] * 20, // Scale 1-5 to 20-100 for halftone engine
+        lbl: chartMoods[i],
+        color: chartColors[i]
+      }));
+
+      const DPR = Math.min(window.devicePixelRatio || 1, 2);
+      let W, H = 250, ctx, pts, segs, CY;
+
+      function init() {
+        if (!AW) return;
+        W = AW.clientWidth - 64; // match container padding
+        C.width = W * DPR; C.height = H * DPR;
+        C.style.width = W + 'px'; C.style.height = H + 'px';
+        ctx = C.getContext('2d'); ctx.scale(DPR, DPR);
+
+        const P = { t: 50, r: 24, b: 14, l: 16 }, cW = W - P.l - P.r, cH = H - P.t - P.b;
+        const sY = s => P.t + cH * (1 - s / 100);
+        pts = D.map((d, i) => ({ x: P.l + (i / (Math.max(1, D.length - 1))) * cW, y: sY(d.score), ...d }));
+
+        segs = pts.slice(0, -1).map((p1, i) => {
+          const p0 = pts[Math.max(i - 1, 0)], p2 = pts[i + 1], p3 = pts[Math.min(i + 2, pts.length - 1)];
+          return {
+            p1, p2,
+            cp1: { x: p1.x + (p2.x - p0.x) / 6, y: p1.y + (p2.y - p0.y) / 6 },
+            cp2: { x: p2.x - (p3.x - p1.x) / 6, y: p2.y - (p3.y - p1.y) / 6 }
+          };
         });
-    </script>
+
+        CY = new Float32Array(W + 4).fill(P.t + cH * 0.5);
+        const CY_SET = new Uint8Array(W + 4).fill(0);
+        segs.forEach(s => {
+          const steps = Math.ceil(Math.abs(s.p2.x - s.p1.x) * 5) + 200;
+          for (let k = 0; k <= steps; k++) {
+            const t = k / steps, mt = 1 - t;
+            const bx = mt * mt * mt * s.p1.x + 3 * mt * mt * t * s.cp1.x + 3 * mt * t * t * s.cp2.x + t * t * t * s.p2.x;
+            const by = mt * mt * mt * s.p1.y + 3 * mt * mt * t * s.cp1.y + 3 * mt * t * t * s.cp2.y + t * t * t * s.p2.y;
+            const xi = Math.round(bx);
+            if (xi >= 0 && xi < W) { CY[xi] = by; CY_SET[xi] = 1; }
+          }
+        });
+        let lx = -1;
+        for (let x = 0; x < W; x++) {
+          if (CY_SET[x]) {
+            if (lx >= 0 && x - lx > 1) {
+              for (let gx = lx + 1; gx < x; gx++) {
+                const f = (gx - lx) / (x - lx);
+                CY[gx] = CY[lx] + f * (CY[x] - CY[lx]);
+              }
+            }
+            lx = x;
+          }
+        }
+        draw(P, cW, cH);
+      }
+
+      function hash(x, y) { const n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return n - Math.floor(n); }
+      function sCol(x, Pl, cW) {
+        const t = Math.max(0, Math.min(1, (x - Pl) / cW));
+        const si = t * (pts.length - 1);
+        const i = Math.min(Math.floor(si), Math.max(0, pts.length - 2));
+        const p1 = pts[i].color, p2 = pts[i + 1].color;
+        const h2r = h => { const big = parseInt(h.slice(1), 16); return [big >> 16, (big >> 8) & 255, big & 255]; };
+        const c1 = h2r(p1), c2 = h2r(p2), f = si - i;
+        return c1.map((v, j) => v + f * (c2[j] - v));
+      }
+
+      function draw(P, cW, cH) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.font = '11px "DM Sans",sans-serif'; ctx.textAlign = 'center';
+        pts.forEach(p => {
+          ctx.fillStyle = 'rgba(28, 25, 23, 0.4)'; ctx.fillText(p.date, p.x, 18);
+          ctx.strokeStyle = 'rgba(28, 25, 23, 0.08)'; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(p.x, 24); ctx.lineTo(p.x, p.y); ctx.stroke();
+        });
+
+        const STEP = 8, DOT_MAX = 2.8, DISSOLVE = STEP * 3.8;
+        for (let gx = P.l; gx <= W - P.r; gx += STEP) {
+          const cy = CY[Math.round(gx)];
+          if (cy === undefined) continue;
+          const col = sCol(gx, P.l, cW), cs = `${col[0] | 0},${col[1] | 0},${col[2] | 0}`;
+          for (let gy = P.t; gy <= H - P.b; gy += STEP) {
+            if (gy < cy) continue;
+            const db = gy - cy, prob = db < DISSOLVE ? Math.pow(db / DISSOLVE, 1.7) : 1;
+            if (hash(gx, gy) > prob) continue;
+            const r = Math.min(DOT_MAX, DOT_MAX * db / (STEP * 1.6));
+            if (r < 0.35) continue;
+            const edgeDist = Math.min(gx - P.l, W - P.r - gx), alpha = Math.min(1, edgeDist / (STEP * 3.5)) * 0.85;
+            ctx.beginPath(); ctx.arc(gx, gy, r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${cs},${alpha})`; ctx.fill();
+          }
+        }
+      }
+
+      init();
+      window.addEventListener('resize', init);
+
+      C.addEventListener('mousemove', e => {
+        const cr = C.getBoundingClientRect(), wr = AW.getBoundingClientRect();
+        const mx = (e.clientX - cr.left) * (W / cr.width);
+        let cl = null, md = 70;
+        pts.forEach(p => { const d = Math.abs(mx - p.x); if (d < md) { md = d; cl = p; } });
+        if (cl) {
+          TS.textContent = cl.score; TS.style.color = cl.color;
+          TL.textContent = `${cl.date} · ${cl.lbl}`;
+          const tx = cr.left - wr.left + (cl.x / W) * cr.width - 44;
+          const ty = cr.top - wr.top + (cl.y / H) * cr.height - 76;
+          TIP.style.left = tx + 'px'; TIP.style.top = ty + 'px'; TIP.style.opacity = '1'; TIP.style.transform = 'translateY(0)';
+        } else { TIP.style.opacity = '0'; TIP.style.transform = 'translateY(10px)'; }
+      });
+      C.addEventListener('mouseleave', () => { TIP.style.opacity = '0'; TIP.style.transform = 'translateY(10px)'; });
+    })();
+  </script>
+
 </body>
 
 </html>

@@ -68,6 +68,33 @@ def calculate_mood_trend(entries):
     
     status = "Blooming" if slope > 0.1 else "Cloudy" if slope < -0.1 else "Steady"
     return {"status": status, "slope": round(slope, 2), "msg": "Trend Verified.", "consistency": "Consistent."}
+def calculate_energy_data(content):
+    if not content:
+        return {"score": 50, "mood": "neutral", "label": "Resting", "color": "#F5C842"}
+    
+    c = content.lower()
+    # Basic Energy Analysis (Keywords + Length)
+    high = ['excited', 'amazing', 'great', 'love', 'happy', 'bloom', 'wonderful', 'active']
+    low = ['tired', 'exhausted', 'sad', 'bad', 'lonely', 'drain', 'heavy', 'storm']
+    
+    score = 50
+    if any(word in c for word in high): score += 30
+    if any(word in c for word in low): score -= 30
+    
+    # Emotional Nuance
+    if len(c) > 200: score += 10 # Long reflections = higher energy
+    score = max(0, min(100, score))
+    
+    if score >= 80: 
+        return {"score": score, "mood": "energized", "label": "Vibrant", "color": "#5BB8F5", "light": "#8DD4FF", "dark": "#2E7FC4", "mouth": "M2 7 Q11 1 20 7"}
+    elif score >= 60: 
+        return {"score": score, "mood": "balanced", "label": "Serene", "color": "#6DBF8A", "light": "#9DDBB0", "dark": "#3A8A56", "mouth": "M3 6 Q11 2 19 6"}
+    elif score >= 40: 
+        return {"score": score, "mood": "neutral", "label": "Steady", "color": "#F5C842", "light": "#FFE07A", "dark": "#C49010", "mouth": "M4 5 Q11 5 18 5"}
+    elif score >= 20: 
+        return {"score": score, "mood": "low", "label": "Muted", "color": "#E87FA0", "light": "#FFAAC4", "dark": "#B54A6E", "mouth": "M3 3 Q11 9 19 3"}
+    else: 
+        return {"score": score, "mood": "drained", "label": "Heavy", "color": "#A99BC4", "light": "#C4B5E8", "dark": "#7E6BA9", "mouth": "M5 3 Q11 3 17 3"}
 
 
 # --- AUTHENTICATION ROUTES ---
@@ -137,9 +164,28 @@ def debug_gsap():
 def install():
     return render_template('pages/install.html')
 
+def get_preview_text(content):
+    if not content: return ""
+    import json
+    try:
+        data = json.loads(content)
+        if isinstance(data, dict):
+            # Format A: New Journal {"text": "..."}
+            if 'text' in data and data['text']:
+                return data['text']
+            # Format B: Old Interaction Engine {"elements": [...]}
+            if 'elements' in data:
+                texts = []
+                for el in data['elements']:
+                    if el.get('type') == 'text' and el.get('content'):
+                        texts.append(el['content'])
+                return " ".join(texts)
+    except:
+        pass
+    return str(content) # Fallback to plain text
+
 @app.route('/dashboard')
 def dashboard():
-    # SECURITY: Kick them back to login if they aren't signed in!
     if 'user_id' not in session:
         return redirect(url_for('login'))
         
@@ -147,20 +193,159 @@ def dashboard():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     
-    # Fetch Chart Data (ONLY for this user)
-    cursor.execute("SELECT mood_score, entry_date FROM journal_entries WHERE user_id = %s ORDER BY entry_date ASC LIMIT 10", (user_id,))
-    chart_data = cursor.fetchall()
-    dates = [row['entry_date'].strftime("%b %d") for row in chart_data]
-    scores = [row['mood_score'] for row in chart_data] 
-    
-    # Fetch Entries for Table (ONLY for this user)
+    # 1. Fetch ALL entries
     cursor.execute("SELECT * FROM journal_entries WHERE user_id = %s ORDER BY entry_date DESC", (user_id,))
-    entries = cursor.fetchall()
+    all_entries = cursor.fetchall()
+    conn.close()
+
+    # 2. Process and Curate
+    now = datetime.now()
+    current_month_str = now.strftime("%B %Y")
     
-    trend = calculate_mood_trend(entries)
+    shelves_data = {} # (Month Year) -> [entries]
+
+    color_map = {
+        5: 'c-sage', 4: 'c-slate', 3: 'c-ochre', 2: 'c-terr', 1: 'c-rose', 'default': 'c-dust'
+    }
+
+    for entry in all_entries:
+        month_year = entry['entry_date'].strftime("%B %Y")
+        if month_year not in shelves_data: shelves_data[month_year] = []
+        
+        # Prepare individual entry
+        display_text = get_preview_text(entry['content'])
+        entry['display_text'] = (display_text[:60] + '...') if len(display_text) > 60 else display_text
+        entry['color_class'] = color_map.get(entry['mood_score'], color_map['default'])
+        entry['formatted_date'] = entry['entry_date'].strftime("%b %d")
+        
+        shelves_data[month_year].append(entry)
+
+    # 3. Final Curation (Limit to 3 per shelf)
+    ordered_shelves = []
+    
+    # Current Writing First
+    if current_month_str in shelves_data:
+        entries = shelves_data[current_month_str]
+        ordered_shelves.append({
+            "label": "Currently Writing",
+            "featured": entries[:3],
+            "archive_count": max(0, len(entries) - 3)
+        })
+        del shelves_data[current_month_str]
+    else:
+        ordered_shelves.append({"label": "Currently Writing", "featured": [], "archive_count": 0})
+
+    # Sort remaining archives chronologically
+    sorted_months = sorted(shelves_data.keys(), key=lambda x: datetime.strptime(x, "%B %Y"), reverse=True)
+    for month in sorted_months:
+        entries = shelves_data[month]
+        ordered_shelves.append({
+            "label": month,
+            "featured": entries[:3],
+            "archive_count": max(0, len(entries) - 3)
+        })
+
+    # 4. AI Mood Trend (Linear Regression)
+    trend = calculate_mood_trend(all_entries)
+    
+    # 5. Chart Data (Grouped by date for clarity)
+    chart_data_map = {}
+    config_map = {
+        5: {"c": "#5BB8F5", "label": "Radiant"},
+        4: {"c": "#6DBF8A", "label": "Serene"},
+        3: {"c": "#F5C842", "label": "Muted"},
+        2: {"c": "#E87FA0", "label": "Pensive"},
+        1: {"c": "#A99BC4", "label": "Heavy"}
+    }
+    for e in reversed(all_entries[:15]): # Last 15 days
+        d_str = e['entry_date'].strftime("%b %d")
+        score = e['mood_score']
+        chart_data_map[d_str] = {
+            "val": score, 
+            "color": config_map.get(score, config_map[3])["c"],
+            "label": config_map.get(score, config_map[3])["label"]
+        }
+    
+    chart_labels = list(chart_data_map.keys())
+    chart_scores = [v["val"] for v in chart_data_map.values()]
+    chart_colors = [v["color"] for v in chart_data_map.values()]
+    chart_moods = [v["label"] for v in chart_data_map.values()]
+
+    # Greeting & Stats
+    hour = now.hour
+    greeting_prefix = "Good morning" if hour < 12 else "Good afternoon" if hour < 17 else "Good evening"
+    greeting = f"{greeting_prefix}, {session.get('username', 'Alex')}."
+    year_count = sum(1 for e in all_entries if e['entry_date'].year == now.year)
+    stats_msg = f"You've inscribed {len(all_entries)} memories in your Almanac this year."
+
+    # 6. Atmosphere Companion (Energy Widget)
+    latest_text = get_preview_text(all_entries[0]['content']) if all_entries else ""
+    companion_data = calculate_energy_data(latest_text)
+
+    return render_template('pages/dashboard.html', 
+                          shelves=ordered_shelves, 
+                          greeting=greeting, 
+                          stats_msg=stats_msg,
+                          trend=trend,
+                          chart_labels=chart_labels,
+                          chart_scores=chart_scores,
+                          chart_colors=chart_colors,
+                          chart_moods=chart_moods,
+                          companion=companion_data)
+
+@app.route('/profile')
+def profile():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+        
+    user_id = session['user_id']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    # 1. Fetch User Data
+    cursor.execute("SELECT username, joined_at FROM users WHERE id = %s", (user_id,))
+    user = cursor.fetchone()
+    
+    # 2. Fetch Stats
+    cursor.execute("SELECT COUNT(*) as total FROM journal_entries WHERE user_id = %s", (user_id,))
+    stats = cursor.fetchone()
+    
     conn.close()
     
-    return render_template('pages/dashboard.html', entries=entries, trend=trend, dates=dates, scores=scores)
+    # Format 'Member Since'
+    joined = user['joined_at'].strftime("%B %Y") if user.get('joined_at') else "April 2026"
+    
+    return render_template('pages/profile.html', user=user, stats=stats['total'], joined=joined)
+
+@app.route('/update_profile', methods=['POST'])
+def update_profile():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+        
+    user_id = session['user_id']
+    new_username = request.form.get('username')
+    new_password = request.form.get('password')
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        if new_username:
+            cursor.execute("UPDATE users SET username = %s WHERE id = %s", (new_username, user_id))
+            session['username'] = new_username
+            
+        if new_password:
+            hashed = generate_password_hash(new_password)
+            cursor.execute("UPDATE users SET password_hash = %s WHERE id = %s", (hashed, user_id))
+            
+        conn.commit()
+        flash("Your curator identity has been successfully updated.")
+    except Exception as e:
+        flash(f"Error updating profile: {str(e)}")
+    finally:
+        conn.close()
+        
+    return redirect(url_for('profile'))
 
 @app.route('/journal')
 def journal():
@@ -171,6 +356,7 @@ def journal():
     user_id = session['user_id']
     new_quote = request.args.get('quote_text')
     new_author = request.args.get('quote_author')
+    preselected_mood = request.args.get('mood') # From the new Daily Pulse dashboard feature!
     
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True) # Fetch as dictionary so we can access columns by name
@@ -199,7 +385,8 @@ def journal():
                            display_quote={'text': new_quote, 'author': new_author} if new_quote else None,
                            current_date=current_date,
                            page_number=page_num,
-                           entries=formatted_entries)
+                           entries=formatted_entries,
+                           preselected_mood=preselected_mood)
 
 @app.route('/almanac')
 def almanac():
