@@ -293,6 +293,12 @@ def dashboard():
                           chart_moods=chart_moods,
                           companion=companion_data)
 
+@app.route('/cozy-room')
+def cozy_room():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    return render_template('pages/cozy_room.html')
+
 @app.route('/profile')
 def profile():
     if 'user_id' not in session:

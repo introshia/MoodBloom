@@ -799,7 +799,8 @@
     </a>
     <div class="nav-right">
       <a href="{{ url_for('dashboard') }}" class="nav-link active">Folio</a>
-      <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+      <a href="{{ url_for('cozy_room') }}" class="nav-link">Sanctuary</a>
+      <a href="{{ url_for('journal') }}" class="nav-link">Journal</a>
       <a href="{{ url_for('profile') }}" class="nav-avatar" title="{{ session.get('username', 'Explorer') }}">
         {{ session.get('username', 'A')[0].upper() }}
       </a>

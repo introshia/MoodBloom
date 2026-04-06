@@ -6,6 +6,7 @@
             {% if session.get('user_id') %}
             <a href="{{ url_for('index') }}" class="navbar-link">Home</a>
             <a href="{{ url_for('dashboard') }}" class="navbar-link {% if request.endpoint == 'dashboard' %}active{% endif %}">Dashboard</a>
+            <a href="{{ url_for('cozy_room') }}" class="navbar-link {% if request.endpoint == 'cozy_room' %}active{% endif %}">Sanctuary</a>
             <a href="{{ url_for('journal') }}" class="navbar-link {% if request.endpoint == 'journal' %}active{% endif %}">Journal</a>
             {% else %}
             <a href="{{ url_for('index') }}#features" class="navbar-link">Features</a>
