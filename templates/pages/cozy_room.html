@@ -424,15 +424,15 @@
     function h2(x, y) { var n = Math.sin(x * 127.1 + y * 311.7) * 43758.5; return n - Math.floor(n); }
     function flk(t) { return 0.75 + Math.sin(t * 0.13) * 0.12 + Math.sin(t * 0.37) * 0.07; }
     function lerp(a, b, t) { return a + (b - a) * t; }
-    function plx(f) { return (mouseX - 0.5) * f; } function ply(f) { return (mouseY - 0.5) * f * 0.4; }
+    function plx(f) { return 0; } function ply(f) { return 0; }
 
     // ── LAYOUT ────────────────────────────────────────────────────
-    var FY = 0.72;
-    var WX = 0.04, WY = 0.10, WW = 0.22, WH = 0.52; // window
-    var SX = 0.74, SY = 0.06, SW = 0.24, SH = 0.65;  // bookshelf
-    var LX = 0.71, LY = 0.14;                     // lamp
-    var DX = 0.38, DY = 0.55, DW = 0.24, DH = 0.10;  // desk (centered)
-    var CX = 0.415, CY = 0.57, CWW = 0.17, CHH = 0.23; // chair (centered)
+    var FY = 0.82; // floor
+    var SX = 0.04, SY = 0.02, SW = 0.26, SH = 0.80;  // bookshelf (moved left)
+    var LX = 0.28, LY = 0.30;                     // lamp (moved left, lowered)
+    var DX = 0.30, DY = 0.62, DW = 0.40, DH = 0.12;  // desk (centered)
+    var CX = 0.415, CY = 0.65, CWW = 0.17, CHH = 0.28; // chair (centered)
+    var WX = 0.68, WY = 0.05, WW = 0.28, WH = 0.62; // window (moved right)
 
     // Book generation
     var BCOLS = ['#8B1A1A', '#1848A8', '#1E7830', '#C87A18', '#5C1A90', '#A83818', '#0A2E68', '#388014', '#8C2438', '#CA6820', '#1A5090', '#609830'];
@@ -521,13 +521,24 @@
       fr(WX + 0.013, WY + WH * 0.56 + 0.005, pw, ph2, pC2);
       fr(WX + WW / 2 + 0.005, WY + WH * 0.56 + 0.005, pw, ph2, pC2);
       // Pane highlights
-      fr(WX + 0.015, WY + 0.015, pw, 0.025, 'rgba(255,255,220,.28)');
-      fr(WX + WW / 2 + 0.007, WY + 0.015, pw, 0.025, 'rgba(255,255,220,.22)');
-      // Frame dividers
-      fr(WX + WW / 2 - 0.007, WY, 0.014, WH, '#3A1C0A');
-      fr(WX, WY + WH * 0.56 - 0.006, WW, 0.012, '#3A1C0A');
-      fr(WX, WY, WW, 0.013, '#3A1C0A'); fr(WX, WY + WH - 0.011, WW, 0.011, '#3A1C0A');
-      fr(WX, WY, 0.012, WH, '#3A1C0A'); fr(WX + WW - 0.012, WY, 0.012, WH, '#3A1C0A');
+      var hW = WW * 0.33, hH = WH * 0.33;
+      for (var r = 0; r < 3; r++) {
+        for (var c = 0; c < 3; c++) {
+          fr(WX + 0.02 + c * hW, WY + 0.02 + r * hH, pw, 0.025, 'rgba(255,255,220,.22)');
+        }
+      }
+      // Frame dividers (3x3 grid)
+      // Vertical dividers
+      fr(WX + WW * 0.33 - 0.006, WY, 0.012, WH, '#3A1C0A');
+      fr(WX + WW * 0.66 - 0.006, WY, 0.012, WH, '#3A1C0A');
+      // Horizontal dividers
+      fr(WX, WY + WH * 0.33 - 0.006, WW, 0.012, '#3A1C0A');
+      fr(WX, WY + WH * 0.66 - 0.006, WW, 0.012, '#3A1C0A');
+      // Outer border
+      fr(WX, WY, WW, 0.014, '#3A1C0A');
+      fr(WX, WY + WH - 0.014, WW, 0.014, '#3A1C0A');
+      fr(WX, WY, 0.014, WH, '#3A1C0A');
+      fr(WX + WW - 0.014, WY, 0.014, WH, '#3A1C0A');
 
       // RAIN / SNOW inside window
       if (weatherType === 'rain') {
@@ -564,13 +575,13 @@
       ctx.beginPath(); ctx.arc(px(WX - 0.044), py(WY - 0.016), px(0.009), 0, Math.PI * 2); ctx.fill();
       ctx.beginPath(); ctx.arc(px(WX + WW + 0.044), py(WY - 0.016), px(0.009), 0, Math.PI * 2); ctx.fill();
 
-      // Light shaft on floor
+      // Light shaft on floor (shining towards the left since window is right)
       if (lampOn) {
-        var sg = ctx.createLinearGradient(px(WX), py(FY), px(WX + 0.24), py(1.05));
+        var sg = ctx.createLinearGradient(px(WX + WW * 0.5), py(FY), px(WX - 0.20), py(1.05));
         sg.addColorStop(0, 'rgba(' + pal.wGlow + ',.17)'); sg.addColorStop(1, 'rgba(' + pal.wGlow + ',0)');
         ctx.fillStyle = sg; ctx.beginPath();
         ctx.moveTo(px(WX + 0.013), py(FY)); ctx.lineTo(px(WX + WW - 0.012), py(FY));
-        ctx.lineTo(px(WX + WW + 0.10), py(1.06)); ctx.lineTo(px(WX - 0.08), py(1.06));
+        ctx.lineTo(px(WX + WW - 0.10), py(1.06)); ctx.lineTo(px(WX - 0.30), py(1.06));
         ctx.closePath(); ctx.fill();
       }
       ctx.restore(); // end window parallax
@@ -679,38 +690,34 @@
       ctx.save(); ctx.translate(px(-ox1 * 0.38), 0);
       drawPixelDesk(DX, DY);
 
-      // Journal / open notebook on desk
-      fr(DX + 0.042, DY - 0.040, 0.100, 0.064, '#8A3418');
-      fr(DX + 0.044, DY - 0.038, 0.096, 0.060, '#1A0804');
-      // Lines on journal
-      for (var li = 0; li < 5; li++) fr(DX + 0.048, DY - 0.030 + li * 0.008, 0.084, 0.002, 'rgba(255,200,100,.08)');
+      // ── THE JOURNAL (centered on the desk) ────────────────────────
+      var jW = 0.14, jH = 0.09, jX = DX + (DW - jW) / 2, jY = DY - 0.055;
 
-      // Pen
-      fr(DX + 0.150, DY - 0.030, 0.008, 0.072, '#C49050');
-      fr(DX + 0.150, DY - 0.030, 0.008, 0.006, '#3A2010');
-      fp([DX + 0.150, DY + 0.042, DX + 0.158, DY + 0.042, DX + 0.154, DY + 0.053], '#8A2010');
+      // Bottom cover (slightly visible green edges)
+      fr(jX - 0.004, jY + 0.004, jW + 0.008, jH + 0.004, '#2A3A1A'); // Forest green
 
-      // Ink bottle
-      fr(DX + 0.167, DY - 0.050, 0.026, 0.055, '#381608');
-      fr(DX + 0.170, DY - 0.048, 0.020, 0.042, 'rgba(18,38,75,.82)');
-      fr(DX + 0.165, DY - 0.052, 0.030, 0.010, '#481E0C');
+      // Left Page
+      ctx.fillStyle = linG(jX, jY, jX + jW * 0.5, jY, [[0, '#D8C8A8'], [1, '#F4EADA']]);
+      ctx.fillRect(px(jX), py(jY), px(jW * 0.5), py(jH));
+      // Right Page
+      ctx.fillStyle = linG(jX + jW * 0.5, jY, jX + jW, jY, [[0, '#F4EADA'], [1, '#D8C8A8']]);
+      ctx.fillRect(px(jX + jW * 0.5), py(jY), px(jW * 0.5), py(jH));
 
-      // Candle
-      fr(DX + 0.192, DY - 0.065, 0.016, 0.070, '#ECD090');
-      fr(DX + 0.192, DY - 0.065, 0.016, 0.008, '#D0B068');
-      if (lampOn) {
-        var cf = flk(time + 22);
-        fr(DX + 0.197, DY - 0.074, 0.006, 0.012, 'rgba(255,215,75,' + cf + ')');
-        // Dancing wall shadow
-        var sha = Math.sin(time * 0.08) * 0.005;
-        ctx.fillStyle = 'rgba(0,0,0,.16)';
-        ctx.beginPath(); ctx.ellipse(px(DX + 0.200 + sha * 2.2), py(DY - 0.048), px(0.007 + Math.abs(sha)), py(0.11), Math.PI / 10, 0, Math.PI * 2); ctx.fill();
-        var cg = ctx.createRadialGradient(px(DX + 0.200), py(DY - 0.074), px(0.001), px(DX + 0.200), py(DY - 0.074), px(0.080));
-        cg.addColorStop(0, 'rgba(255,195,58,' + (cf * 0.36) + ')'); cg.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = cg; ctx.fillRect(0, 0, W, H);
+      // Spine shadow
+      fr(jX + jW * 0.5 - 0.002, jY, 0.004, jH, 'rgba(0,0,0,.15)');
+
+      // Subtle page lines
+      ctx.strokeStyle = 'rgba(0,0,0,.06)'; ctx.lineWidth = 0.5;
+      for (var pi = 0; pi < 6; pi++) {
+        var lY = jY + 0.015 + pi * 0.012;
+        ctx.beginPath(); ctx.moveTo(px(jX + 0.010), py(lY)); ctx.lineTo(px(jX + jW * 0.45), py(lY)); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(px(jX + jW * 0.55), py(lY)); ctx.lineTo(px(jX + jW - 0.010), py(lY)); ctx.stroke();
       }
-      // Firefly jar on desk
-      drawFireflyJar(DX + 0.004, DY - 0.068);
+
+      // Shadow under book
+      ctx.fillStyle = 'rgba(0,0,0,.18)';
+      ctx.beginPath(); ctx.ellipse(px(jX + jW * 0.5), py(jY + jH + 0.002), px(jW * 0.55), py(0.008), 0, 0, Math.PI * 2); ctx.fill();
+
       ctx.restore();
 
       drawPixelChair(CX, CY);
@@ -786,12 +793,9 @@
         ctx.fillStyle = cv; ctx.fillRect(0, 0, W, H);
       }
 
-      // Hover highlight
+      // Hover highlight removed as requested
       if (hov) {
-        ctx.strokeStyle = 'rgba(255,165,52,.26)'; ctx.lineWidth = 1.5;
-        ctx.strokeRect(px(hov.x) + 1, py(hov.y) + 1, px(hov.w) - 2, py(hov.h) - 2);
-        ctx.fillStyle = 'rgba(255,165,52,.04)';
-        ctx.fillRect(px(hov.x) + 1, py(hov.y) + 1, px(hov.w) - 2, py(hov.h) - 2);
+        // Only tooltip logic remains elsewhere
       }
 
       // Update badges
@@ -829,12 +833,12 @@
       // Highlight at upper-back (left-top), gradient darkens toward front-bottom
       var bodyG = ctx.createRadialGradient(
         px(-0.016), py(-0.052), px(0.005),   // highlight: upper-back
-        px(0.002),  py(-0.028), px(0.048)    // outer edge
+        px(0.002), py(-0.028), px(0.048)    // outer edge
       );
-      bodyG.addColorStop(0,    '#D4AA70');  // bright warm tan at top-back
+      bodyG.addColorStop(0, '#D4AA70');  // bright warm tan at top-back
       bodyG.addColorStop(0.32, '#BA8C52');  // mid honey
       bodyG.addColorStop(0.68, '#9A6838');  // shadow
-      bodyG.addColorStop(1,    '#7A5028');  // dark rim
+      bodyG.addColorStop(1, '#7A5028');  // dark rim
       ctx.fillStyle = bodyG;
       // TALL ellipse, slightly tilted — this is the upright sitting posture
       ctx.beginPath(); ctx.ellipse(px(0.005), py(-0.032 + br * 0.5), px(0.038), py(0.046), -0.12, 0, Math.PI * 2); ctx.fill();
@@ -846,7 +850,7 @@
       // Soft feathered blend at edges
       var bellyFade = ctx.createRadialGradient(px(0.022), py(-0.022), px(0.004), px(0.022), py(-0.022), px(0.023));
       bellyFade.addColorStop(0.5, 'rgba(232,212,168,0)');
-      bellyFade.addColorStop(1,   'rgba(140,90,40,.16)');
+      bellyFade.addColorStop(1, 'rgba(140,90,40,.16)');
       ctx.fillStyle = bellyFade;
       ctx.beginPath(); ctx.ellipse(px(0.022), py(-0.022), px(0.020), py(0.030), 0.18, 0, Math.PI * 2); ctx.fill();
 
@@ -863,10 +867,10 @@
         px(0.024), py(-0.074), px(0.003),
         px(0.030), py(-0.062), px(0.026)
       );
-      headG.addColorStop(0,    '#D4AA70');
+      headG.addColorStop(0, '#D4AA70');
       headG.addColorStop(0.40, '#BA8C52');
       headG.addColorStop(0.80, '#9A6838');
-      headG.addColorStop(1,    '#7A5028');
+      headG.addColorStop(1, '#7A5028');
       ctx.fillStyle = headG;
       ctx.beginPath(); ctx.ellipse(px(0.030), py(-0.062 - br * 0.5), px(0.024), py(0.022), -0.06, 0, Math.PI * 2); ctx.fill();
       // Warm lighter cheek area (front of face, reference shows cream/light patch)
@@ -1004,74 +1008,69 @@
 
     // ── PIXEL ART DESK ───────────────────────────────────────────
     function drawPixelDesk(ox, oy) {
-      // ── SMOOTH DESK (matches room's 2D gradient style) ────────────
+      // ── SIMPLE DESK (matches the user's reference photo) ─────────
       var dw = DW, dh = DH;
+      var floor = FY;
 
-      // Legs
-      fr(ox + 0.016, oy + dh, 0.018, 0.080, '#3A1808');
-      fr(ox + 0.016, oy + dh, 0.018, 0.003, '#5A2810'); // leg top cap
-      fr(ox + dw - 0.034, oy + dh, 0.018, 0.080, '#3A1808');
-      fr(ox + dw - 0.034, oy + dh, 0.018, 0.003, '#5A2810');
-
-      // Hutch back panel (dark leather/felt texture above surface)
-      var hH = 0.095; // hutch height
-      fr(ox, oy - hH, dw, hH, '#2A1408');
-      // Hutch top rail
-      fr(ox, oy - hH, dw, 0.010, '#5A2C10');
-      fr(ox, oy - hH, dw, 0.004, 'rgba(160,90,40,.40)');
-      // Hutch bottom rail (sits on desk surface)
-      fr(ox, oy - 0.008, dw, 0.008, '#4A2010');
-      // Hutch felt/leather inset
-      fr(ox + 0.016, oy - hH + 0.012, dw - 0.032, hH - 0.022, '#1A0E06');
-      fr(ox + 0.016, oy - hH + 0.012, dw - 0.032, 0.005, '#2E1C0A'); // inset top edge
-      fr(ox + 0.016, oy - hH + 0.012, 0.005, hH - 0.022, '#2E1C0A'); // inset left edge
-      // Hutch side panels
-      fr(ox, oy - hH, 0.014, hH, '#5A2C10');
-      fr(ox, oy - hH, 0.006, hH, 'rgba(160,90,40,.30)');
-      fr(ox + dw - 0.014, oy - hH, 0.014, hH, '#3A1C08');
-
-      // Desktop surface — warm wood gradient
-      ctx.fillStyle = linG(ox, oy, ox, oy + dh, [[0, '#7A4020'], [0.3, '#5A2C12'], [1, '#3E1C08']]);
-      ctx.fillRect(px(ox), py(oy), px(dw), py(dh));
-      // Grain lines (subtle)
-      ctx.strokeStyle = 'rgba(0,0,0,.09)'; ctx.lineWidth = 0.5;
-      for (var gi = 0; gi < 6; gi++) {
-        var gx2 = ox + 0.04 + gi * (dw - 0.08) / 5;
-        ctx.beginPath(); ctx.moveTo(px(gx2), py(oy)); ctx.lineTo(px(gx2), py(oy + dh)); ctx.stroke();
+      // ── FOUR THIN LEGS (slightly tapered) ───────────────────
+      function drawLeg(lx, ly, isBack) {
+        var col = isBack ? '#240E04' : '#3A1808';
+        var grad = isBack ? col : linG(lx, ly, lx + 0.012, ly, [[0, '#5A2C10'], [0.5, '#3A1808'], [1, '#240E04']]);
+        ctx.fillStyle = grad;
+        ctx.fillRect(px(lx), py(ly), px(isBack ? 0.007 : 0.012), py(floor - ly));
+        if (!isBack) fr(lx, ly, 0.012, 0.004, 'rgba(160,95,45,.40)');
       }
-      // Top edge highlight
-      fr(ox, oy, dw, 0.006, 'rgba(180,100,40,.35)');
-      fr(ox, oy, dw, 0.002, 'rgba(230,150,65,.25)');
-      // Bottom edge shadow
-      fr(ox, oy + dh - 0.005, dw, 0.005, 'rgba(0,0,0,.22)');
-      // Left highlight
-      fr(ox, oy, 0.006, dh, 'rgba(160,85,30,.22)');
-      // Right shadow
-      fr(ox + dw - 0.005, oy, 0.005, dh, 'rgba(0,0,0,.20)');
+      // Rear legs
+      drawLeg(ox + 0.026, oy + 0.04, true);
+      drawLeg(ox + dw - 0.033, oy + 0.04, true);
+      // Front legs
+      drawLeg(ox + 0.018, oy + 0.04, false);
+      drawLeg(ox + dw - 0.030, oy + 0.04, false);
 
-      // Drawer outlines (suggested, not pixel-art)
-      // Left pedestal drawers
-      for (var di = 0; di < 3; di++) {
-        var dlY = oy + 0.016 + di * (dh * 0.26);
-        fr(ox + 0.006, dlY, dw * 0.30, dh * 0.22, 'rgba(0,0,0,.06)');
-        fr(ox + 0.006, dlY, dw * 0.30, 0.003, 'rgba(200,120,50,.15)');
-        // Drawer handle
-        fr(ox + 0.024, dlY + dh * 0.09, 0.042, 0.007, '#C89028');
-        fr(ox + 0.024, dlY + dh * 0.09, 0.042, 0.003, '#E8B840');
-      }
-      // Right pedestal drawers
-      for (var di2 = 0; di2 < 3; di2++) {
-        var drY = oy + 0.016 + di2 * (dh * 0.26);
-        fr(ox + dw - 0.006 - dw * 0.30, drY, dw * 0.30, dh * 0.22, 'rgba(0,0,0,.06)');
-        fr(ox + dw - 0.006 - dw * 0.30, drY, dw * 0.30, 0.003, 'rgba(200,120,50,.15)');
-        fr(ox + dw - 0.006 - dw * 0.30 + 0.018, drY + dh * 0.09, 0.042, 0.007, '#C89028');
-        fr(ox + dw - 0.006 - dw * 0.30 + 0.018, drY + dh * 0.09, 0.042, 0.003, '#E8B840');
-      }
+      // ── MAIN DESK BODY ─────────────────────────────
+      // Desktop overhang - warm brown
+      ctx.fillStyle = linG(ox, oy, ox, oy + 0.012, [[0, '#8A4E28'], [0.5, '#6A3818'], [1, '#4A2210']]);
+      ctx.fillRect(px(ox), py(oy), px(dw), py(0.012));
 
-      // Shadow under desk
-      var ds = ctx.createRadialGradient(px(ox + dw * 0.5), py(oy + dh + 0.055), px(0.01), px(ox + dw * 0.5), py(oy + dh + 0.055), px(dw * 0.70));
+      // Main body housing (slightly inset)
+      ctx.fillStyle = linG(ox, oy + 0.012, ox, oy + 0.045, [[0, '#3E1C0A'], [1, '#2A1408']]);
+      ctx.fillRect(px(ox + 0.005), py(oy + 0.012), px(dw - 0.010), py(0.033));
+
+      // ── TWO DRAWERS ─────────────────────────────────
+      function drawDrawer(dx, dy, dwth) {
+        // Drawer front face
+        ctx.fillStyle = linG(dx, dy, dx, dy + 0.026, [[0, '#5A2C12'], [0.4, '#4A2210'], [1, '#321808']]);
+        ctx.fillRect(px(dx), py(dy), px(dwth), py(0.026));
+        // Subtle inset border
+        ctx.strokeStyle = 'rgba(0,0,0,.26)'; ctx.lineWidth = 0.5;
+        ctx.strokeRect(px(dx) + 1, py(dy) + 1, px(dwth) - 2, py(0.026) - 2);
+        // Dark handle / slot
+        fr(dx + dwth * 0.35, dy + 0.011, dwth * 0.30, 0.005, '#1A0804');
+        fr(dx + dwth * 0.35, dy + 0.011, dwth * 0.30, 0.002, 'rgba(255,160,80,.12)');
+      }
+      var drW = dw * 0.36;
+      drawDrawer(ox + 0.022, oy + 0.018, drW);
+      drawDrawer(ox + dw - 0.022 - drW, oy + 0.018, drW);
+
+      // ── SPARKLES (matches photo's magic vibe) ────────
+      ctx.save();
+      for (var si = 0; si < 3; si++) {
+        var sa = (Math.sin(time * 0.05 + si) + 1) * 0.5;
+        var sx = ox + 0.05 + Math.sin(time * 0.02 + si * 2) * (dw - 0.1);
+        var sy = oy + Math.cos(time * 0.03 + si) * 0.04;
+        ctx.fillStyle = 'rgba(255,230,120,' + sa * 0.6 + ')';
+        ctx.beginPath(); ctx.arc(px(sx), py(sy), px(0.003), 0, Math.PI * 2); ctx.fill();
+        // Crosshair glint
+        ctx.strokeStyle = 'rgba(255,245,180,' + sa * 0.4 + ')'; ctx.lineWidth = 0.5;
+        ctx.beginPath(); ctx.moveTo(px(sx - 0.008), py(sy)); ctx.lineTo(px(sx + 0.008), py(sy)); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(px(sx), py(sy - 0.008)); ctx.lineTo(px(sx), py(sy + 0.008)); ctx.stroke();
+      }
+      ctx.restore();
+
+      // Shadow under desk body
+      var ds = ctx.createRadialGradient(px(ox + dw * 0.5), py(floor), px(0.01), px(ox + dw * 0.5), py(floor), px(dw * 0.55));
       ds.addColorStop(0, 'rgba(0,0,0,.18)'); ds.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = ds; ctx.fillRect(px(ox - 0.04), py(oy + dh + 0.060), px(dw + 0.08), py(0.04));
+      ctx.fillStyle = ds; ctx.fillRect(px(ox - 0.02), py(floor - 0.01), px(dw + 0.04), py(0.02));
     }
 
     // ── SMOOTH CHAIR (rear view, facing desk) ────────────────────
@@ -1149,13 +1148,13 @@
     // ── ZONES ─────────────────────────────────────────────────────
     var zones = [
       { x: SX, y: SY, w: SW, h: SH, title: 'Journal Archive', sub: 'all your past entries', key: 'archive' },
-      { x: DX, y: DY - 0.055, w: DW, h: DH + 0.11, title: 'Writing Desk', sub: 'start a new entry', key: 'write' },
-      { x: CX - 0.01, y: CY, w: 0.22, h: 0.35, title: 'The Chair', sub: 'mood check', key: 'mood' },
-      { x: LX - 0.062, y: LY - 0.012, w: 0.112, h: 0.60, title: 'Floor Lamp', sub: 'click to toggle light', lamp: true },
-      { x: WX - 0.044, y: WY - 0.022, w: WW + 0.09, h: WH + 0.044, title: 'The Window', sub: 'soft light from outside', key: 'home' },
-      { x: 0.10, y: FY + 0.055, w: 0.10, h: 0.12, title: 'Your Bunny', sub: 'sleeping peacefully', key: 'cat' },
-      { x: SX, y: SY + 0.010, w: 0.045, h: 0.130, title: 'Mood Plant', sub: journalDays >= 5 ? 'thriving' : 'needs your attention', key: 'plant' },
-      { x: DX, y: DY - 0.085, w: 0.042, h: 0.055, title: 'Firefly Jar', sub: 'glowing thoughts', key: 'jar' },
+      { x: DX, y: DY, w: DW, h: 0.25, title: 'Writing Desk', sub: 'start a new entry', key: 'write' },
+      { x: CX, y: CY, w: CWW, h: CHH + 0.15, title: 'The Chair', sub: 'mood check', key: 'mood' },
+      { x: LX - 0.07, y: LY - 0.02, w: 0.14, h: 0.55, title: 'Floor Lamp', sub: 'click to toggle light', lamp: true },
+      { x: WX - 0.05, y: WY - 0.03, w: WW + 0.10, h: WH + 0.06, title: 'The Window', sub: 'soft light from outside', key: 'home' },
+      { x: 0.08, y: FY + 0.06, w: 0.12, h: 0.15, title: 'Your Bunny', sub: 'sleeping peacefully', key: 'cat' },
+      { x: SX + 0.20, y: SY + 0.015, w: 0.06, h: 0.17, title: 'Mood Plant', sub: journalDays >= 5 ? 'thriving' : 'needs your attention', key: 'plant' },
+      { x: DX + 0.012, y: DY - 0.075, w: 0.040, h: 0.075, title: 'Firefly Jar', sub: 'glowing thoughts', key: 'jar' },
       { x: CX + CWW + 0.008, y: CY + CHH * 0.54, w: 0.062, h: 0.050, title: 'Record Player', sub: 'click to play', vinyl: true },
     ];
 
