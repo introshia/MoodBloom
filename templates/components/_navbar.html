@@ -1,6 +1,9 @@
     <!-- NAVBAR -->
     <div class="navbar-container">
-        <a href="{{ url_for('index') }}" class="navbar-logo">MoodBloom</a>
+        <a href="{{ url_for('index') }}" class="navbar-logo">
+            &#10022; Folio
+            <span>/ {% if request.endpoint == 'cozy_room' %}sanctuary{% elif request.endpoint == 'dashboard' %}shelf{% elif request.endpoint == 'journal' %}writing{% else %}bloom{% endif %}</span>
+        </a>
 
         <div class="navbar-center">
             {% if session.get('user_id') %}

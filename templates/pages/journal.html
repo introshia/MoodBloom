@@ -11,9 +11,9 @@
     /* Prevent horizontal scroll caused by sticker handles extending outside page */
     body {
         overflow-x: hidden;
-        background: #F5F3EF;
+        background: #180C05; /* Deep Warm Wood */
         font-family: 'DM Sans', sans-serif;
-        color: #1C1917;
+        color: #FFBA60; /* Gold */
     }
 
     /* Hide global PWA button on this page */
@@ -22,14 +22,14 @@
     }
 
     :root {
-        --paper: #F5F3EF;
-        --paper-back: #EDEAE3;
+        --paper: #FDFCFB; /* Warm Paper */
+        --paper-back: #F5F1E9;
         --text-black: #1C1917;
         --text-gray: #8C877E;
-        --border: 1px solid #D9D5CC;
-        --paper-dot: rgba(140, 135, 126, 0.3);
+        --border: 1px solid rgba(180, 90, 25, 0.25);
+        --paper-dot: rgba(180, 110, 40, 0.15);
         --hole: #1C1917;
-        --bg-canvas: #F5F3EF;
+        --bg-canvas: #180C05; /* Deep Warm Wood */
     }
 
     /* Universal Box Sizing */
@@ -334,11 +334,9 @@
         background-position: center;
         background-repeat: no-repeat;
         padding: 40px 40px 15px 45px;
-        /* Better internal balance */
         display: flex;
         flex-direction: column;
         box-shadow: inset 15px 0 30px rgba(0, 0, 0, 0.02);
-        /* Subtle spine shadow */
     }
 
     /* ── BACK FACE — uses left-page.png asset ── */

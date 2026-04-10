@@ -138,7 +138,7 @@ def login():
         if user and check_password_hash(user['password_hash'], password_attempt):
             session['user_id'] = user['id']
             session['username'] = user['username']
-            return redirect(url_for('dashboard')) 
+            return redirect(url_for('cozy_room')) 
         else:
             return "Invalid username or password. Please try again."
 
@@ -293,11 +293,44 @@ def dashboard():
                           chart_moods=chart_moods,
                           companion=companion_data)
 
+def calculate_streak(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT DISTINCT DATE(entry_date) as day FROM journal_entries WHERE user_id = %s ORDER BY day DESC", (user_id,))
+    dates = [row['day'] for row in cursor.fetchall()]
+    conn.close()
+
+    if not dates: return 0
+
+    from datetime import date, timedelta
+    today = date.today()
+    streak = 0
+    curr = today
+
+    # If they haven't written today, check if the streak was alive yesterday
+    if dates[0] != today:
+        if dates[0] == today - timedelta(days=1):
+            curr = today - timedelta(days=1)
+        else:
+            return 0 # Streak broken
+
+    # Count backwards
+    for d in dates:
+        if d == curr:
+            streak += 1
+            curr -= timedelta(days=1)
+        else:
+            break
+    return streak
+
 @app.route('/cozy-room')
 def cozy_room():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    return render_template('pages/cozy_room.html')
+    
+    user_id = session['user_id']
+    streak = calculate_streak(user_id)
+    return render_template('pages/cozy_room.html', streak_days=streak)
 
 @app.route('/profile')
 def profile():

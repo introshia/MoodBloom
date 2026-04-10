@@ -10,21 +10,21 @@
         <section class="hero-section">
             <div class="cards-container">
                 <div class="floating-card card-1" id="js-card-1">
-                    <div class="card-chip">News</div>
+                    <div class="card-chip">Folio</div>
                     <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=320&h=400&fit=crop"
                         alt="News">
                 </div>
                 <div class="floating-card card-2" id="js-card-2">
-                    <div class="card-chip yellow">Volunteer</div>
+                    <div class="card-chip">Sanctuary</div>
                     <img src="{{ url_for('static', filename='images/journal-landing.png') }}" alt="Journal">
                 </div>
                 <div class="floating-card card-3" id="js-card-3">
-                    <div class="card-chip cyan">Update</div>
+                    <div class="card-chip">Reflection</div>
                     <img src="https://images.unsplash.com/photo-1517842645767-c639042777db?w=320&h=400&fit=crop"
                         alt="Update">
                 </div>
                 <div class="floating-card card-4" id="js-card-4">
-                    <div class="card-chip yellow">Impact</div>
+                    <div class="card-chip">Growth</div>
                     <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=320&h=400&fit=crop"
                         alt="Impact">
                 </div>
@@ -38,7 +38,7 @@
                             <span class="hero-word-pill-text">emotions</span>
                             <span class="hero-close">×</span>
                         </span>
-                        <span class="icon-float icon-chat"><i class="fa-solid fa-heart"></i></span>
+                        <span class="icon-float icon-chat" style="background: var(--color-gold);"><i class="fa-solid fa-heart"></i></span>
                     </span>
                     meet
                     <span class="hero-word-highlighted">
@@ -46,7 +46,7 @@
                             <span class="hero-word-pill-text">clarity</span>
                             <span class="hero-close">×</span>
                         </span>
-                        <span class="icon-float icon-map"><i class="fa-solid fa-lightbulb"></i></span>
+                        <span class="icon-float icon-map" style="background: var(--color-gold);"><i class="fa-solid fa-lightbulb"></i></span>
                     </span>
                 </h1>
                 <p class="hero-subheadline">
@@ -55,7 +55,7 @@
                 </p>
                 <div class="hero-cta-group" style="margin-top: 32px;">
                     <button id="hero-install-btn" class="cta-button">
-                        <i class="fa-solid fa-cloud-arrow-down me-2"></i> Install MoodBloom
+                        <i class="fa-solid fa-cloud-arrow-down me-2"></i> Install Folio
                     </button>
                     <a href="{{ url_for('register') }}" class="cta-button cta-button-secondary">Get Started</a>
                 </div>
@@ -65,7 +65,7 @@
 
     <!-- JOURNAL INTERIOR: revealed as the cover folds away -->
     <section id="journal-interior">
-        <span class="journal-interior-label">✦ Open your journal</span>
+        <span class="journal-interior-label" style="background: var(--color-gold);">✦ Open your journal</span>
         <h2 class="journal-interior-heading">
             Where
             <span class="hero-word-highlighted">
@@ -77,7 +77,7 @@
             begins.
         </h2>
         <p class="journal-interior-sub">
-            Every page is a new beginning. MoodBloom transforms your daily reflections into meaningful insights that
+            Every page is a new beginning. Folio transforms your daily reflections into meaningful insights that
             help you understand yourself better, one entry at a time.
         </p>
 
@@ -86,13 +86,13 @@
 
 <!-- FEATURES SECTION -->
 <section id="features" class="content-section">
-    <h2 class="section-heading">What Makes MoodBloom Different</h2>
+    <h2 class="section-heading">What Makes Folio Different</h2>
     <p class="section-subheadline">A complete mood tracking and journaling platform designed to help you understand your
         emotional patterns and grow.</p>
 
     <div class="features-grid">
         <div class="feature-item">
-            <div class="feature-item-chip">Advanced</div>
+            <div class="feature-item-chip" style="background: var(--color-gold);">Advanced</div>
             <div class="feature-item-icon"><i class="fa-solid fa-brain"></i></div>
             <h3>AI Sentiment Analysis</h3>
             <p>Our intelligent engine analyzes the emotional weight of your words, helping you understand the true
@@ -102,10 +102,10 @@
             <div class="ai-demo">
                 <div class="ai-demo-input-group">
                     <input type="text" id="demo-input" placeholder="How are you feeling today?">
-                    <button class="ai-demo-btn" id="analyze-btn">Analyze</button>
+                    <button class="ai-demo-btn" id="analyze-btn" style="background: var(--color-gold); color: var(--bg-canvas);">Analyze</button>
                 </div>
                 <div class="ai-result" id="demo-result">
-                    <i class="fa-solid fa-sparkles" style="color: var(--color-yellow)"></i>
+                    <i class="fa-solid fa-sparkles" style="color: var(--color-gold)"></i>
                     <span>Sentiment: </span>
                     <span class="sentiment-badge" id="demo-badge">Joyful</span>
                 </div>
@@ -113,7 +113,7 @@
         </div>
 
         <div class="feature-item">
-            <div class="feature-item-chip yellow">Secure</div>
+            <div class="feature-item-chip" style="background: var(--color-gold);">Secure</div>
             <div class="feature-item-icon"><i class="fa-solid fa-lock"></i></div>
             <h3>Immutable Archive</h3>
             <p>Your entries are permanently preserved with complete data integrity. Your emotional journey is private,
@@ -121,7 +121,7 @@
         </div>
 
         <div class="feature-item">
-            <div class="feature-item-chip mint">Predictive</div>
+            <div class="feature-item-chip" style="background: var(--color-gold);">Predictive</div>
             <div class="feature-item-icon"><i class="fa-solid fa-chart-line"></i></div>
             <h3>Predictive Trends</h3>
             <p>Discover patterns in your mood fluctuations and get insights about what drives your emotional landscape.
@@ -129,7 +129,7 @@
         </div>
 
         <div class="feature-item">
-            <div class="feature-item-chip">Accessible</div>
+            <div class="feature-item-chip" style="background: var(--color-gold);">Accessible</div>
             <div class="feature-item-icon"><i class="fa-solid fa-mobile"></i></div>
             <h3>Mobile & Desktop</h3>
             <p>Access your journal anywhere, anytime. Installable as a progressive web app for offline mood tracking.
@@ -142,29 +142,29 @@
 
 <!-- HOW IT WORKS -->
 <section id="how-it-works" class="content-section">
-    <h2 class="section-heading">How MoodBloom Works</h2>
+    <h2 class="section-heading">How Folio Works</h2>
     <div class="how-it-works">
         <div class="step-card">
-            <div class="step-number">1</div>
+            <div class="step-number" style="color: var(--color-gold);">1</div>
             <h4>Create an Account</h4>
             <p><a href="{{ url_for('register') }}"
-                    style="color: var(--color-cyan); text-decoration: none; font-weight: 600;">Sign up</a> in seconds.
+                    style="color: var(--color-gold); text-decoration: none; font-weight: 600;">Sign up</a> in seconds.
                 No complex forms—just you and your journey.</p>
         </div>
         <div class="step-card">
-            <div class="step-number">2</div>
+            <div class="step-number" style="color: var(--color-gold);">2</div>
             <h4>Write Your Thoughts</h4>
             <p><a href="{{ url_for('journal') }}"
-                    style="color: var(--color-cyan); text-decoration: none; font-weight: 600;">Open the journal</a> and
+                    style="color: var(--color-gold); text-decoration: none; font-weight: 600;">Open the journal</a> and
                 freely express whatever's on your mind. No judgment, just reflection.</p>
         </div>
         <div class="step-card">
-            <div class="step-number">3</div>
+            <div class="step-number" style="color: var(--color-gold);">3</div>
             <h4>Get AI Insights</h4>
             <p>Our sentiment analyzer processes your words to identify emotional patterns and give you clarity.</p>
         </div>
         <div class="step-card">
-            <div class="step-number">4</div>
+            <div class="step-number" style="color: var(--color-gold);">4</div>
             <h4>Track & Grow</h4>
             <p>Watch your mood trends unfold over time. Bloom into understanding. Bloom into growth.</p>
         </div>
@@ -184,7 +184,7 @@
 <!-- BENEFITS SECTION -->
 <section id="benefits" class="content-section">
     <h2 class="section-heading">Why Track Your Mood?</h2>
-    <p class="section-subheadline">Understanding yourself is the first step to thriving. MoodBloom helps you:</p>
+    <p class="section-subheadline">Understanding yourself is the first step to thriving. Folio helps you:</p>
     <div class="features-grid">
         <div class="feature-item">
             <div class="feature-item-icon"><i class="fa-solid fa-lightbulb"></i></div>
@@ -295,9 +295,9 @@
         const badge = document.getElementById('demo-badge');
 
         const moods = [
-            { words: ['happy', 'great', 'love', 'amazing', 'good'], label: 'Joyful', color: 'var(--color-yellow)' },
-            { words: ['sad', 'bad', 'cry', 'lonely', 'terrible'], label: 'Melancholy', color: 'var(--color-cyan)' },
-            { words: ['stress', 'hard', 'tired', 'busy', 'work'], label: 'Stressed', color: 'var(--color-mint)' }
+            { words: ['happy', 'great', 'love', 'amazing', 'good'], label: 'Joyful', color: 'var(--color-gold)' },
+            { words: ['sad', 'bad', 'cry', 'lonely', 'terrible'], label: 'Melancholy', color: 'var(--color-amber)' },
+            { words: ['stress', 'hard', 'tired', 'busy', 'work'], label: 'Stressed', color: 'var(--color-amber)' }
         ];
 
         btn.addEventListener('click', () => {
@@ -311,7 +311,7 @@
             setTimeout(() => {
                 let match = moods.find(m => m.words.some(w => text.includes(w)));
                 let finalMood = match ? match.label : 'Calm';
-                let finalColor = match ? match.color : 'var(--color-mint)';
+                let finalColor = match ? match.color : 'var(--color-gold)';
 
                 badge.innerText = finalMood;
                 badge.style.background = finalColor;
