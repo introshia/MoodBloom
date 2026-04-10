@@ -803,112 +803,112 @@
 
     // ── OBJECT DRAWERS ────────────────────────────────────────────
     function drawCat(x, y) {
-      // ── Warm sitting rabbit — same gradient-only style as the room ──
+      // ── Sitting rabbit, side profile, upright posture ────────────
+      // Anchor (x,y) = bottom-center of rabbit (floor level)
+      // Positive y = DOWN, negative y = UP (canvas coords)
+      // Rabbit faces RIGHT. Total height ~0.110, width ~0.075
       catBreath += 0.011;
-      var br = Math.sin(catBreath) * 0.0015; // subtle chest breathing
+      var br = Math.sin(catBreath) * 0.0016;
       ctx.save(); ctx.translate(px(x), py(y));
 
-      // Ground shadow (soft, like other furniture)
-      ctx.fillStyle = 'rgba(0,0,0,.12)';
-      ctx.beginPath(); ctx.ellipse(px(0.010), py(0.040), px(0.062), py(0.009), 0, 0, Math.PI * 2); ctx.fill();
+      // Ground shadow
+      ctx.fillStyle = 'rgba(0,0,0,.13)';
+      ctx.beginPath(); ctx.ellipse(px(0.012), py(0.008), px(0.050), py(0.009), 0, 0, Math.PI * 2); ctx.fill();
 
-      // ── BACK HAUNCHES ─────────────────────────────────────────────
-      // Radial gradient: warm highlight → mid-tan → darker edge (NO solid outline)
-      var hg = ctx.createRadialGradient(px(-0.018), py(-0.004), px(0.006), px(-0.004), py(0.010), px(0.050));
-      hg.addColorStop(0,   '#DEC090');  // warm highlight
-      hg.addColorStop(0.38, '#C4885A'); // mid honey tan
-      hg.addColorStop(0.75, '#9A5C30'); // shadow edge
-      hg.addColorStop(1,    '#7A4020'); // darkest rim
-      ctx.fillStyle = hg;
-      ctx.beginPath(); ctx.ellipse(px(-0.004), py(0.010 + br * 0.3), px(0.048), py(0.046), -0.10, 0, Math.PI * 2); ctx.fill();
+      // ── HIND LEGS / HAUNCHES at bottom (wide, flat, slightly behind) ──
+      var hleg = ctx.createLinearGradient(px(-0.025), py(0.005), px(0.010), py(0.005));
+      hleg.addColorStop(0, '#9A6838'); hleg.addColorStop(0.6, '#B88A55'); hleg.addColorStop(1, '#CCA870');
+      ctx.fillStyle = hleg;
+      ctx.beginPath(); ctx.ellipse(px(-0.008), py(0.002), px(0.036), py(0.014), 0.05, 0, Math.PI * 2); ctx.fill();
 
-      // ── BODY / TORSO ───────────────────────────────────────────────
-      var bg = ctx.createRadialGradient(px(0.012), py(-0.012), px(0.005), px(0.018), py(0.000), px(0.042));
-      bg.addColorStop(0,    '#DEC090');
-      bg.addColorStop(0.42, '#C4885A');
-      bg.addColorStop(0.80, '#9A5C30');
-      bg.addColorStop(1,    '#7A4020');
-      ctx.fillStyle = bg;
-      ctx.beginPath(); ctx.ellipse(px(0.018), py(-0.002 + br * 0.5), px(0.038), py(0.032), -0.20, 0, Math.PI * 2); ctx.fill();
+      // Cotton tail
+      ctx.fillStyle = '#F0EAD8'; ctx.beginPath(); ctx.arc(px(-0.034), py(-0.004), px(0.011), 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.arc(px(-0.036), py(-0.006), px(0.007), 0, Math.PI * 2); ctx.fill();
 
-      // ── BELLY (soft cream, blends at edges naturally) ───────────────
-      ctx.fillStyle = '#F2E4C8';
-      ctx.beginPath(); ctx.ellipse(px(0.030), py(0.010 + br * 0.35), px(0.022), py(0.028), 0.24, 0, Math.PI * 2); ctx.fill();
-      // Feathered edge so it doesn't look pasted on
-      var beg = ctx.createRadialGradient(px(0.030), py(0.010), px(0.006), px(0.030), py(0.010), px(0.024));
-      beg.addColorStop(0.55, 'rgba(242,228,200,0)');
-      beg.addColorStop(1,    'rgba(170,110,55,.20)');
-      ctx.fillStyle = beg;
-      ctx.beginPath(); ctx.ellipse(px(0.030), py(0.010), px(0.022), py(0.028), 0.24, 0, Math.PI * 2); ctx.fill();
+      // ── MAIN BODY — tall upright ellipse, the big shape ──────────
+      // Highlight at upper-back (left-top), gradient darkens toward front-bottom
+      var bodyG = ctx.createRadialGradient(
+        px(-0.016), py(-0.052), px(0.005),   // highlight: upper-back
+        px(0.002),  py(-0.028), px(0.048)    // outer edge
+      );
+      bodyG.addColorStop(0,    '#D4AA70');  // bright warm tan at top-back
+      bodyG.addColorStop(0.32, '#BA8C52');  // mid honey
+      bodyG.addColorStop(0.68, '#9A6838');  // shadow
+      bodyG.addColorStop(1,    '#7A5028');  // dark rim
+      ctx.fillStyle = bodyG;
+      // TALL ellipse, slightly tilted — this is the upright sitting posture
+      ctx.beginPath(); ctx.ellipse(px(0.005), py(-0.032 + br * 0.5), px(0.038), py(0.046), -0.12, 0, Math.PI * 2); ctx.fill();
 
-      // ── COTTON TAIL ────────────────────────────────────────────────
-      ctx.fillStyle = '#F4EEE0';
-      ctx.beginPath(); ctx.arc(px(-0.044), py(0.012), px(0.012), 0, Math.PI * 2); ctx.fill();
+      // ── CHEST / BELLY — cream patch on front (right side of body) ──
+      // In the reference this is the large off-white area on the right side
+      ctx.fillStyle = '#E8D4A8';
+      ctx.beginPath(); ctx.ellipse(px(0.022), py(-0.022 + br * 0.4), px(0.020), py(0.030), 0.18, 0, Math.PI * 2); ctx.fill();
+      // Soft feathered blend at edges
+      var bellyFade = ctx.createRadialGradient(px(0.022), py(-0.022), px(0.004), px(0.022), py(-0.022), px(0.023));
+      bellyFade.addColorStop(0.5, 'rgba(232,212,168,0)');
+      bellyFade.addColorStop(1,   'rgba(140,90,40,.16)');
+      ctx.fillStyle = bellyFade;
+      ctx.beginPath(); ctx.ellipse(px(0.022), py(-0.022), px(0.020), py(0.030), 0.18, 0, Math.PI * 2); ctx.fill();
+
+      // ── FRONT PAWS — small rounded ovals at bottom-right ─────────
+      var pawG = ctx.createLinearGradient(px(0.008), py(0.006), px(0.038), py(0.006));
+      pawG.addColorStop(0, '#9A6838'); pawG.addColorStop(1, '#CCA870');
+      ctx.fillStyle = pawG;
+      ctx.beginPath(); ctx.ellipse(px(0.014), py(0.006), px(0.011), py(0.007), 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#C09860';
+      ctx.beginPath(); ctx.ellipse(px(0.028), py(0.004), px(0.013), py(0.007), 0.1, 0, Math.PI * 2); ctx.fill();
+
+      // ── HEAD — round, upper-right area, connected to body top ────
+      var headG = ctx.createRadialGradient(
+        px(0.024), py(-0.074), px(0.003),
+        px(0.030), py(-0.062), px(0.026)
+      );
+      headG.addColorStop(0,    '#D4AA70');
+      headG.addColorStop(0.40, '#BA8C52');
+      headG.addColorStop(0.80, '#9A6838');
+      headG.addColorStop(1,    '#7A5028');
+      ctx.fillStyle = headG;
+      ctx.beginPath(); ctx.ellipse(px(0.030), py(-0.062 - br * 0.5), px(0.024), py(0.022), -0.06, 0, Math.PI * 2); ctx.fill();
+      // Warm lighter cheek area (front of face, reference shows cream/light patch)
+      ctx.fillStyle = 'rgba(220,188,135,.45)';
+      ctx.beginPath(); ctx.ellipse(px(0.042), py(-0.056), px(0.012), py(0.010), 0.25, 0, Math.PI * 2); ctx.fill();
+
+      // ── EARS — tall upright, above the head ──────────────────────
+      // Far ear (left, slightly behind, tilted left, no inner channel visible)
+      var earFarG = ctx.createRadialGradient(px(0.012), py(-0.098), px(0.002), px(0.016), py(-0.090), px(0.010));
+      earFarG.addColorStop(0, '#C4946A'); earFarG.addColorStop(1, '#9A6838');
+      ctx.fillStyle = earFarG;
+      ctx.beginPath(); ctx.ellipse(px(0.016), py(-0.090), px(0.008), py(0.025), -0.25, 0, Math.PI * 2); ctx.fill();
+      // Far ear inner (muted, barely visible)
+      ctx.fillStyle = 'rgba(175,110,80,.40)';
+      ctx.beginPath(); ctx.ellipse(px(0.016), py(-0.088), px(0.005), py(0.016), -0.25, 0, Math.PI * 2); ctx.fill();
+
+      // Near ear (right, more upright, fuller, warm)
+      var earNearG = ctx.createRadialGradient(px(0.025), py(-0.104), px(0.003), px(0.028), py(-0.094), px(0.012));
+      earNearG.addColorStop(0, '#D4AA70'); earNearG.addColorStop(0.5, '#BA8C52'); earNearG.addColorStop(1, '#9A6838');
+      ctx.fillStyle = earNearG;
+      ctx.beginPath(); ctx.ellipse(px(0.028), py(-0.094), px(0.010), py(0.028), 0.10, 0, Math.PI * 2); ctx.fill();
+      // Inner ear — warm salmon channel (clearly visible)
+      ctx.fillStyle = '#C08060';
+      ctx.beginPath(); ctx.ellipse(px(0.028), py(-0.092), px(0.006), py(0.019), 0.10, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(195,125,95,.38)';
+      ctx.beginPath(); ctx.ellipse(px(0.028), py(-0.091), px(0.003), py(0.012), 0.10, 0, Math.PI * 2); ctx.fill();
+
+      // ── EYE — small, warm dark brown, with catchlight ────────────
+      ctx.fillStyle = '#1E1008';
+      ctx.beginPath(); ctx.arc(px(0.044), py(-0.063), px(0.007), 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = '#FFFFFF';
-      ctx.beginPath(); ctx.arc(px(-0.046), py(0.010), px(0.008), 0, Math.PI * 2); ctx.fill();
-      // Soft inner shadow on tail
-      ctx.fillStyle = 'rgba(180,150,110,.30)';
-      ctx.beginPath(); ctx.arc(px(-0.042), py(0.015), px(0.006), 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(px(0.047), py(-0.067), px(0.003), 0, Math.PI * 2); ctx.fill();
 
-      // ── BACK FOOT (long, flat, tucked) ─────────────────────────────
-      var fg = ctx.createLinearGradient(px(-0.040), py(0.038), px(0.005), py(0.038));
-      fg.addColorStop(0, '#9A5C30'); fg.addColorStop(0.55, '#C4885A'); fg.addColorStop(1, '#DEC090');
-      ctx.fillStyle = fg;
-      ctx.beginPath(); ctx.ellipse(px(-0.018), py(0.038), px(0.026), py(0.009), -0.10, 0, Math.PI * 2); ctx.fill();
-
-      // ── HEAD ───────────────────────────────────────────────────────
-      var heg = ctx.createRadialGradient(px(0.034), py(-0.042), px(0.004), px(0.040), py(-0.032), px(0.028));
-      heg.addColorStop(0,    '#DEC090');
-      heg.addColorStop(0.42, '#C4885A');
-      heg.addColorStop(0.82, '#9A5C30');
-      heg.addColorStop(1,    '#7A4020');
-      ctx.fillStyle = heg;
-      ctx.beginPath(); ctx.ellipse(px(0.040), py(-0.032 - br * 0.5), px(0.026), py(0.024), -0.08, 0, Math.PI * 2); ctx.fill();
-      // Warm cheek patch (like the reference's lighter face area)
-      ctx.fillStyle = 'rgba(224,190,138,.42)';
-      ctx.beginPath(); ctx.ellipse(px(0.052), py(-0.026), px(0.012), py(0.010), 0.28, 0, Math.PI * 2); ctx.fill();
-
-      // ── EARS ───────────────────────────────────────────────────────
-      // Far ear — slightly behind, darker midtone
-      ctx.fillStyle = '#B07840';
-      ctx.beginPath(); ctx.ellipse(px(0.022), py(-0.080), px(0.008), py(0.028), -0.22, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = 'rgba(195,140,85,.52)';
-      ctx.beginPath(); ctx.ellipse(px(0.022), py(-0.078), px(0.005), py(0.018), -0.22, 0, Math.PI * 2); ctx.fill();
-
-      // Near ear — gradient + warm inner channel
-      var earg = ctx.createRadialGradient(px(0.032), py(-0.092), px(0.003), px(0.036), py(-0.082), px(0.012));
-      earg.addColorStop(0, '#DEC090'); earg.addColorStop(0.5, '#C4885A'); earg.addColorStop(1, '#9A5C30');
-      ctx.fillStyle = earg;
-      ctx.beginPath(); ctx.ellipse(px(0.036), py(-0.082), px(0.010), py(0.030), 0.12, 0, Math.PI * 2); ctx.fill();
-      // Inner ear warm salmon channel
-      ctx.fillStyle = '#C88062';
-      ctx.beginPath(); ctx.ellipse(px(0.036), py(-0.080), px(0.006), py(0.020), 0.12, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = 'rgba(210,160,115,.40)';
-      ctx.beginPath(); ctx.ellipse(px(0.036), py(-0.079), px(0.003), py(0.013), 0.12, 0, Math.PI * 2); ctx.fill();
-
-      // ── EYE ────────────────────────────────────────────────────────
-      // Warm dark brown (not black — matches the room's warm palette)
-      ctx.fillStyle = '#2E1A0C';
-      ctx.beginPath(); ctx.arc(px(0.052), py(-0.034), px(0.007), 0, Math.PI * 2); ctx.fill();
-      // Single white catchlight
-      ctx.fillStyle = '#FFFFFF';
-      ctx.beginPath(); ctx.arc(px(0.055), py(-0.038), px(0.003), 0, Math.PI * 2); ctx.fill();
-
-      // ── SNOUT / MUZZLE ─────────────────────────────────────────────
-      ctx.fillStyle = '#F0DFBE';
-      ctx.beginPath(); ctx.ellipse(px(0.060), py(-0.020), px(0.010), py(0.008), 0.15, 0, Math.PI * 2); ctx.fill();
-      // Tiny warm nose dot
+      // ── MUZZLE / NOSE ─────────────────────────────────────────────
+      ctx.fillStyle = '#E8D4A8';
+      ctx.beginPath(); ctx.ellipse(px(0.050), py(-0.054), px(0.009), py(0.007), 0.12, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = '#C07858';
-      ctx.beginPath(); ctx.ellipse(px(0.063), py(-0.021), px(0.005), py(0.004), 0, 0, Math.PI * 2); ctx.fill();
-
-      // ── FRONT PAW ──────────────────────────────────────────────────
-      var pg = ctx.createLinearGradient(px(0.024), py(0.037), px(0.050), py(0.037));
-      pg.addColorStop(0, '#9A5C30'); pg.addColorStop(0.5, '#C4885A'); pg.addColorStop(1, '#DEC090');
-      ctx.fillStyle = pg;
-      ctx.beginPath(); ctx.ellipse(px(0.036), py(0.038), px(0.013), py(0.007), 0.10, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(px(0.053), py(-0.054), px(0.004), py(0.003), 0, 0, Math.PI * 2); ctx.fill();
 
       ctx.restore();
     }
+
 
     function drawPlant(x, y, streak) {
       var health = Math.min(1, streak / 7);
