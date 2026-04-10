@@ -456,11 +456,11 @@
     function getPal() {
       var t = getTOD();
       return ({
-        dawn: { w0: '#6A3820', w1: '#4E2812', ceil: '#241208', wTint: 'rgba(255,215,165,.78)', wGlow: '255,195,140', aR: 230, aG: 155, aB: 90 },
-        day: { w0: '#5C3220', w1: '#4A2614', ceil: '#201008', wTint: 'rgba(255,240,185,.84)', wGlow: '255,225,140', aR: 255, aG: 200, aB: 100 },
-        dusk: { w0: '#6A2A10', w1: '#521E0A', ceil: '#200C04', wTint: 'rgba(255,145,70,.72)', wGlow: '255,130,55', aR: 255, aG: 130, aB: 55 },
-        night: { w0: '#2E1810', w1: '#22100A', ceil: '#0E0604', wTint: 'rgba(65,85,165,.40)', wGlow: '85,115,210', aR: 105, aG: 135, aB: 215 }
-      })[t] || { w0: '#5C3220', w1: '#4A2614', ceil: '#201008', wTint: 'rgba(255,240,185,.84)', wGlow: '255,225,140', aR: 255, aG: 200, aB: 100 };
+        dawn: { w0: '#8A5030', w1: '#6A3818', ceil: '#3A2010', wTint: 'rgba(255,225,185,.80)', wGlow: '255,210,160', aR: 245, aG: 175, aB: 110 },
+        day: { w0: '#7A4828', w1: '#60341A', ceil: '#30180A', wTint: 'rgba(255,248,200,.86)', wGlow: '255,235,155', aR: 255, aG: 215, aB: 120 },
+        dusk: { w0: '#8A3C18', w1: '#6A2C0C', ceil: '#2C1006', wTint: 'rgba(255,165,90,.75)', wGlow: '255,145,70', aR: 255, aG: 148, aB: 72 },
+        night: { w0: '#4A2C1C', w1: '#361E10', ceil: '#1A0C06', wTint: 'rgba(80,100,185,.45)', wGlow: '100,130,225', aR: 120, aG: 148, aB: 225 }
+      })[t] || { w0: '#7A4828', w1: '#60341A', ceil: '#30180A', wTint: 'rgba(255,248,200,.86)', wGlow: '255,235,155', aR: 255, aG: 215, aB: 120 };
     }
 
     // ── MAIN DRAW ─────────────────────────────────────────────────
@@ -475,7 +475,7 @@
       ctx.fillRect(0, 0, W, py(0.12));
 
       // ─ WALL ─
-      ctx.fillStyle = linG(0.5, 0.10, 0.5, FY, [[0, pal.w0], [0.45, pal.w1], [1, '#1E0C06']]);
+      ctx.fillStyle = linG(0.5, 0.10, 0.5, FY, [[0, pal.w0], [0.45, pal.w1], [1, '#3A1E0A']]);
       ctx.fillRect(0, py(0.10), W, py(FY - 0.10));
 
       // Wallpaper diamonds
@@ -503,10 +503,10 @@
       // ─ WINDOW (parallax far) ─
       ctx.save(); ctx.translate(px(ox0), py(oy0));
       // Glow behind window
-      var wa = lampOn ? 0.52 : 0.18;
-      var wgg = ctx.createRadialGradient(px(WX + WW * 0.5), py(WY + WH * 0.5), px(0.02), px(WX + WW * 0.5), py(WY + WH * 0.5), px(0.40));
+      var wa = lampOn ? 0.68 : 0.28;
+      var wgg = ctx.createRadialGradient(px(WX + WW * 0.5), py(WY + WH * 0.5), px(0.02), px(WX + WW * 0.5), py(WY + WH * 0.5), px(0.52));
       wgg.addColorStop(0, 'rgba(' + pal.wGlow + ',' + wa + ')');
-      wgg.addColorStop(0.4, 'rgba(' + pal.wGlow + ',' + (wa * 0.38) + ')');
+      wgg.addColorStop(0.35, 'rgba(' + pal.wGlow + ',' + (wa * 0.45) + ')');
       wgg.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = wgg; ctx.fillRect(0, 0, W, H);
 
@@ -577,7 +577,7 @@
 
       // ─ FLOOR ─
       ctx.save(); ctx.translate(px(ox1 * 0.5), 0);
-      ctx.fillStyle = linG(0.5, FY, 0.5, 1, [[0, '#1E0C06'], [0.14, '#2C1408'], [0.5, '#241008'], [1, '#0E0502']]);
+      ctx.fillStyle = linG(0.5, FY, 0.5, 1, [[0, '#3A1C0A'], [0.14, '#4A2810'], [0.5, '#402010'], [1, '#221008']]);
       ctx.fillRect(-W * 0.12, py(FY), W * 1.24, py(1 - FY));
       // Floor planks
       ctx.strokeStyle = 'rgba(0,0,0,.30)';
@@ -659,31 +659,25 @@
       fr(sdX + sdW * 0.22, sdY + sdH - 0.003, sdW * 0.56, 0.009, '#361608');
       if (lampOn) {
         // Inner glow of shade
-        fr(sdX + sdW * 0.18, sdY + 0.009, sdW * 0.64, sdH - 0.018, 'rgba(255,222,130,.82)');
+        fr(sdX + sdW * 0.18, sdY + 0.009, sdW * 0.64, sdH - 0.018, 'rgba(255,230,145,.90)');
         var f1 = flk(time);
-        var lpg = ctx.createRadialGradient(px(LX), py(LY + 0.065), px(0.006), px(LX), py(LY + 0.065), px(0.44));
-        lpg.addColorStop(0, 'rgba(255,185,55,' + (f1 * 0.62) + ')');
-        lpg.addColorStop(0.15, 'rgba(250,155,30,.38)');
-        lpg.addColorStop(0.42, 'rgba(220,110,15,.20)');
+        // Main lamp halo — bigger radius, warmer and brighter
+        var lpg = ctx.createRadialGradient(px(LX), py(LY + 0.065), px(0.006), px(LX), py(LY + 0.065), px(0.60));
+        lpg.addColorStop(0, 'rgba(255,200,80,' + (f1 * 0.82) + ')');
+        lpg.addColorStop(0.12, 'rgba(255,170,45,.55)');
+        lpg.addColorStop(0.35, 'rgba(235,130,20,.28)');
+        lpg.addColorStop(0.65, 'rgba(210,100,10,.10)');
         lpg.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = lpg; ctx.fillRect(0, 0, W, H);
-        // Floor pool
-        var fpg = ctx.createRadialGradient(px(LX), py(FY + 0.045), px(0.01), px(LX), py(FY + 0.045), px(0.22));
-        fpg.addColorStop(0, 'rgba(255,165,45,.17)'); fpg.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = fpg; ctx.fillRect(0, py(FY), W, py(0.32));
+        // Floor pool — wider and warmer
+        var fpg = ctx.createRadialGradient(px(LX), py(FY + 0.04), px(0.01), px(LX), py(FY + 0.04), px(0.34));
+        fpg.addColorStop(0, 'rgba(255,180,60,.28)'); fpg.addColorStop(0.5, 'rgba(240,140,30,.10)'); fpg.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = fpg; ctx.fillRect(0, py(FY - 0.02), W, py(0.40));
       }
 
       // ─ WRITING DESK (foreground parallax) ─
       ctx.save(); ctx.translate(px(-ox1 * 0.38), 0);
-      // Legs
-      fr(DX + 0.016, DY + DH, 0.018, 0.080, '#381608');
-      fr(DX + DW - 0.034, DY + DH, 0.018, 0.080, '#381608');
-      // Desktop surface
-      fr(DX, DY, DW, DH, '#5A2C12');
-      fr(DX, DY, DW, 0.007, '#6A3818');
-      fr(DX, DY, DW, 0.004, 'rgba(200,120,50,.25)');
-      // Top edge highlight
-      fr(DX, DY, DW, 0.003, 'rgba(220,150,70,.18)');
+      drawPixelDesk(DX, DY);
 
       // Journal / open notebook on desk
       fr(DX + 0.042, DY - 0.040, 0.100, 0.064, '#8A3418');
@@ -719,29 +713,8 @@
       drawFireflyJar(DX + 0.004, DY - 0.068);
       ctx.restore();
 
-      // ─ ARMCHAIR ─
-      // Legs
-      fr(CX + 0.015, CY + CHH, 0.016, 0.050, '#381608');
-      fr(CX + CWW - 0.030, CY + CHH, 0.016, 0.050, '#381608');
-      // Seat
-      fr(CX, CY + CHH * 0.52, CWW, CHH * 0.50, '#7A3018');
-      fr(CX, CY + CHH * 0.52, CWW, 0.008, '#9A4828');
-      // Back
-      fr(CX, CY, CWW, CHH * 0.52, '#7A3018');
-      fr(CX + 0.010, CY + 0.008, CWW - 0.020, CHH * 0.46, '#6A2810');
-      // Seat stripes
-      for (var csi = 0; csi < 5; csi++) fr(CX + csi * CWW / 5, CY + CHH * 0.52, CWW / 5, CHH * 0.50, csi % 2 === 0 ? '#8A3820' : '#9A4828');
-      // Arms
-      fr(CX - 0.007, CY + CHH * 0.27, 0.020, CHH * 0.38, '#5A2010');
-      fr(CX + CWW - 0.013, CY + CHH * 0.27, 0.020, CHH * 0.38, '#5A2010');
-      fr(CX - 0.009, CY + CHH * 0.21, CWW + 0.018, 0.019, '#6A2C14');
-      // Chair shadow
-      var csh = ctx.createRadialGradient(px(CX + CWW * 0.5), py(CY + CHH + 0.052), 0, px(CX + CWW * 0.5), py(CY + CHH + 0.052), px(CWW * 0.85));
-      csh.addColorStop(0, 'rgba(0,0,0,.30)'); csh.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = csh; ctx.fillRect(px(CX - 0.05), py(CY + CHH), px(CWW + 0.10), py(0.09));
+      drawPixelChair(CX, CY);
 
-      // Open book on armchair
-      drawOpenBook(CX + 0.012, CY + 0.006);
 
       // ─ SIDE TABLE ─
       fr(CX + CWW + 0.013, CY + CHH * 0.67, 0.050, 0.004, '#381608');
@@ -783,27 +756,33 @@
       // ─ GLOBAL LIGHT TINT ─
       var pal2 = pal;
       if (lampOn) {
-        ctx.fillStyle = 'rgba(' + pal2.aR + ',' + pal2.aG + ',' + pal2.aB + ',.07)'; ctx.fillRect(0, 0, W, H);
-        var wsg = ctx.createRadialGradient(px(WX + WW * 0.5), py(WY + WH * 0.44), px(0.01), px(WX + WW * 0.5), py(WY + WH * 0.44), px(0.60));
-        wsg.addColorStop(0, 'rgba(' + pal2.aR + ',' + pal2.aG + ',' + pal2.aB + ',.20)');
-        wsg.addColorStop(0.4, 'rgba(' + pal2.aR + ',' + pal2.aG + ',' + pal2.aB + ',.08)');
+        // Warm base wash — lifted from .07 to .13 for actual visible warmth
+        ctx.fillStyle = 'rgba(' + pal2.aR + ',' + pal2.aG + ',' + pal2.aB + ',.13)'; ctx.fillRect(0, 0, W, H);
+        // Radial warmth centred on lamp
+        var wsg = ctx.createRadialGradient(px(LX), py(LY + 0.1), px(0.01), px(LX), py(LY + 0.1), px(0.75));
+        wsg.addColorStop(0, 'rgba(' + pal2.aR + ',' + pal2.aG + ',' + pal2.aB + ',.30)');
+        wsg.addColorStop(0.4, 'rgba(' + pal2.aR + ',' + pal2.aG + ',' + pal2.aB + ',.12)');
         wsg.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = wsg; ctx.fillRect(0, 0, W, H);
       } else {
-        ctx.fillStyle = 'rgba(0,0,7,.40)'; ctx.fillRect(0, 0, W, H);
+        // Lamp off — slight cool moonlight tint but not pitch black
+        ctx.fillStyle = 'rgba(0,0,8,.30)'; ctx.fillRect(0, 0, W, H);
         var mlg = ctx.createRadialGradient(px(WX + WW * 0.5), py(WY + WH * 0.5), px(0.01), px(WX + WW * 0.5), py(WY + WH * 0.5), px(0.46));
-        mlg.addColorStop(0, 'rgba(95,125,200,.18)'); mlg.addColorStop(1, 'rgba(0,0,0,0)');
+        mlg.addColorStop(0, 'rgba(95,125,200,.15)'); mlg.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = mlg; ctx.fillRect(0, 0, W, H);
       }
 
-      // ─ DEEP VIGNETTE ─
-      var vg = ctx.createRadialGradient(W * 0.5, H * 0.5, H * 0.13, W * 0.5, H * 0.5, H * 0.76);
-      vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.92)');
+      // ─ SOFT VIGNETTE (reduced from .92/.68 to keep warmth in) ─
+      var vgAlpha = lampOn ? 0.52 : 0.70;
+      var vg = ctx.createRadialGradient(W * 0.5, H * 0.5, H * 0.18, W * 0.5, H * 0.5, H * 0.82);
+      vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,' + vgAlpha + ')');
       ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+      // Corner darkening — toned down from .68 to .36
+      var cAlpha = lampOn ? 0.36 : 0.52;
       var corners = [[0, 0], [W, 0], [0, H], [W, H]];
       for (var ci = 0; ci < corners.length; ci++) {
-        var cv = ctx.createRadialGradient(corners[ci][0], corners[ci][1], 0, corners[ci][0], corners[ci][1], H * 0.56);
-        cv.addColorStop(0, 'rgba(0,0,0,.68)'); cv.addColorStop(1, 'rgba(0,0,0,0)');
+        var cv = ctx.createRadialGradient(corners[ci][0], corners[ci][1], 0, corners[ci][0], corners[ci][1], H * 0.60);
+        cv.addColorStop(0, 'rgba(0,0,0,' + cAlpha + ')'); cv.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = cv; ctx.fillRect(0, 0, W, H);
       }
 
@@ -951,11 +930,155 @@
       }
     }
 
+    // ── PIXEL ART DESK ───────────────────────────────────────────
+    function drawPixelDesk(ox, oy) {
+      // ── SMOOTH DESK (matches room's 2D gradient style) ────────────
+      var dw = DW, dh = DH;
+
+      // Legs
+      fr(ox + 0.016, oy + dh, 0.018, 0.080, '#3A1808');
+      fr(ox + 0.016, oy + dh, 0.018, 0.003, '#5A2810'); // leg top cap
+      fr(ox + dw - 0.034, oy + dh, 0.018, 0.080, '#3A1808');
+      fr(ox + dw - 0.034, oy + dh, 0.018, 0.003, '#5A2810');
+
+      // Hutch back panel (dark leather/felt texture above surface)
+      var hH = 0.095; // hutch height
+      fr(ox, oy - hH, dw, hH, '#2A1408');
+      // Hutch top rail
+      fr(ox, oy - hH, dw, 0.010, '#5A2C10');
+      fr(ox, oy - hH, dw, 0.004, 'rgba(160,90,40,.40)');
+      // Hutch bottom rail (sits on desk surface)
+      fr(ox, oy - 0.008, dw, 0.008, '#4A2010');
+      // Hutch felt/leather inset
+      fr(ox + 0.016, oy - hH + 0.012, dw - 0.032, hH - 0.022, '#1A0E06');
+      fr(ox + 0.016, oy - hH + 0.012, dw - 0.032, 0.005, '#2E1C0A'); // inset top edge
+      fr(ox + 0.016, oy - hH + 0.012, 0.005, hH - 0.022, '#2E1C0A'); // inset left edge
+      // Hutch side panels
+      fr(ox, oy - hH, 0.014, hH, '#5A2C10');
+      fr(ox, oy - hH, 0.006, hH, 'rgba(160,90,40,.30)');
+      fr(ox + dw - 0.014, oy - hH, 0.014, hH, '#3A1C08');
+
+      // Desktop surface — warm wood gradient
+      ctx.fillStyle = linG(ox, oy, ox, oy + dh, [[0, '#7A4020'], [0.3, '#5A2C12'], [1, '#3E1C08']]);
+      ctx.fillRect(px(ox), py(oy), px(dw), py(dh));
+      // Grain lines (subtle)
+      ctx.strokeStyle = 'rgba(0,0,0,.09)'; ctx.lineWidth = 0.5;
+      for (var gi = 0; gi < 6; gi++) {
+        var gx2 = ox + 0.04 + gi * (dw - 0.08) / 5;
+        ctx.beginPath(); ctx.moveTo(px(gx2), py(oy)); ctx.lineTo(px(gx2), py(oy + dh)); ctx.stroke();
+      }
+      // Top edge highlight
+      fr(ox, oy, dw, 0.006, 'rgba(180,100,40,.35)');
+      fr(ox, oy, dw, 0.002, 'rgba(230,150,65,.25)');
+      // Bottom edge shadow
+      fr(ox, oy + dh - 0.005, dw, 0.005, 'rgba(0,0,0,.22)');
+      // Left highlight
+      fr(ox, oy, 0.006, dh, 'rgba(160,85,30,.22)');
+      // Right shadow
+      fr(ox + dw - 0.005, oy, 0.005, dh, 'rgba(0,0,0,.20)');
+
+      // Drawer outlines (suggested, not pixel-art)
+      // Left pedestal drawers
+      for (var di = 0; di < 3; di++) {
+        var dlY = oy + 0.016 + di * (dh * 0.26);
+        fr(ox + 0.006, dlY, dw * 0.30, dh * 0.22, 'rgba(0,0,0,.06)');
+        fr(ox + 0.006, dlY, dw * 0.30, 0.003, 'rgba(200,120,50,.15)');
+        // Drawer handle
+        fr(ox + 0.024, dlY + dh * 0.09, 0.042, 0.007, '#C89028');
+        fr(ox + 0.024, dlY + dh * 0.09, 0.042, 0.003, '#E8B840');
+      }
+      // Right pedestal drawers
+      for (var di2 = 0; di2 < 3; di2++) {
+        var drY = oy + 0.016 + di2 * (dh * 0.26);
+        fr(ox + dw - 0.006 - dw * 0.30, drY, dw * 0.30, dh * 0.22, 'rgba(0,0,0,.06)');
+        fr(ox + dw - 0.006 - dw * 0.30, drY, dw * 0.30, 0.003, 'rgba(200,120,50,.15)');
+        fr(ox + dw - 0.006 - dw * 0.30 + 0.018, drY + dh * 0.09, 0.042, 0.007, '#C89028');
+        fr(ox + dw - 0.006 - dw * 0.30 + 0.018, drY + dh * 0.09, 0.042, 0.003, '#E8B840');
+      }
+
+      // Shadow under desk
+      var ds = ctx.createRadialGradient(px(ox + dw * 0.5), py(oy + dh + 0.055), px(0.01), px(ox + dw * 0.5), py(oy + dh + 0.055), px(dw * 0.70));
+      ds.addColorStop(0, 'rgba(0,0,0,.18)'); ds.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = ds; ctx.fillRect(px(ox - 0.04), py(oy + dh + 0.060), px(dw + 0.08), py(0.04));
+    }
+
+    // ── SMOOTH CHAIR (rear view, facing desk) ────────────────────
+    // We see the back of the chair: backrest facing viewer,
+    // seat and legs below. Chair is turned toward the desk.
+    function drawPixelChair(ox, oy) {
+      // 1 pixel unit  — scaled so chair width ≈ CWW
+      // ── Proportions ──────────────────────────────────────────────
+      var cw = CWW, ch = CHH;
+      var bkH = ch * 0.50;           // backrest height
+      var sY = oy + bkH;            // top of seat
+      var sH = 0.022;               // seat frame thickness
+      var legH = ch - bkH - sH;      // leg length below seat
+      var postW = 0.016;             // back-post width
+
+      // ── BACK LEGS (dark, behind seat) ────────────────────────────
+      fr(ox + 0.012, sY + sH * 0.5, postW, legH * 0.92, '#381208');
+      fr(ox + cw - 0.028, sY + sH * 0.5, postW, legH * 0.92, '#381208');
+
+      // ── BACK POSTS (two vertical uprights of backrest frame) ──────
+      // Left post
+      ctx.fillStyle = linG(ox, oy, ox + postW, oy, [[0, '#8A3820'], [1, '#5A2010']]);
+      ctx.fillRect(px(ox + 0.012), py(oy), px(postW), py(bkH + sH));
+      fr(ox + 0.012, oy, postW, 0.007, 'rgba(200,110,50,.50)'); // top cap
+      // Right post
+      ctx.fillStyle = linG(ox + cw - postW * 1.75, oy, ox + cw, oy, [[0, '#8A3820'], [1, '#5A2010']]);
+      ctx.fillRect(px(ox + cw - 0.028), py(oy), px(postW), py(bkH + sH));
+      fr(ox + cw - 0.028, oy, postW, 0.007, 'rgba(200,110,50,.50)');
+
+      // ── GREEN BACK CUSHION (between posts) ────────────────────────
+      var bcX = ox + 0.012 + postW + 0.003;
+      var bcW = (ox + cw - 0.028) - bcX - 0.003;
+      var bcH = bkH * 0.86;
+      ctx.fillStyle = linG(bcX, oy + 0.010, bcX, oy + 0.010 + bcH, [[0, '#7AAC30'], [0.45, '#5A8C1E'], [1, '#3E6412']]);
+      ctx.fillRect(px(bcX), py(oy + 0.010), px(bcW), py(bcH));
+      // Cushion highlight sheen
+      fr(bcX, oy + 0.010, bcW, 0.008, 'rgba(165,230,65,.50)');
+      fr(bcX, oy + 0.010, 0.007, bcH, 'rgba(165,230,65,.28)');
+      // Cushion bottom shadow
+      fr(bcX, oy + 0.010 + bcH - 0.006, bcW, 0.006, 'rgba(0,0,0,.18)');
+
+      // ── SEAT FRAME ────────────────────────────────────────────────
+      ctx.fillStyle = linG(ox, sY, ox, sY + sH, [[0, '#7A3018'], [1, '#4A1C0A']]);
+      ctx.fillRect(px(ox), py(sY), px(cw), py(sH));
+      fr(ox, sY, cw, 0.006, 'rgba(190,100,45,.45)'); // top rail highlight
+      fr(ox, sY + sH - 0.005, cw, 0.005, 'rgba(0,0,0,.25)'); // bottom shadow
+
+      // ── GREEN SEAT CUSHION (on top of seat) ───────────────────────
+      var scH = 0.024;
+      ctx.fillStyle = linG(ox, sY - scH, ox, sY, [[0, '#88C030'], [0.5, '#608C20'], [1, '#446012']]);
+      ctx.fillRect(px(ox + 0.005), py(sY - scH), px(cw - 0.010), py(scH));
+      fr(ox + 0.005, sY - scH, cw - 0.010, 0.007, 'rgba(175,240,70,.55)'); // top highlight
+      fr(ox + 0.005, sY - scH, 0.008, scH, 'rgba(175,240,70,.30)');         // left highlight
+      fr(ox + 0.005, sY - 0.005, cw - 0.010, 0.005, 'rgba(0,0,0,.14)');     // bottom edge
+
+      // ── FRONT LEGS (slightly lighter, closer to viewer) ───────────
+      fr(ox + 0.022, sY + sH, 0.015, legH * 0.88, '#6A2C10');
+      fr(ox + 0.022, sY + sH, 0.005, legH * 0.88, 'rgba(180,90,35,.30)'); // front highlight
+      fr(ox + cw - 0.037, sY + sH, 0.015, legH * 0.88, '#6A2C10');
+
+      // ── STRETCHER BAR (horizontal brace) ─────────────────────────
+      fr(ox + 0.026, sY + sH + legH * 0.52, cw - 0.052, 0.008, '#5A2010');
+      fr(ox + 0.026, sY + sH + legH * 0.52, cw - 0.052, 0.003, 'rgba(180,90,35,.22)');
+
+      // ── GROUND SHADOW ─────────────────────────────────────────────
+      var csh = ctx.createRadialGradient(
+        px(ox + cw * 0.5), py(oy + ch + 0.018), px(0.005),
+        px(ox + cw * 0.5), py(oy + ch + 0.018), px(cw * 0.65)
+      );
+      csh.addColorStop(0, 'rgba(0,0,0,.22)'); csh.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = csh;
+      ctx.fillRect(px(ox - 0.02), py(oy + ch), px(cw + 0.04), py(0.06));
+    }
+
     // ── ZONES ─────────────────────────────────────────────────────
     var zones = [
       { x: SX, y: SY, w: SW, h: SH, title: 'Journal Archive', sub: 'all your past entries', key: 'archive' },
       { x: DX, y: DY - 0.055, w: DW, h: DH + 0.11, title: 'Writing Desk', sub: 'start a new entry', key: 'write' },
-      { x: CX - 0.01, y: CY, w: 0.21, h: 0.32, title: 'The Armchair', sub: 'mood check', key: 'mood' },
+      { x: CX - 0.01, y: CY, w: 0.22, h: 0.35, title: 'The Chair', sub: 'mood check', key: 'mood' },
       { x: LX - 0.062, y: LY - 0.012, w: 0.112, h: 0.60, title: 'Floor Lamp', sub: 'click to toggle light', lamp: true },
       { x: WX - 0.044, y: WY - 0.022, w: WW + 0.09, h: WH + 0.044, title: 'The Window', sub: 'soft light from outside', key: 'home' },
       { x: 0.44, y: FY + 0.055, w: 0.12, h: 0.12, title: 'Your Companion', sub: 'sleeping peacefully', key: 'cat' },
