@@ -364,7 +364,7 @@
       write: ['Writing Desk', 'Open your journal and begin. A blank page is a kind of freedom.'],
       archive: ['Journal Archive', 'All your past entries, organised by season, mood and memory.'],
       mood: ['Atmosphere', 'Your Atmosphere companion reflects how you have been feeling lately.'],
-      cat: ['Your Companion', 'She has been waiting. The slow breath of a sleeping cat is the best kind of company.'],
+      cat: ['Your Bunny', 'She is dozing softly. Bunnies sleep with their eyes half-closed — she feels safe here.'],
       plant: ['The Plant', journalDays >= 5 ? 'Thriving. She can feel you have been writing regularly.' : 'She misses you. Come back and write — she will perk right up.'],
       jar: ['Firefly Jar', 'Each light holds a word from your most uplifting entries. Small glowing thoughts.'],
       vinyl: ['Record Player', 'A soft lo-fi track fills the room with warmth.']
@@ -428,11 +428,11 @@
 
     // ── LAYOUT ────────────────────────────────────────────────────
     var FY = 0.72;
-    var WX = 0.04, WY = 0.10, WW = 0.148, WH = 0.52; // window
+    var WX = 0.04, WY = 0.10, WW = 0.22, WH = 0.52; // window
     var SX = 0.74, SY = 0.06, SW = 0.24, SH = 0.65;  // bookshelf
-    var LX = 0.62, LY = 0.14;                     // lamp
-    var DX = 0.33, DY = 0.55, DW = 0.24, DH = 0.10;  // desk
-    var CX = 0.47, CY = 0.57, CWW = 0.17, CHH = 0.23; // chair
+    var LX = 0.71, LY = 0.14;                     // lamp
+    var DX = 0.38, DY = 0.55, DW = 0.24, DH = 0.10;  // desk (centered)
+    var CX = 0.415, CY = 0.57, CWW = 0.17, CHH = 0.23; // chair (centered)
 
     // Book generation
     var BCOLS = ['#8B1A1A', '#1848A8', '#1E7830', '#C87A18', '#5C1A90', '#A83818', '#0A2E68', '#388014', '#8C2438', '#CA6820', '#1A5090', '#609830'];
@@ -590,7 +590,7 @@
       ctx.restore();
 
       // ─ RUG ─
-      var RX = 0.28, RY = FY + 0.018, RW = 0.42, RH = 0.160;
+      var RX = 0.29, RY = FY + 0.018, RW = 0.42, RH = 0.160;
       ctx.fillStyle = linG(RX, RY, RX + RW, RY + RH, [[0, '#561A10'], [0.5, '#481408'], [1, '#501810']]);
       ctx.fillRect(px(RX), py(RY), px(RW), py(RH));
       ctx.strokeStyle = 'rgba(175,58,20,.42)'; ctx.lineWidth = px(0.0038);
@@ -605,7 +605,7 @@
       ctx.globalAlpha = 1;
 
       // ─ SLEEPING CAT on rug ─
-      drawCat(0.50, FY + 0.092);
+      drawCat(0.14, FY + 0.092);
 
       // ─ BOOKSHELF (mid parallax) ─
       ctx.save(); ctx.translate(px(ox1), py(oy1 * 0.5));
@@ -803,38 +803,110 @@
 
     // ── OBJECT DRAWERS ────────────────────────────────────────────
     function drawCat(x, y) {
-      catBreath += 0.017;
-      var br = Math.sin(catBreath) * 0.0028;
+      // ── Warm sitting rabbit — same gradient-only style as the room ──
+      catBreath += 0.011;
+      var br = Math.sin(catBreath) * 0.0015; // subtle chest breathing
       ctx.save(); ctx.translate(px(x), py(y));
-      // Body
-      ctx.fillStyle = '#352010';
-      ctx.beginPath(); ctx.ellipse(0, 0, px(0.050), py(0.029 + br), Math.PI * 0.07, 0, Math.PI * 2); ctx.fill();
-      // Head
-      ctx.beginPath(); ctx.ellipse(px(0.040), py(-0.005), px(0.017), py(0.015 + br * 0.45), -0.18, 0, Math.PI * 2); ctx.fill();
-      // Ears
-      ctx.beginPath(); ctx.moveTo(px(0.045), py(-0.018)); ctx.lineTo(px(0.054), py(-0.030)); ctx.lineTo(px(0.056), py(-0.016)); ctx.closePath(); ctx.fill();
-      ctx.beginPath(); ctx.moveTo(px(0.032), py(-0.019)); ctx.lineTo(px(0.028), py(-0.031)); ctx.lineTo(px(0.039), py(-0.019)); ctx.closePath(); ctx.fill();
-      // Inner ear
-      ctx.fillStyle = 'rgba(175,95,75,.38)';
-      ctx.beginPath(); ctx.moveTo(px(0.046), py(-0.019)); ctx.lineTo(px(0.052), py(-0.027)); ctx.lineTo(px(0.054), py(-0.017)); ctx.closePath(); ctx.fill();
-      // Tail arc
-      ctx.strokeStyle = '#352010'; ctx.lineWidth = px(0.009); ctx.lineCap = 'round';
-      ctx.beginPath(); ctx.arc(px(-0.026), py(0.009), px(0.026), Math.PI * 0.58, Math.PI * 1.72); ctx.stroke();
-      // Closed eye
-      ctx.strokeStyle = 'rgba(55,18,8,.48)'; ctx.lineWidth = 1; ctx.lineCap = 'round';
-      ctx.beginPath(); ctx.arc(px(0.043), py(-0.003), px(0.0038), Math.PI, Math.PI * 2); ctx.stroke();
-      // Nose
-      ctx.fillStyle = 'rgba(175,95,75,.58)';
-      ctx.beginPath(); ctx.ellipse(px(0.052), py(0.002), px(0.002), px(0.0015), 0, 0, Math.PI * 2); ctx.fill();
-      // Whiskers
-      ctx.strokeStyle = 'rgba(200,175,155,.30)'; ctx.lineWidth = 0.5;
-      [[px(-0.001), py(-0.002)], [px(0.001), py(0.001)], [px(-0.0005), py(-0.0008)]].forEach(function (off, i) {
-        ctx.beginPath(); ctx.moveTo(px(0.052) + off[0], py(0.002) + off[1]);
-        ctx.lineTo(px(0.064 + i * 0.002) + off[0], py(0.002 + i * 0.003) + off[1]); ctx.stroke();
-      });
-      // Shadow under cat
-      ctx.fillStyle = 'rgba(0,0,0,.18)';
-      ctx.beginPath(); ctx.ellipse(0, py(0.024), px(0.056), py(0.007), 0, 0, Math.PI * 2); ctx.fill();
+
+      // Ground shadow (soft, like other furniture)
+      ctx.fillStyle = 'rgba(0,0,0,.12)';
+      ctx.beginPath(); ctx.ellipse(px(0.010), py(0.040), px(0.062), py(0.009), 0, 0, Math.PI * 2); ctx.fill();
+
+      // ── BACK HAUNCHES ─────────────────────────────────────────────
+      // Radial gradient: warm highlight → mid-tan → darker edge (NO solid outline)
+      var hg = ctx.createRadialGradient(px(-0.018), py(-0.004), px(0.006), px(-0.004), py(0.010), px(0.050));
+      hg.addColorStop(0,   '#DEC090');  // warm highlight
+      hg.addColorStop(0.38, '#C4885A'); // mid honey tan
+      hg.addColorStop(0.75, '#9A5C30'); // shadow edge
+      hg.addColorStop(1,    '#7A4020'); // darkest rim
+      ctx.fillStyle = hg;
+      ctx.beginPath(); ctx.ellipse(px(-0.004), py(0.010 + br * 0.3), px(0.048), py(0.046), -0.10, 0, Math.PI * 2); ctx.fill();
+
+      // ── BODY / TORSO ───────────────────────────────────────────────
+      var bg = ctx.createRadialGradient(px(0.012), py(-0.012), px(0.005), px(0.018), py(0.000), px(0.042));
+      bg.addColorStop(0,    '#DEC090');
+      bg.addColorStop(0.42, '#C4885A');
+      bg.addColorStop(0.80, '#9A5C30');
+      bg.addColorStop(1,    '#7A4020');
+      ctx.fillStyle = bg;
+      ctx.beginPath(); ctx.ellipse(px(0.018), py(-0.002 + br * 0.5), px(0.038), py(0.032), -0.20, 0, Math.PI * 2); ctx.fill();
+
+      // ── BELLY (soft cream, blends at edges naturally) ───────────────
+      ctx.fillStyle = '#F2E4C8';
+      ctx.beginPath(); ctx.ellipse(px(0.030), py(0.010 + br * 0.35), px(0.022), py(0.028), 0.24, 0, Math.PI * 2); ctx.fill();
+      // Feathered edge so it doesn't look pasted on
+      var beg = ctx.createRadialGradient(px(0.030), py(0.010), px(0.006), px(0.030), py(0.010), px(0.024));
+      beg.addColorStop(0.55, 'rgba(242,228,200,0)');
+      beg.addColorStop(1,    'rgba(170,110,55,.20)');
+      ctx.fillStyle = beg;
+      ctx.beginPath(); ctx.ellipse(px(0.030), py(0.010), px(0.022), py(0.028), 0.24, 0, Math.PI * 2); ctx.fill();
+
+      // ── COTTON TAIL ────────────────────────────────────────────────
+      ctx.fillStyle = '#F4EEE0';
+      ctx.beginPath(); ctx.arc(px(-0.044), py(0.012), px(0.012), 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath(); ctx.arc(px(-0.046), py(0.010), px(0.008), 0, Math.PI * 2); ctx.fill();
+      // Soft inner shadow on tail
+      ctx.fillStyle = 'rgba(180,150,110,.30)';
+      ctx.beginPath(); ctx.arc(px(-0.042), py(0.015), px(0.006), 0, Math.PI * 2); ctx.fill();
+
+      // ── BACK FOOT (long, flat, tucked) ─────────────────────────────
+      var fg = ctx.createLinearGradient(px(-0.040), py(0.038), px(0.005), py(0.038));
+      fg.addColorStop(0, '#9A5C30'); fg.addColorStop(0.55, '#C4885A'); fg.addColorStop(1, '#DEC090');
+      ctx.fillStyle = fg;
+      ctx.beginPath(); ctx.ellipse(px(-0.018), py(0.038), px(0.026), py(0.009), -0.10, 0, Math.PI * 2); ctx.fill();
+
+      // ── HEAD ───────────────────────────────────────────────────────
+      var heg = ctx.createRadialGradient(px(0.034), py(-0.042), px(0.004), px(0.040), py(-0.032), px(0.028));
+      heg.addColorStop(0,    '#DEC090');
+      heg.addColorStop(0.42, '#C4885A');
+      heg.addColorStop(0.82, '#9A5C30');
+      heg.addColorStop(1,    '#7A4020');
+      ctx.fillStyle = heg;
+      ctx.beginPath(); ctx.ellipse(px(0.040), py(-0.032 - br * 0.5), px(0.026), py(0.024), -0.08, 0, Math.PI * 2); ctx.fill();
+      // Warm cheek patch (like the reference's lighter face area)
+      ctx.fillStyle = 'rgba(224,190,138,.42)';
+      ctx.beginPath(); ctx.ellipse(px(0.052), py(-0.026), px(0.012), py(0.010), 0.28, 0, Math.PI * 2); ctx.fill();
+
+      // ── EARS ───────────────────────────────────────────────────────
+      // Far ear — slightly behind, darker midtone
+      ctx.fillStyle = '#B07840';
+      ctx.beginPath(); ctx.ellipse(px(0.022), py(-0.080), px(0.008), py(0.028), -0.22, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(195,140,85,.52)';
+      ctx.beginPath(); ctx.ellipse(px(0.022), py(-0.078), px(0.005), py(0.018), -0.22, 0, Math.PI * 2); ctx.fill();
+
+      // Near ear — gradient + warm inner channel
+      var earg = ctx.createRadialGradient(px(0.032), py(-0.092), px(0.003), px(0.036), py(-0.082), px(0.012));
+      earg.addColorStop(0, '#DEC090'); earg.addColorStop(0.5, '#C4885A'); earg.addColorStop(1, '#9A5C30');
+      ctx.fillStyle = earg;
+      ctx.beginPath(); ctx.ellipse(px(0.036), py(-0.082), px(0.010), py(0.030), 0.12, 0, Math.PI * 2); ctx.fill();
+      // Inner ear warm salmon channel
+      ctx.fillStyle = '#C88062';
+      ctx.beginPath(); ctx.ellipse(px(0.036), py(-0.080), px(0.006), py(0.020), 0.12, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(210,160,115,.40)';
+      ctx.beginPath(); ctx.ellipse(px(0.036), py(-0.079), px(0.003), py(0.013), 0.12, 0, Math.PI * 2); ctx.fill();
+
+      // ── EYE ────────────────────────────────────────────────────────
+      // Warm dark brown (not black — matches the room's warm palette)
+      ctx.fillStyle = '#2E1A0C';
+      ctx.beginPath(); ctx.arc(px(0.052), py(-0.034), px(0.007), 0, Math.PI * 2); ctx.fill();
+      // Single white catchlight
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath(); ctx.arc(px(0.055), py(-0.038), px(0.003), 0, Math.PI * 2); ctx.fill();
+
+      // ── SNOUT / MUZZLE ─────────────────────────────────────────────
+      ctx.fillStyle = '#F0DFBE';
+      ctx.beginPath(); ctx.ellipse(px(0.060), py(-0.020), px(0.010), py(0.008), 0.15, 0, Math.PI * 2); ctx.fill();
+      // Tiny warm nose dot
+      ctx.fillStyle = '#C07858';
+      ctx.beginPath(); ctx.ellipse(px(0.063), py(-0.021), px(0.005), py(0.004), 0, 0, Math.PI * 2); ctx.fill();
+
+      // ── FRONT PAW ──────────────────────────────────────────────────
+      var pg = ctx.createLinearGradient(px(0.024), py(0.037), px(0.050), py(0.037));
+      pg.addColorStop(0, '#9A5C30'); pg.addColorStop(0.5, '#C4885A'); pg.addColorStop(1, '#DEC090');
+      ctx.fillStyle = pg;
+      ctx.beginPath(); ctx.ellipse(px(0.036), py(0.038), px(0.013), py(0.007), 0.10, 0, Math.PI * 2); ctx.fill();
+
       ctx.restore();
     }
 
@@ -1081,7 +1153,7 @@
       { x: CX - 0.01, y: CY, w: 0.22, h: 0.35, title: 'The Chair', sub: 'mood check', key: 'mood' },
       { x: LX - 0.062, y: LY - 0.012, w: 0.112, h: 0.60, title: 'Floor Lamp', sub: 'click to toggle light', lamp: true },
       { x: WX - 0.044, y: WY - 0.022, w: WW + 0.09, h: WH + 0.044, title: 'The Window', sub: 'soft light from outside', key: 'home' },
-      { x: 0.44, y: FY + 0.055, w: 0.12, h: 0.12, title: 'Your Companion', sub: 'sleeping peacefully', key: 'cat' },
+      { x: 0.10, y: FY + 0.055, w: 0.10, h: 0.12, title: 'Your Bunny', sub: 'sleeping peacefully', key: 'cat' },
       { x: SX, y: SY + 0.010, w: 0.045, h: 0.130, title: 'Mood Plant', sub: journalDays >= 5 ? 'thriving' : 'needs your attention', key: 'plant' },
       { x: DX, y: DY - 0.085, w: 0.042, h: 0.055, title: 'Firefly Jar', sub: 'glowing thoughts', key: 'jar' },
       { x: CX + CWW + 0.008, y: CY + CHH * 0.54, w: 0.062, h: 0.050, title: 'Record Player', sub: 'click to play', vinyl: true },
