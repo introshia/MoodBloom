@@ -512,9 +512,11 @@
       ctx.globalAlpha = 1;
 
       // Crown molding
-      fr(0, 0.040, 1, 0.016, 'rgba(0,0,0,.12)'); fr(0, 0.028, 1, 0.014, 'rgba(0,0,0,.08)');
-      // Baseboard
-      fr(0, FY - 0.018, 1, 0.020, 'rgba(0,0,0,.18)'); fr(0, FY - 0.022, 1, 0.006, 'rgba(0,0,0,.10)');
+      fr(0, 0.040, 1, 0.016, 'rgba(0,0,0,.12)');
+      fr(0, 0.028, 1, 0.014, 'rgba(0,0,0,.08)');
+      // Baseboard (only for the wall behind the desk/window)
+      fr(SW, FY - 0.018, 1 - SW, 0.020, 'rgba(0,0,0,.18)');
+      fr(SW, FY - 0.022, 1 - SW, 0.006, 'rgba(0,0,0,.10)');
 
       // Wall-shelf dividing edge (where left wall meets front wall)
       var wEdge = ctx.createLinearGradient(px(SW), 0, px(SW + 0.05), 0);
@@ -546,9 +548,7 @@
       ctx.strokeStyle = 'rgba(0,0,0,.10)'; ctx.lineWidth = 0.4;
       for (var fpk = 0; fpk < 18; fpk++) { var ftx = fpk / 17; ctx.beginPath(); ctx.moveTo(px(ftx), py(FY)); ctx.lineTo(px(ftx + 0.15 * (ftx - 0.5)), py(1)); ctx.stroke(); }
 
-      // ── 4. BOOKSHELF (left, front-facing) ──────────────────────────
-      drawIvy();
-      drawFrontBookshelf();
+      // ── 4. WINDOW GLOW ──────────────────────────────────────────
 
       // ── 5. WINDOW GLOW ──────────────────────────────────────────
       var wa = lampOn ? 0.55 : 0.25;
@@ -638,27 +638,52 @@
         pX_R + pW + 0.005 + flutterR * 0.5, WY + WH + 0.02], '#6A1C10', 0.88);
       }
 
-      // ── 9. CURTAINS (outer drapes on both sides) ──────────────────
+      // ── 9. CURTAINS (adaptive Antique Linen with lamp glow) ──────────
       var cFlutterL = anyOpen ? Math.sin(time * 0.07) * 0.014 : 0;
       var cFlutterR = anyOpen ? Math.sin(time * 0.07 + 0.8) * 0.014 : 0;
-      // Left curtain
-      fp([WX - 0.07, WY - 0.02,
-      WX + 0.04 + cFlutterL, WY - 0.02,
-      WX + 0.05 + cFlutterL, WY + WH + 0.03,
-      WX - 0.08, WY + WH + 0.03], '#5A1A0E');
-      fp([WX - 0.065, WY - 0.018,
-      WX + 0.01 + cFlutterL * 0.7, WY - 0.018,
-      WX + 0.012 + cFlutterL * 0.5, WY + WH + 0.025,
-      WX - 0.068, WY + WH + 0.025], '#7A2416', 0.80);
-      // Right curtain
-      fp([WX + WW - 0.04 + cFlutterR, WY - 0.02,
-      WX + WW + 0.07, WY - 0.02,
-      WX + WW + 0.08, WY + WH + 0.03,
-      WX + WW - 0.05 + cFlutterR * 0.7, WY + WH + 0.03], '#5A1A0E');
-      fp([WX + WW - 0.01 + cFlutterR * 0.7, WY - 0.018,
-      WX + WW + 0.065, WY - 0.018,
-      WX + WW + 0.072, WY + WH + 0.025,
-      WX + WW + 0.002 + cFlutterR * 0.5, WY + WH + 0.025], '#7A2416', 0.80);
+
+      // Curtain palette
+      var cBase = '#FDF5E6'; // Antique Linen
+      var cShadow = '#E8DEC7'; // Soft Sand shadow
+      var cGlow = 'rgba(255, 180, 50, 0.45)'; // Warm Amber glow
+
+      // Left curtain draw
+      (function () {
+        var x1 = WX - 0.07, y1 = WY - 0.02, x2 = WX + 0.04 + cFlutterL, y2 = WY + WH + 0.03;
+        var g = ctx.createLinearGradient(px(x1), py(y1), px(x2), py(y2));
+        g.addColorStop(0, cBase);
+        g.addColorStop(lampOn ? 0.7 : 1, cShadow);
+        if (lampOn) g.addColorStop(1, '#FFB040'); // catch the light at the bottom
+
+        // Base drape
+        fp([x1, y1, x2, y1, x2 + 0.01, y2, x1 - 0.01, y2], g);
+        // Vertical pleats for texture
+        ctx.strokeStyle = 'rgba(0,0,0,0.06)'; ctx.lineWidth = 1;
+        for (var pi = 0; pi < 3; pi++) {
+          var px1 = x1 + 0.02 + pi * 0.025;
+          ctx.beginPath(); ctx.moveTo(px(px1), py(y1));
+          ctx.lineTo(px(px1 + cFlutterL), py(y2)); ctx.stroke();
+        }
+      })();
+
+      // Right curtain draw (closer to the lamp usually)
+      (function () {
+        var x1 = WX + WW - 0.04 + cFlutterR, y1 = WY - 0.02, x2 = WX + WW + 0.07, y2 = WY + WH + 0.03;
+        var g = ctx.createLinearGradient(px(WX + WW), py(y1), px(WX + WW), py(y2));
+        g.addColorStop(0, cBase);
+        g.addColorStop(lampOn ? 0.6 : 0.9, cShadow);
+        if (lampOn) g.addColorStop(1, '#FFA030'); // stronger glow on the right (lamp side)
+
+        // Base drape
+        fp([x1, y1, x2, y1, x2 + 0.01, y2, x1 - 0.01, y2], g);
+        // Vertical pleats
+        ctx.strokeStyle = 'rgba(0,0,0,0.06)'; ctx.lineWidth = 1;
+        for (var pi = 0; pi < 3; pi++) {
+          var px1 = x1 + 0.02 + pi * 0.025;
+          ctx.beginPath(); ctx.moveTo(px(px1), py(y1));
+          ctx.lineTo(px(px1 + cFlutterR), py(y2)); ctx.stroke();
+        }
+      })();
       // Curtain rod
       fr(WX - 0.08, WY - 0.030, WW + 0.16, 0.018, '#4A2210');
       ctx.fillStyle = '#6A3818';
@@ -712,7 +737,14 @@
       }
 
       // ── 12. WINDOW LIGHT SHAFT (coming from the right onto floor/desk) ──
+      // This is the "transparent vertical thingy" - we'll clip it so it doesn't overlap the shelf area
       if (lampOn || anyOpen) {
+        ctx.save();
+        // Clip to exclude the left bookshelf area
+        ctx.beginPath();
+        ctx.rect(px(SW), 0, px(1 - SW), H);
+        ctx.clip();
+
         var sg = ctx.createLinearGradient(px(WX), py(WY + WH), px(WX - 0.15), py(1.05));
         sg.addColorStop(0, 'rgba(' + pal.wGlow + ',.14)'); sg.addColorStop(1, 'rgba(' + pal.wGlow + ',0)');
         ctx.fillStyle = sg; ctx.beginPath();
@@ -720,18 +752,25 @@
         ctx.lineTo(px(WX + WW - 0.02), py(WY + WH));
         ctx.lineTo(px(1.0), py(1.06)); ctx.lineTo(px(WX - 0.30), py(1.06));
         ctx.closePath(); ctx.fill();
+        ctx.restore();
       }
 
       // ── 13. WALL BELOW WINDOW (between sill and desk) ──────────────
-      // This wall strip is cream, visible between window sill and desk edge
+      // Modified to start at SW (bookshelf edge) to fix the horizontal line cutting through the shelf
       var wallBelowY = WY + WH + 0.022;
       var wallBelowH = DESK_TOP_Y - wallBelowY;
-      fr(0, wallBelowY, 1, wallBelowH, pal.w1);
+      fr(SW, wallBelowY, 1 - SW, wallBelowH, pal.w1);
+
       // Window sill
       fr(WX - 0.04, WY + WH, WW + 0.08, 0.024, '#4A2810');
       fr(WX - 0.04, WY + WH, WW + 0.08, 0.010, '#6A3C18');
       // Baseboard (above desk)
-      fr(0, DESK_TOP_Y - 0.016, 1, 0.018, 'rgba(0,0,0,.15)');
+      // Also modified to start at SW
+      fr(SW, DESK_TOP_Y - 0.016, 1 - SW, 0.018, 'rgba(0,0,0,.15)');
+
+      // ── 14. BOOKSHELF (Drawn here so it's in front of wall shadows/lines) ──
+      drawIvy();
+      drawFrontBookshelf();
 
       // ── 14. DESK SURFACE (3D desk matching photo reference) ──────────
       var dt_L = 0.18, dt_R = 0.98; // Width at the wall (aligned with window roughly)
