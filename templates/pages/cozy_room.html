@@ -426,26 +426,48 @@
     function lerp(a, b, t) { return a + (b - a) * t; }
     function plx(f) { return 0; } function ply(f) { return 0; }
 
-    // ── LAYOUT ────────────────────────────────────────────────────
-    var FY = 0.85; // floor
-    var SX = 0.04, SY = 0.15, SW = 0.26, SH = 0.70;  // bookshelf (moved left)
-    var LX = 0.26, LY = 0.22;                     // lamp (moved left, lowered)
-    var DX = 0.30, DY = 0.52, DW = 0.40, DH = 0.14;  // desk (centered)
-    var CX = 0.415, CY = 0.38, CWW = 0.13, CHH = 0.47; // chair (centered)
-    var WX = 0.68, WY = 0.07, WW = 0.28, WH = 0.46; // window (moved right)
+    // ── LAYOUT (Pixel Room — bookshelf left, window right) ────────────
+    // Window: right side of wall (substantially larger)
+    var WX = 0.28, WY = 0.05, WW = 0.70, WH = 0.58;
+    // Window panel open/close state
+    var leftOpen = false, rightOpen = false;
+    // Breeze particles
+    var breezeParticles = [];
+    for (var _bp = 0; _bp < 30; _bp++) {
+      breezeParticles.push({ x: WX + Math.random() * WW, y: WY + Math.random() * WH, vx: -0.0010 - Math.random() * 0.0010, vy: (Math.random() - 0.5) * 0.0004, a: Math.random(), life: Math.random() });
+    }
+    function resetBreeze(p, fromRight) {
+      p.x = fromRight ? WX + WW - 0.02 : WX + 0.02;
+      p.y = WY + 0.05 + Math.random() * (WH - 0.10);
+      p.vx = fromRight ? -0.0010 - Math.random() * 0.0012 : 0.0010 + Math.random() * 0.0012;
+      p.vy = (Math.random() - 0.5) * 0.0004;
+      p.a = 0.2 + Math.random() * 0.5; p.life = 0;
+    }
+    // Bookshelf: front-facing on the left
+    var SX = 0.00, SY = 0.04, SW = 0.20, SH = 0.78;
+    // Floor
+    var FY = 0.80;
+    // Desk layout (3D structure: top surface and vertical front face with drawers)
+    var DESK_TOP_Y = 0.65;   // Back edge of desk against the wall
+    var DESK_FRONT_Y = 0.82; // Front edge of the desk top surface
+    // Items on desk
+    var DX = 0.35, DY = 0.72, DW = 0.30, DH = 0.10; // for zone calculations
+    var LX = 0.88, LY = 0.55; // small desk lamp position
 
-    // Book generation
+    // Book generation (for left side wall shelf)
     var BCOLS = ['#8B1A1A', '#1848A8', '#1E7830', '#C87A18', '#5C1A90', '#A83818', '#0A2E68', '#388014', '#8C2438', '#CA6820', '#1A5090', '#609830'];
     function genBooks() {
       books = [];
+      // In first-person the shelf is on the left side wall — books appear foreshortened
+      // We generate them as a flat list; draw loop handles the perspective skew
       var SHL = [0.20, 0.38, 0.56, 0.73];
       for (var si = 0; si < SHL.length; si++) {
-        var s2 = SHL[si], bx = SX + 0.016;
-        while (bx < SX + SW - 0.022) {
+        var bx = 0.016;
+        while (bx < SW - 0.022) {
           var bw = 0.013 + h2(si * 11, bx * 900) * 0.012;
           var bh = 0.065 + h2(si * 7, bx * 400) * 0.065;
           var ci = Math.floor(h2(si * 3, bx * 200) * BCOLS.length) % BCOLS.length;
-          books.push({ x: bx, y: SY + s2 * SH - bh, w: bw, h: bh, col: BCOLS[ci] });
+          books.push({ shelf: si, bx: bx, bh: bh, bw: bw, col: BCOLS[ci] });
           bx += bw + 0.002 + h2(si, bx * 50) * 0.003;
         }
       }
@@ -456,323 +478,613 @@
     function getPal() {
       var t = getTOD();
       return ({
-        dawn: { w0: '#8A5030', w1: '#6A3818', ceil: '#3A2010', wTint: 'rgba(255,225,185,.80)', wGlow: '255,210,160', aR: 245, aG: 175, aB: 110 },
-        day: { w0: '#7A4828', w1: '#60341A', ceil: '#30180A', wTint: 'rgba(255,248,200,.86)', wGlow: '255,235,155', aR: 255, aG: 215, aB: 120 },
-        dusk: { w0: '#8A3C18', w1: '#6A2C0C', ceil: '#2C1006', wTint: 'rgba(255,165,90,.75)', wGlow: '255,145,70', aR: 255, aG: 148, aB: 72 },
-        night: { w0: '#4A2C1C', w1: '#361E10', ceil: '#1A0C06', wTint: 'rgba(80,100,185,.45)', wGlow: '100,130,225', aR: 120, aG: 148, aB: 225 }
+        dawn: { w0: '#D4C4A0', w1: '#C0AD8A', ceil: '#6A4A30', wTint: 'rgba(255,225,185,.80)', wGlow: '255,210,160', aR: 245, aG: 175, aB: 110 },
+        day: { w0: '#EDE0C4', w1: '#D8CC9A', ceil: '#5A3A20', wTint: 'rgba(255,248,220,.90)', wGlow: '255,240,180', aR: 255, aG: 230, aB: 160 },
+        dusk: { w0: '#CEBA97', w1: '#B8A480', ceil: '#4A2A14', wTint: 'rgba(255,185,110,.78)', wGlow: '255,165,90', aR: 255, aG: 165, aB: 90 },
+        night: { w0: '#9A8E78', w1: '#7C7060', ceil: '#2A1A0E', wTint: 'rgba(80,100,185,.45)', wGlow: '100,130,225', aR: 120, aG: 148, aB: 225 }
       })[t] || { w0: '#7A4828', w1: '#60341A', ceil: '#30180A', wTint: 'rgba(255,248,200,.86)', wGlow: '255,235,155', aR: 255, aG: 215, aB: 120 };
     }
 
-    // ── MAIN DRAW ─────────────────────────────────────────────────
+    // ── MAIN DRAW (First-Person POV) ──────────────────────────────
     function draw() {
       ctx.clearRect(0, 0, W, H);
       var pal = getPal();
-      var ox0 = plx(0.010), oy0 = ply(0.010);
-      var ox1 = plx(0.022), oy1 = ply(0.022);
+      var anyOpen = leftOpen || rightOpen;
 
-      // ─ CEILING ─
-      ctx.fillStyle = linG(0, 0, 0, 0.12, [[0, pal.ceil], [1, pal.w1]]);
-      ctx.fillRect(0, 0, W, py(0.12));
+      // ── 1. FULL WALL BACKGROUND ────────────────────────────────────
+      // Cream-colored wall fills everything behind furniture
+      ctx.fillStyle = linG(0.5, 0, 0.5, FY, [[0, pal.ceil], [0.08, pal.w0], [0.5, pal.w1], [1, pal.w1]]);
+      ctx.fillRect(0, 0, W, py(FY));
 
-      // ─ WALL ─
-      ctx.fillStyle = linG(0.5, 0.10, 0.5, FY, [[0, pal.w0], [0.45, pal.w1], [1, '#3A1E0A']]);
-      ctx.fillRect(0, py(0.10), W, py(FY - 0.10));
-
-      drawIvy(); drawVisionBoard(0.36, 0.10, 0.28, 0.22);
-
-      // Wallpaper diamonds
-      ctx.globalAlpha = 0.07;
-      var STEP = Math.max(24, Math.round(W / 34));
-      for (var wx = 0; wx < W; wx += STEP) {
-        for (var wy = py(0.13); wy < py(FY - 0.01); wy += STEP) {
-          ctx.fillStyle = '#C86820';
-          ctx.save(); ctx.translate(wx, wy); ctx.rotate(Math.PI / 4);
-          var ss = STEP * 0.38; ctx.fillRect(-ss, -ss, ss * 2, ss * 2); ctx.restore();
+      // Subtle wallpaper texture on wall areas (skip where window/shelf will be)
+      ctx.globalAlpha = 0.045;
+      var STEP = Math.max(18, Math.round(W / 42));
+      for (var wx2 = 0; wx2 < W; wx2 += STEP) {
+        for (var wy2 = py(0.07); wy2 < py(FY); wy2 += STEP) {
+          var nx2 = wx2 / W;
+          if (nx2 >= WX - 0.01 && nx2 <= WX + WW + 0.01) continue; // skip window area
+          if (nx2 <= SX + SW + 0.01) continue; // skip shelf area
+          ctx.fillStyle = '#A08050';
+          ctx.save(); ctx.translate(wx2, wy2); ctx.rotate(Math.PI / 4);
+          var ss2 = STEP * 0.32; ctx.fillRect(-ss2, -ss2, ss2 * 2, ss2 * 2); ctx.restore();
         }
       }
       ctx.globalAlpha = 1;
 
-      // Horizontal panelling lines
-      ctx.strokeStyle = 'rgba(0,0,0,.20)'; ctx.lineWidth = 0.8;
-      for (var pl = 0.18; pl < FY; pl += 0.088) { ctx.beginPath(); ctx.moveTo(0, py(pl)); ctx.lineTo(W, py(pl)); ctx.stroke(); }
-      // Cornice
-      fr(0, 0.110, 1, 0.016, '#1E0C06'); fr(0, 0.095, 1, 0.018, '#2A1408');
-      // Chair rail
-      fr(0, 0.460, 1, 0.014, '#1C0A06'); fr(0, 0.474, 1, 0.007, '#140804');
+      // Crown molding
+      fr(0, 0.040, 1, 0.016, 'rgba(0,0,0,.12)'); fr(0, 0.028, 1, 0.014, 'rgba(0,0,0,.08)');
       // Baseboard
-      fr(0, FY - 0.020, 1, 0.022, '#1A0905'); fr(0, FY - 0.024, 1, 0.007, '#241208');
+      fr(0, FY - 0.018, 1, 0.020, 'rgba(0,0,0,.18)'); fr(0, FY - 0.022, 1, 0.006, 'rgba(0,0,0,.10)');
 
-      // ─ WINDOW (parallax far) ─
-      ctx.save(); ctx.translate(px(ox0), py(oy0));
-      // Glow behind window
-      var wa = lampOn ? 0.68 : 0.28;
-      var wgg = ctx.createRadialGradient(px(WX + WW * 0.5), py(WY + WH * 0.5), px(0.02), px(WX + WW * 0.5), py(WY + WH * 0.5), px(0.52));
+      // Wall-shelf dividing edge (where left wall meets front wall)
+      var wEdge = ctx.createLinearGradient(px(SW), 0, px(SW + 0.05), 0);
+      wEdge.addColorStop(0, 'rgba(0,0,0,.35)'); wEdge.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = wEdge; ctx.fillRect(px(SW), py(0.04), px(0.05), py(FY - 0.04));
+
+      // ── 2. SKY (drawn behind window, in window area only) ────────────
+      var skyTop, skyBot;
+      var tod = getTOD();
+      if (tod === 'dawn') { skyTop = '#3A2050'; skyBot = '#D07848'; }
+      else if (tod === 'day') { skyTop = '#2A5CA8'; skyBot = '#6898D8'; }
+      else if (tod === 'dusk') { skyTop = '#18102A'; skyBot = '#A03810'; }
+      else { skyTop = '#050810'; skyBot = '#10122A'; }
+      var skyG = ctx.createLinearGradient(0, py(WY), 0, py(WY + WH));
+      skyG.addColorStop(0, skyTop); skyG.addColorStop(1, skyBot);
+      ctx.save();
+      ctx.beginPath(); ctx.rect(px(WX), py(WY), px(WW), py(WH)); ctx.clip();
+      ctx.fillStyle = skyG; ctx.fillRect(px(WX), py(WY), px(WW), py(WH));
+      ctx.restore();
+
+      // ── 3. FLOOR ────────────────────────────────────────────────────
+      ctx.fillStyle = linG(0.5, FY, 0.5, 1, [[0, '#5A3A18'], [0.3, '#4A2E10'], [1, '#2A1808']]);
+      ctx.fillRect(0, py(FY), W, py(1 - FY));
+      // Floor planks
+      ctx.strokeStyle = 'rgba(0,0,0,.22)'; ctx.lineWidth = 0.5;
+      for (var fy3 = FY; fy3 < 1.0; fy3 += 0.022) {
+        ctx.beginPath(); ctx.moveTo(0, py(fy3)); ctx.lineTo(W, py(fy3)); ctx.stroke();
+      }
+      ctx.strokeStyle = 'rgba(0,0,0,.10)'; ctx.lineWidth = 0.4;
+      for (var fpk = 0; fpk < 18; fpk++) { var ftx = fpk / 17; ctx.beginPath(); ctx.moveTo(px(ftx), py(FY)); ctx.lineTo(px(ftx + 0.15 * (ftx - 0.5)), py(1)); ctx.stroke(); }
+
+      // ── 4. BOOKSHELF (left, front-facing) ──────────────────────────
+      drawIvy();
+      drawFrontBookshelf();
+
+      // ── 5. WINDOW GLOW ──────────────────────────────────────────
+      var wa = lampOn ? 0.55 : 0.25;
+      if (anyOpen) wa = Math.min(wa + 0.18, 0.90);
+      var wgg = ctx.createRadialGradient(px(WX + WW * 0.4), py(WY + WH * 0.5), px(0.02), px(WX + WW * 0.4), py(WY + WH * 0.5), px(0.60));
       wgg.addColorStop(0, 'rgba(' + pal.wGlow + ',' + wa + ')');
-      wgg.addColorStop(0.35, 'rgba(' + pal.wGlow + ',' + (wa * 0.45) + ')');
+      wgg.addColorStop(0.5, 'rgba(' + pal.wGlow + ',' + (wa * 0.3) + ')');
       wgg.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = wgg; ctx.fillRect(0, 0, W, H);
 
-      // Window outer frame
-      fr(WX, WY, WW, WH, '#3A1C0A');
-      // Glass — 4 panes
-      var pw = WW / 2 - 0.014, ph = WH / 2 - 0.014;
-      var pC = lampOn ? pal.wTint : 'rgba(38,52,115,.30)';
-      fr(WX + 0.010, WY + 0.010, pw, ph, pC); fr(WX + WW / 2 + 0.004, WY + 0.010, pw, ph, pC);
-      fr(WX + 0.010, WY + WH / 2 + 0.004, pw, ph, pC); fr(WX + WW / 2 + 0.004, WY + WH / 2 + 0.004, pw, ph, pC);
-      // Highlights
-      fr(WX + 0.015, WY + 0.015, pw - 0.01, 0.02, 'rgba(255,255,220,.22)');
-      fr(WX + WW / 2 + 0.009, WY + 0.015, pw - 0.01, 0.02, 'rgba(255,255,220,.22)');
-      // Frame dividers (2x2 grid)
-      fr(WX + WW / 2 - 0.006, WY, 0.012, WH, '#3A1C0A'); // Vertical
-      fr(WX, WY + WH / 2 - 0.006, WW, 0.012, '#3A1C0A'); // Horizontal
-      // Outer border
-      fr(WX, WY, WW, 0.014, '#3A1C0A'); fr(WX, WY + WH - 0.014, WW, 0.014, '#3A1C0A');
-      fr(WX, WY, 0.014, WH, '#3A1C0A'); fr(WX + WW - 0.014, WY, 0.014, WH, '#3A1C0A');
+      // ── 7. WINDOW FRAME ───────────────────────────────────────────
+      // Outer frame (dark wood)
+      var fT = 0.018; // frame thickness (normalized)
+      fr(WX, WY, WW, WH, '#2E1408'); // full frame background
+      // Center divider (vertical) — splits left/right panels
+      fr(WX + WW * 0.5 - 0.010, WY, 0.020, WH, '#2A1206');
+      // Top rail
+      fr(WX, WY, WW, fT, '#381808');
+      // Bottom sill
+      fr(WX, WY + WH - fT, WW, fT * 1.5, '#2E1408');
+      // Left jamb
+      fr(WX, WY, fT, WH, '#381808');
+      // Right jamb
+      fr(WX + WW - fT, WY, fT, WH, '#381808');
 
-      // RAIN / SNOW inside window
-      if (weatherType === 'rain') {
+      // ── 8. WINDOW PANELS (independently open/close) ───────────────
+      var pW = WW / 2 - fT * 1.3; // panel content width
+      var pX_L = WX + fT;          // left panel glass start X
+      var pX_R = WX + WW * 0.5 + fT * 0.5; // right panel glass start X
+      var pY = WY + fT;            // panel top
+      var pH = WH - fT * 2.5;     // panel height
+      // Grill bars: 2x2 grid per panel (1 horizontal, 1 vertical crossing) = 4 panes per side
+      var midY = pY + pH * 0.50; // horizontal divider
+      var midXL = pX_L + pW * 0.50; // left vertical divider
+      var midXR = pX_R + pW * 0.50; // right vertical divider
+      var pC = lampOn ? pal.wTint : 'rgba(38,52,115,.28)';
+
+      // LEFT PANEL
+      if (!leftOpen) {
+        // Closed: draw glass with grills
+        fr(pX_L, pY, pW, pH, pC);
+        fr(pX_L, pY, pW, 0.018, 'rgba(255,255,220,.18)'); // top highlight
+        fr(pX_L, pY, 0.008, pH, 'rgba(255,255,220,.10)'); // left highlight
+        // cross grid
+        fr(midXL - 0.005, pY, 0.011, pH, '#2A1206'); // vertical bar
+        fr(pX_L, midY - 0.005, pW, 0.011, '#2A1206'); // horizontal bar
+        fr(midXL - 0.002, pY, 0.004, pH, 'rgba(80,40,10,.18)'); // v-highlight
+        fr(pX_L, midY - 0.002, pW, 0.004, 'rgba(80,40,10,.18)'); // h-highlight
+      } else {
+        // Open: panel swung inward — draw as foreshortened (thin strip on left edge of window)
+        var openW = pW * 0.12;
+        fr(pX_L, pY, openW, pH, '#2A1206');
+        fr(pX_L, pY, openW, pH, 'rgba(0,0,0,.40)');
+        // Reveal sky through open area
+        var openSkyG = ctx.createLinearGradient(px(pX_L + openW), py(pY), px(pX_L + pW), py(pY));
+        openSkyG.addColorStop(0, skyBot); openSkyG.addColorStop(1, skyTop);
+        ctx.fillStyle = openSkyG; ctx.fillRect(px(pX_L + openW), py(pY), px(pW - openW), py(pH));
+        // Curtain flutter (left side)
+        var flutterL = Math.sin(time * 0.08) * 0.02 * (leftOpen ? 1 : 0);
+        fp([pX_L - 0.04, WY - 0.01,
+        pX_L - 0.01 + flutterL, WY - 0.01,
+        pX_L - 0.005 + flutterL * 0.5, WY + WH + 0.02,
+        pX_L - 0.048, WY + WH + 0.02], '#6A1C10', 0.88);
+      }
+
+      // RIGHT PANEL
+      if (!rightOpen) {
+        fr(pX_R, pY, pW, pH, pC);
+        fr(pX_R, pY, pW, 0.018, 'rgba(255,255,220,.18)');
+        fr(pX_R + pW - 0.008, pY, 0.008, pH, 'rgba(255,255,220,.10)');
+        // cross grid
+        fr(midXR - 0.005, pY, 0.011, pH, '#2A1206'); // vertical bar
+        fr(pX_R, midY - 0.005, pW, 0.011, '#2A1206'); // horizontal bar
+        fr(midXR - 0.002, pY, 0.004, pH, 'rgba(80,40,10,.18)'); // v-highlight
+        fr(pX_R, midY - 0.002, pW, 0.004, 'rgba(80,40,10,.18)'); // h-highlight
+      } else {
+        var openW2 = pW * 0.12;
+        fr(pX_R + pW - openW2, pY, openW2, pH, '#2A1206');
+        fr(pX_R + pW - openW2, pY, openW2, pH, 'rgba(0,0,0,.40)');
+        var openSkyG2 = ctx.createLinearGradient(px(pX_R), py(pY), px(pX_R + pW - openW2), py(pY));
+        openSkyG2.addColorStop(0, skyTop); openSkyG2.addColorStop(1, skyBot);
+        ctx.fillStyle = openSkyG2; ctx.fillRect(px(pX_R), py(pY), px(pW - openW2), py(pH));
+        var flutterR = Math.sin(time * 0.08 + 1.2) * 0.02;
+        fp([pX_R + pW + 0.01, WY - 0.01,
+        pX_R + pW + 0.048, WY - 0.01,
+        pX_R + pW + 0.052, WY + WH + 0.02,
+        pX_R + pW + 0.005 + flutterR * 0.5, WY + WH + 0.02], '#6A1C10', 0.88);
+      }
+
+      // ── 9. CURTAINS (outer drapes on both sides) ──────────────────
+      var cFlutterL = anyOpen ? Math.sin(time * 0.07) * 0.014 : 0;
+      var cFlutterR = anyOpen ? Math.sin(time * 0.07 + 0.8) * 0.014 : 0;
+      // Left curtain
+      fp([WX - 0.07, WY - 0.02,
+      WX + 0.04 + cFlutterL, WY - 0.02,
+      WX + 0.05 + cFlutterL, WY + WH + 0.03,
+      WX - 0.08, WY + WH + 0.03], '#5A1A0E');
+      fp([WX - 0.065, WY - 0.018,
+      WX + 0.01 + cFlutterL * 0.7, WY - 0.018,
+      WX + 0.012 + cFlutterL * 0.5, WY + WH + 0.025,
+      WX - 0.068, WY + WH + 0.025], '#7A2416', 0.80);
+      // Right curtain
+      fp([WX + WW - 0.04 + cFlutterR, WY - 0.02,
+      WX + WW + 0.07, WY - 0.02,
+      WX + WW + 0.08, WY + WH + 0.03,
+      WX + WW - 0.05 + cFlutterR * 0.7, WY + WH + 0.03], '#5A1A0E');
+      fp([WX + WW - 0.01 + cFlutterR * 0.7, WY - 0.018,
+      WX + WW + 0.065, WY - 0.018,
+      WX + WW + 0.072, WY + WH + 0.025,
+      WX + WW + 0.002 + cFlutterR * 0.5, WY + WH + 0.025], '#7A2416', 0.80);
+      // Curtain rod
+      fr(WX - 0.08, WY - 0.030, WW + 0.16, 0.018, '#4A2210');
+      ctx.fillStyle = '#6A3818';
+      ctx.beginPath(); ctx.arc(px(WX - 0.082), py(WY - 0.021), px(0.011), 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(px(WX + WW + 0.082), py(WY - 0.021), px(0.011), 0, Math.PI * 2); ctx.fill();
+
+      // Window sill ledge (bottom of window, connects to wall/desk area)
+      fr(WX - 0.06, WY + WH, WW + 0.12, 0.030, '#3A1C0A');
+      fr(WX - 0.06, WY + WH, WW + 0.12, 0.010, '#4A2810');
+
+      // ── 10. WEATHER (rain/snow clipped to open panes) ─────────────
+      if (weatherType === 'rain' && anyOpen) {
+        // Clip to window area
         ctx.save();
-        ctx.beginPath(); ctx.rect(px(WX + 0.013), py(WY + 0.013), px(WW - 0.026), py(WH - 0.026)); ctx.clip();
-        ctx.strokeStyle = 'rgba(180,215,255,.52)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.rect(px(WX + fT), py(pY), px(WW - fT * 2), py(pH)); ctx.clip();
+        ctx.strokeStyle = 'rgba(180,215,255,.55)'; ctx.lineWidth = 1;
         for (var ri = 0; ri < raindrops.length; ri++) {
-          var rd = raindrops[ri]; rd.y += rd.spd; if (rd.y > WY + WH + 0.05) rd.y = WY - 0.05;
-          ctx.globalAlpha = rd.a; ctx.beginPath(); ctx.moveTo(px(rd.x), py(rd.y)); ctx.lineTo(px(rd.x - 0.003), py(rd.y + rd.len)); ctx.stroke();
+          var rd = raindrops[ri]; rd.y += rd.spd;
+          if (rd.y > pY + pH + 0.05) rd.y = pY - 0.05;
+          if (rd.x < WX || rd.x > WX + WW) rd.x = WX + Math.random() * WW;
+          ctx.globalAlpha = rd.a; ctx.beginPath();
+          ctx.moveTo(px(rd.x), py(rd.y)); ctx.lineTo(px(rd.x - 0.002), py(rd.y + rd.len)); ctx.stroke();
         }
         ctx.globalAlpha = 1; ctx.restore();
-        ctx.fillStyle = 'rgba(110,150,215,.055)'; ctx.fillRect(0, 0, W, H);
       }
-      if (weatherType === 'snow') {
+      if (weatherType === 'snow' && anyOpen) {
         ctx.save();
-        ctx.beginPath(); ctx.rect(px(WX + 0.013), py(WY + 0.013), px(WW - 0.026), py(WH - 0.026)); ctx.clip();
+        ctx.beginPath(); ctx.rect(px(WX + fT), py(pY), px(WW - fT * 2), py(pH)); ctx.clip();
         for (var sni = 0; sni < snowflakes.length; sni++) {
           var sf = snowflakes[sni]; sf.y += sf.spd; sf.x += Math.sin(time * 0.02 + sf.drift) * 0.0003;
-          if (sf.y > WY + WH + 0.04) { sf.y = WY - 0.04; sf.x = WX + 0.013 + Math.random() * (WW - 0.026); }
+          if (sf.y > pY + pH + 0.04) { sf.y = pY - 0.04; sf.x = WX + Math.random() * WW; }
           circ(sf.x, sf.y, sf.r, 'rgba(218,232,255,1)', sf.a);
         }
         ctx.restore();
-        ctx.fillStyle = 'rgba(170,195,238,.04)'; ctx.fillRect(0, 0, W, H);
       }
 
-      // Curtains
-      fp([WX - 0.034, WY - 0.016, WX + 0.020, WY - 0.016, WX + 0.026, WY + WH + 0.022, WX - 0.042, WY + WH + 0.022], '#5A1A0E');
-      fp([WX - 0.031, WY - 0.013, WX - 0.004, WY - 0.013, WX - 0.002, WY + WH + 0.017, WX - 0.033, WY + WH + 0.017], '#7A2416', 0.82);
-      fp([WX + WW - 0.020, WY - 0.016, WX + WW + 0.042, WY - 0.016, WX + WW + 0.048, WY + WH + 0.022, WX + WW - 0.026, WY + WH + 0.022], '#5A1A0E');
-      fp([WX + WW + 0.004, WY - 0.013, WX + WW + 0.038, WY - 0.013, WX + WW + 0.042, WY + WH + 0.017, WX + WW + 0.002, WY + WH + 0.017], '#7A2416', 0.80);
-      // Curtain rod
-      fr(WX - 0.042, WY - 0.024, WW + 0.086, 0.016, '#4A2210');
-      ctx.fillStyle = '#6A3818';
-      ctx.beginPath(); ctx.arc(px(WX - 0.044), py(WY - 0.016), px(0.009), 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(px(WX + WW + 0.044), py(WY - 0.016), px(0.009), 0, Math.PI * 2); ctx.fill();
-
-      // Light shaft on floor (shining towards the left since window is right)
-      if (lampOn) {
-        var sg = ctx.createLinearGradient(px(WX + WW * 0.5), py(FY), px(WX - 0.20), py(1.05));
-        sg.addColorStop(0, 'rgba(' + pal.wGlow + ',.17)'); sg.addColorStop(1, 'rgba(' + pal.wGlow + ',0)');
-        ctx.fillStyle = sg; ctx.beginPath();
-        ctx.moveTo(px(WX + 0.013), py(FY)); ctx.lineTo(px(WX + WW - 0.012), py(FY));
-        ctx.lineTo(px(WX + WW - 0.10), py(1.06)); ctx.lineTo(px(WX - 0.30), py(1.06));
-        ctx.closePath(); ctx.fill();
-      }
-      ctx.restore(); // end window parallax
-
-      // ─ FLOOR ─
-      ctx.save(); ctx.translate(px(ox1 * 0.5), 0);
-      ctx.fillStyle = linG(0.5, FY, 0.5, 1, [[0, '#3A1C0A'], [0.14, '#4A2810'], [0.5, '#402010'], [1, '#221008']]);
-      ctx.fillRect(-W * 0.12, py(FY), W * 1.24, py(1 - FY));
-      // Floor planks
-      ctx.strokeStyle = 'rgba(0,0,0,.30)';
-      for (var fy2 = FY; fy2 < 1; fy2 += 0.022) {
-        ctx.lineWidth = fy2 < 0.77 ? 0.5 : 1.0;
-        ctx.beginPath(); ctx.moveTo(-W * 0.12, py(fy2)); ctx.lineTo(W * 1.12, py(fy2)); ctx.stroke();
-      }
-      ctx.strokeStyle = 'rgba(0,0,0,.14)'; ctx.lineWidth = 0.4;
-      for (var fii = 0; fii < 20; fii++) { var tx = fii / 19, bx3 = tx + 0.5 * (tx - 0.5) * 0.32; ctx.beginPath(); ctx.moveTo(px(tx), py(FY)); ctx.lineTo(px(bx3), py(1)); ctx.stroke(); }
-      ctx.restore();
-
-      // ─ RUG ─
-      var RX = 0.29, RY = FY + 0.018, RW = 0.42, RH = 0.160;
-      ctx.fillStyle = linG(RX, RY, RX + RW, RY + RH, [[0, '#561A10'], [0.5, '#481408'], [1, '#501810']]);
-      ctx.fillRect(px(RX), py(RY), px(RW), py(RH));
-      ctx.strokeStyle = 'rgba(175,58,20,.42)'; ctx.lineWidth = px(0.0038);
-      ctx.strokeRect(px(RX + 0.008), py(RY + 0.010), px(RW - 0.016), py(RH - 0.020));
-      ctx.strokeStyle = 'rgba(95,28,10,.38)'; ctx.lineWidth = px(0.002);
-      ctx.strokeRect(px(RX + 0.015), py(RY + 0.020), px(RW - 0.030), py(RH - 0.040));
-      ctx.globalAlpha = 0.10;
-      for (var ri2 = RX + 0.04; ri2 < RX + RW - 0.04; ri2 += 0.055) {
-        ctx.fillStyle = '#D05028'; ctx.save(); ctx.translate(px(ri2), py(RY + RH * 0.5)); ctx.rotate(Math.PI / 4);
-        var rs = px(0.010); ctx.fillRect(-rs, -rs, rs * 2, rs * 2); ctx.restore();
-      }
-      ctx.globalAlpha = 1;
-
-      // ─ BOOKSHELF (mid parallax) ─
-      ctx.save(); ctx.translate(px(ox1), py(oy1 * 0.5));
-      // Shadow to left of shelf
-      var bss = ctx.createLinearGradient(px(SX - 0.04), 0, px(SX), 0);
-      bss.addColorStop(0, 'rgba(0,0,0,0)'); bss.addColorStop(1, 'rgba(0,0,0,.5)');
-      ctx.fillStyle = bss; ctx.fillRect(px(SX - 0.04), py(SY - 0.01), px(0.04), py(SH + 0.02));
-      // Cabinet
-      fr(SX, SY, SW, SH, '#1A0802');
-      fr(SX + 0.013, SY + 0.013, SW - 0.026, SH - 0.026, '#0C0400');
-      fr(SX, SY, 0.015, SH, '#361808'); fr(SX + SW - 0.015, SY, 0.015, SH, '#28100A');
-      fr(SX, SY, SW, 0.015, '#361808'); fr(SX, SY + SH - 0.015, SW, 0.015, '#28100A');
-      // Shelf boards
-      var SHL2 = [0.20, 0.38, 0.56, 0.73];
-      for (var shi = 0; shi < SHL2.length; shi++) {
-        fr(SX + 0.013, SY + SHL2[shi] * SH, SW - 0.026, 0.015, '#361808');
-        fr(SX + 0.015, SY + SHL2[shi] * SH + 0.015, SW - 0.030, 0.004, '#4A2410', 0.55);
-      }
-      // Top molding
-      fr(SX - 0.009, SY - 0.019, SW + 0.018, 0.019, '#4A2010');
-      // Books
-      for (var bi = 0; bi < books.length; bi++) {
-        var b = books[bi];
-        fr(b.x, b.y, b.w, b.h, b.col);
-        fr(b.x, b.y, b.w * 0.10, b.h, 'rgba(0,0,0,.32)');
-        fr(b.x, b.y, b.w, 0.004, 'rgba(255,255,255,.10)');
-        fr(b.x, b.y, b.w * 0.07, b.h * 0.28, 'rgba(255,255,255,.08)');
-      }
-      // Mood plant
-      drawPlant(SX + 0.013, SY + 0.022, journalDays);
-      // Knick-knack
-      fr(SX + 0.14, SY + 0.20 * SH - 0.048, 0.022, 0.048, '#8A4820');
-      fr(SX + 0.142, SY + 0.20 * SH - 0.050, 0.018, 0.008, '#C07838');
-      // Small photo frame
-      fr(SX + 0.08, SY + 0.38 * SH - 0.088, 0.052, 0.088, '#381606');
-      fr(SX + 0.083, SY + 0.38 * SH - 0.084, 0.046, 0.080, '#261004');
-      fr(SX + 0.085, SY + 0.38 * SH - 0.082, 0.042, 0.076, '#2A3826');
-      ctx.restore();
-
-      // ─ FLOOR LAMP ─
-      // Base
-      fr(LX - 0.019, FY - 0.013, 0.038, 0.013, '#381608');
-      fr(LX - 0.011, FY - 0.032, 0.022, 0.022, '#2C1006');
-      // Base (Elegant weighed base)
-      ctx.fillStyle = linG(LX - 0.02, FY - 0.015, LX + 0.02, FY - 0.015, [[0, '#381608'], [0.4, '#2A1408'], [1, '#1A0804']]);
-      ctx.beginPath(); ctx.ellipse(px(LX), py(FY - 0.008), px(0.026), py(0.008), 0, 0, Math.PI * 2); ctx.fill();
-      fr(LX - 0.010, FY - 0.024, 0.020, 0.016, '#2C1006');
-      fr(LX - 0.004, LY, 0.008, FY - 0.024 - LY, '#361608');
-      fr(LX - 0.001, LY + 0.015, 0.002, FY - 0.040 - LY, 'rgba(255,180,80,.25)');
-      var sdX = LX - 0.052, sdY = LY - 0.006, sdW = 0.104, sdH = 0.074;
-      fp([sdX, sdY, sdX + sdW, sdY, sdX + sdW * 0.78, sdY + sdH, sdX + sdW * 0.22, sdY + sdH], lampOn ? '#D0A060' : '#4E2412');
-      fr(sdX + sdW * 0.22, sdY + sdH - 0.003, sdW * 0.56, 0.004, '#361608');
-      fr(LX - 0.006, sdY - 0.008, 0.012, 0.012, '#361608');
-      if (lampOn) {
-        fr(sdX + sdW * 0.18, sdY + 0.009, sdW * 0.64, sdH - 0.018, 'rgba(255,230,145,.90)');
-        var f1 = flk(time);
-        var lpg = ctx.createRadialGradient(px(LX), py(LY + 0.065), px(0.006), px(LX), py(LY + 0.065), px(0.60));
-        lpg.addColorStop(0, 'rgba(255,200,80,' + (f1 * 0.82) + ')'); lpg.addColorStop(0.12, 'rgba(255,170,45,.55)');
-        lpg.addColorStop(0.35, 'rgba(235,130,20,.28)'); lpg.addColorStop(0.65, 'rgba(210,100,10,.10)');
-        lpg.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = lpg; ctx.fillRect(0, 0, W, H);
-        var fpg = ctx.createRadialGradient(px(LX), py(FY + 0.04), px(0.01), px(LX), py(FY + 0.04), px(0.34));
-        fpg.addColorStop(0, 'rgba(255,180,60,.28)'); fpg.addColorStop(0.5, 'rgba(240,140,30,.10)'); fpg.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = fpg; ctx.fillRect(0, py(FY - 0.02), W, py(0.40));
-      }
-
-      // UI Polish & Quest Markers
-      if (hov) drawUIHalo(hov);
-      drawQuestMarker(DX + DW / 2, DY - 0.14, "Journal");
-      drawQuestMarker(SX + SW / 2, SY + SH * 0.4, "Archive");
-      drawQuestMarker(CX + CWW / 2, CY + CHH * 0.2, "Reflect");
-
-      // ─ WRITING DESK (foreground parallax) ─
-      ctx.save(); ctx.translate(px(-ox1 * 0.38), 0);
-      drawPixelDesk(DX, DY);
-
-      // ── THE CLOSED JOURNAL (centered on the desk) ──────────────────
-      var jW = 0.11, jH = 0.035, jX = DX + (DW - jW) / 2, jY = DY - jH - 0.005;
-      ctx.fillStyle = 'rgba(0,0,0,.26)'; ctx.beginPath(); ctx.ellipse(px(jX + jW * 0.5), py(jY + jH + 0.002), px(jW * 0.52), py(0.005), 0, 0, Math.PI * 2); ctx.fill();
-      fr(jX + 0.002, jY + jH - 0.005, jW - 0.004, 0.005, '#E8D8B8'); fr(jX + 0.002, jY + jH - 0.005, jW - 0.004, 0.002, '#C8B898');
-      ctx.fillStyle = linG(jX, jY, jX, jY + jH - 0.005, [[0, '#3A4A2A'], [0.4, '#24341A'], [1, '#1A2410']]); ctx.fillRect(px(jX), py(jY), px(jW), py(jH - 0.005));
-      fr(jX, jY, jW, 0.004, 'rgba(100,140,80,.26)'); ctx.strokeStyle = 'rgba(0,0,0,.35)'; ctx.lineWidth = px(0.001); ctx.strokeRect(px(jX + 0.005), py(jY + 0.006), px(jW - 0.010), py(jH - 0.016));
-      fr(jX + jW * 0.70, jY + jH - 0.008, 0.008, 0.018, '#8A241A'); fr(jX + jW * 0.70, jY + jH - 0.008, 0.003, 0.018, '#A83424');
-      fp([jX + jW * 0.70, jY + jH + 0.010, jX + jW * 0.74, jY + jH + 0.005, jX + jW * 0.78, jY + jH + 0.010], '#1A2410');
-      fr(jX + jW - 0.006, jY + jH * 0.3, 0.006, 0.012, '#D0A040'); fr(jX + jW - 0.006, jY + jH * 0.3, 0.002, 0.012, '#F0C860');
-
-      ctx.restore();
-
-      drawPixelChair(CX, CY);
-
-
-      // ─ SIDE TABLE ─
-      fr(CX + CWW + 0.013, CY + CHH * 0.67, 0.050, 0.004, '#381608');
-      fr(CX + CWW + 0.017, CY + CHH * 0.67 + 0.004, 0.009, 0.060, '#2C1006');
-      fr(CX + CWW + 0.035, CY + CHH * 0.67 + 0.004, 0.009, 0.060, '#2C1006');
-
-      // Vinyl record player on side table
-      drawVinyl(CX + CWW + 0.013, CY + CHH * 0.61);
-
-      // Tea mug on side table
-      fr(CX + CWW + 0.016, CY + CHH * 0.645, 0.030, 0.022, '#D8B880');
-      fr(CX + CWW + 0.013, CY + CHH * 0.665, 0.036, 0.005, '#C0A060');
-      fr(CX + CWW + 0.042, CY + CHH * 0.650, 0.011, 0.011, '#B89048');
-      // Steam
-      if (lampOn) {
-        for (var sti = 0; sti < 3; sti++) {
-          var sph = ((time + sti * 20) % 60) / 60;
-          var sa = Math.sin(sph * Math.PI) * 0.36;
-          fr(CX + CWW + 0.022 + sti * 0.006, CY + CHH * 0.61 - sph * 0.036, 0.004, 0.006, 'rgba(255,240,218,.7)', sa);
+      // ── 11. BREEZE PARTICLES (when any panel is open) ──────────────
+      if (anyOpen) {
+        for (var bpi = 0; bpi < breezeParticles.length; bpi++) {
+          var bp = breezeParticles[bpi];
+          bp.x += bp.vx; bp.y += bp.vy; bp.life += 0.008;
+          bp.a = Math.sin(bp.life * Math.PI) * 0.4;
+          if (bp.life > 1 || bp.x < 0.05 || bp.x > 0.95) {
+            resetBreeze(bp, rightOpen && !leftOpen);
+          }
+          ctx.globalAlpha = bp.a;
+          ctx.strokeStyle = 'rgba(210,240,255,1)'; ctx.lineWidth = 0.6;
+          ctx.beginPath(); ctx.moveTo(px(bp.x), py(bp.y)); ctx.lineTo(px(bp.x - bp.vx * 18), py(bp.y)); ctx.stroke();
+          ctx.globalAlpha = 1;
         }
       }
 
-      // ─ DUST MOTES ─
+      // ── 12. WINDOW LIGHT SHAFT (coming from the right onto floor/desk) ──
+      if (lampOn || anyOpen) {
+        var sg = ctx.createLinearGradient(px(WX), py(WY + WH), px(WX - 0.15), py(1.05));
+        sg.addColorStop(0, 'rgba(' + pal.wGlow + ',.14)'); sg.addColorStop(1, 'rgba(' + pal.wGlow + ',0)');
+        ctx.fillStyle = sg; ctx.beginPath();
+        ctx.moveTo(px(WX + 0.02), py(WY + WH));
+        ctx.lineTo(px(WX + WW - 0.02), py(WY + WH));
+        ctx.lineTo(px(1.0), py(1.06)); ctx.lineTo(px(WX - 0.30), py(1.06));
+        ctx.closePath(); ctx.fill();
+      }
+
+      // ── 13. WALL BELOW WINDOW (between sill and desk) ──────────────
+      // This wall strip is cream, visible between window sill and desk edge
+      var wallBelowY = WY + WH + 0.022;
+      var wallBelowH = DESK_TOP_Y - wallBelowY;
+      fr(0, wallBelowY, 1, wallBelowH, pal.w1);
+      // Window sill
+      fr(WX - 0.04, WY + WH, WW + 0.08, 0.024, '#4A2810');
+      fr(WX - 0.04, WY + WH, WW + 0.08, 0.010, '#6A3C18');
+      // Baseboard (above desk)
+      fr(0, DESK_TOP_Y - 0.016, 1, 0.018, 'rgba(0,0,0,.15)');
+
+      // ── 14. DESK SURFACE (3D desk matching photo reference) ──────────
+      var dt_L = 0.18, dt_R = 0.98; // Width at the wall (aligned with window roughly)
+      var df_L = -0.05, df_R = 1.05; // Width at front edge (perspective spread)
+
+      // A. Top Surface (Trapezoid from wall to front edge)
+      var topG = ctx.createLinearGradient(0, py(DESK_TOP_Y), 0, py(DESK_FRONT_Y));
+      topG.addColorStop(0, '#754B2F');
+      topG.addColorStop(0.5, '#56341E');
+      topG.addColorStop(1, '#3B2212');
+      ctx.fillStyle = topG;
+      ctx.beginPath();
+      ctx.moveTo(px(dt_L), py(DESK_TOP_Y));
+      ctx.lineTo(px(dt_R), py(DESK_TOP_Y));
+      ctx.lineTo(px(df_R), py(DESK_FRONT_Y));
+      ctx.lineTo(px(df_L), py(DESK_FRONT_Y));
+      ctx.closePath(); ctx.fill();
+
+      // Wood grain lines (receding into distance on the top surface)
+      ctx.strokeStyle = 'rgba(20,10,0,.15)'; ctx.lineWidth = 1.2;
+      var vpX = px((dt_L + dt_R) / 2), vpY = py(0.2); // Vanishing point
+      for (var gi = 0; gi <= 24; gi++) {
+        var startX = px(df_L + (df_R - df_L) * (gi / 24));
+        ctx.beginPath();
+        ctx.moveTo(startX, py(DESK_FRONT_Y));
+        ctx.lineTo(vpX + (startX - vpX) * 0.45, py(DESK_TOP_Y));
+        ctx.stroke();
+      }
+
+      // B. Desk Front Lip (Thickness of the top wood panel)
+      var lipH = 0.018; // Thickness
+      ctx.fillStyle = '#261208';
+      ctx.beginPath();
+      ctx.moveTo(px(df_L), py(DESK_FRONT_Y));
+      ctx.lineTo(px(df_R), py(DESK_FRONT_Y));
+      ctx.lineTo(px(df_R), py(DESK_FRONT_Y + lipH));
+      ctx.lineTo(px(df_L), py(DESK_FRONT_Y + lipH));
+      ctx.closePath(); ctx.fill();
+      // Highlight on the top front edge
+      fr(df_L, DESK_FRONT_Y, df_R - df_L, 0.003, '#825234');
+      fr(df_L, DESK_FRONT_Y + lipH - 0.002, df_R - df_L, 0.002, '#140804'); // lower shadow
+
+      // C. Front Face (Desk body with left/right pedestals and leg space)
+      var faceY = DESK_FRONT_Y + lipH;
+
+      // Top drawer band (the horizontal frame beneath the surface lip)
+      var bandH = 0.035;
+      var bandG = ctx.createLinearGradient(0, py(faceY), 0, py(faceY + bandH));
+      bandG.addColorStop(0, '#1E0E06'); bandG.addColorStop(1, '#0C0502');
+      ctx.fillStyle = bandG;
+      ctx.fillRect(px(df_L), py(faceY), px(df_R - df_L), py(bandH));
+
+      // Left Pedestal (going to floor)
+      var pW = (df_R - df_L) * 0.28;
+      var pedR_X = df_R - pW;
+
+      var pedG = ctx.createLinearGradient(0, py(faceY + bandH), 0, H);
+      pedG.addColorStop(0, '#160B05'); pedG.addColorStop(1, '#050201');
+      ctx.fillStyle = pedG;
+      ctx.beginPath();
+      // left ped
+      ctx.moveTo(px(df_L), py(faceY + bandH)); ctx.lineTo(px(df_L + pW), py(faceY + bandH));
+      ctx.lineTo(px(df_L + pW), H); ctx.lineTo(px(df_L), H);
+      // right ped
+      ctx.moveTo(px(pedR_X), py(faceY + bandH)); ctx.lineTo(px(df_R), py(faceY + bandH));
+      ctx.lineTo(px(df_R), H); ctx.lineTo(px(pedR_X), H);
+      ctx.closePath(); ctx.fill();
+
+      // Knee-hole back wall shadow
+      var kneeW = pedR_X - (df_L + pW);
+      // Deep shadow under the desk
+      var kneeG = ctx.createLinearGradient(0, py(faceY + bandH), 0, H);
+      kneeG.addColorStop(0, '#0D0502'); kneeG.addColorStop(1, '#000000');
+      ctx.fillStyle = kneeG;
+      ctx.fillRect(px(df_L + pW), py(faceY + bandH), px(kneeW), py(1.0 - (faceY + bandH)));
+
+      // D. Drawers (placed on the pedestals)
+      var dwW = pW * 0.75;
+      var dwH = 0.12;
+      var dlX = df_L + (pW - dwW) * 0.5; // center on left pedestal
+      var drX = pedR_X + (pW - dwW) * 0.5; // center on right pedestal
+
+      // Left Drawer
+      fr(dlX, faceY + 0.05, dwW, dwH, '#200D06'); // base
+      fr(dlX, faceY + 0.05, dwW, 0.005, '#381C0C'); // top highlight
+      fr(dlX, faceY + 0.05 + dwH - 0.005, dwW, 0.005, '#080301'); // bottom shadow
+      fr(dlX + dwW - 0.004, faceY + 0.05, 0.004, dwH, '#0C0502'); // side shadow
+      fr(dlX + dwW * 0.35, faceY + 0.09, dwW * 0.3, 0.008, '#080301'); // handle
+
+      // Right Drawer
+      fr(drX, faceY + 0.05, dwW, dwH, '#200D06');
+      fr(drX, faceY + 0.05, dwW, 0.005, '#381C0C');
+      fr(drX, faceY + 0.05 + dwH - 0.005, dwW, 0.005, '#080301');
+      fr(drX + dwW - 0.004, faceY + 0.05, 0.004, dwH, '#0C0502');
+      fr(drX + dwW * 0.35, faceY + 0.09, dwW * 0.3, 0.008, '#080301');
+
+      // Second set of lower drawers (bottom stack)
+      fr(dlX, faceY + 0.20, dwW, dwH, '#1c0b05');
+      fr(dlX, faceY + 0.20, dwW, 0.004, '#2A1408');
+      fr(dlX + dwW * 0.35, faceY + 0.24, dwW * 0.3, 0.008, '#060201');
+
+      fr(drX, faceY + 0.20, dwW, dwH, '#1c0b05');
+      fr(drX, faceY + 0.20, dwW, 0.004, '#2A1408');
+      fr(drX + dwW * 0.35, faceY + 0.24, dwW * 0.3, 0.008, '#060201');
+
+      // ── 15. ITEMS ON DESK ──────────────────────────────────────────
+      // Perspective helper: maps a normalized desk position (fx: 0-1, fy: 0-1) to canvas coords
+      function deskPos(fx, fy) {
+        // fy: 0 is back edge, 1 is front edge
+        var tY = DESK_TOP_Y + fy * (DESK_FRONT_Y - DESK_TOP_Y);
+        // Interpolate the left and right bounds at this specific Y (depth)
+        var curL = dt_L + fy * (df_L - dt_L);
+        var curR = dt_R + fy * (df_R - dt_R);
+        var tX = curL + fx * (curR - curL);
+        return { x: tX, y: tY, scale: 0.60 + fy * 0.40 };
+      }
+
+      // ─ CLOSED JOURNAL ─
+      (function () {
+        var pos = deskPos(0.38, 0.28); var sc = pos.scale;
+        var jW = 0.13 * sc, jH = 0.040 * sc;
+        var jX = pos.x - jW * 0.5, jY = pos.y - jH * 0.5;
+        ctx.fillStyle = 'rgba(0,0,0,.22)';
+        ctx.beginPath(); ctx.ellipse(px(pos.x), py(pos.y + jH * 0.8), px(jW * 0.52), py(jH * 0.18), 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = linG(jX, jY, jX, jY + jH, [[0, '#3A4A2A'], [0.4, '#24341A'], [1, '#1A2410']]); ctx.fillRect(px(jX), py(jY), px(jW), py(jH));
+        fr(jX, jY, jW, 0.004 * sc, 'rgba(100,140,80,.26)');
+        ctx.strokeStyle = 'rgba(0,0,0,.30)'; ctx.lineWidth = 0.5; ctx.strokeRect(px(jX + 0.005 * sc), py(jY + 0.005 * sc), px(jW - 0.010 * sc), py(jH - 0.010 * sc));
+        // Pages edge
+        fr(jX + 0.003 * sc, jY + jH, jW - 0.006 * sc, 0.005 * sc, '#E8D8B8');
+        // Gold clasp
+        fr(jX + jW - 0.012 * sc, jY + jH * 0.35, 0.010 * sc, 0.016 * sc, '#D0A040');
+        // Quest marker
+        drawQuestMarker(pos.x, jY - 0.045, 'Write');
+      })();
+
+      // ─ FIREFLY JAR ─
+      (function () {
+        var pos = deskPos(0.62, 0.22); var sc = pos.scale;
+        var jrX = pos.x - 0.020 * sc, jrY = pos.y - 0.068 * sc;
+        var jrW = 0.040 * sc, jrH = 0.065 * sc;
+        // Shadow
+        ctx.fillStyle = 'rgba(0,0,0,.20)';
+        ctx.beginPath(); ctx.ellipse(px(pos.x), py(pos.y + 0.010 * sc), px(jrW * 0.6), py(0.006 * sc), 0, 0, Math.PI * 2); ctx.fill();
+        // Jar body
+        ctx.fillStyle = linG(jrX, jrY, jrX + jrW, jrY, [[0, 'rgba(180,220,200,.55)'], [0.4, 'rgba(220,255,240,.30)'], [1, 'rgba(150,200,180,.40)']]);
+        ctx.fillRect(px(jrX), py(jrY), px(jrW), py(jrH));
+        ctx.strokeStyle = 'rgba(150,200,170,.60)'; ctx.lineWidth = 0.8;
+        ctx.strokeRect(px(jrX), py(jrY), px(jrW), py(jrH));
+        // Lid
+        fr(jrX - 0.003 * sc, jrY - 0.010 * sc, jrW + 0.006 * sc, 0.013 * sc, '#5A4020');
+        // Fireflies inside
+        for (var ffi = 0; ffi < fireflies.length; ffi++) {
+          var ff = fireflies[ffi];
+          var fx2 = jrX + jrW * 0.2 + (jrW * 0.6) * ((ffi % 4) / 3);
+          var fy2 = jrY + jrH * 0.25 + (jrH * 0.5) * (Math.floor(ffi / 4) / 2);
+          var fa = (Math.sin(time * ff.spd + ff.phase) + 1) * 0.5;
+          circ(fx2, fy2, px(0.003 * sc), 'rgba(' + ff.col + ',' + (0.4 + fa * 0.6) + ')');
+        }
+      })();
+
+      // ─ MUG (with steam) ─
+      (function () {
+        var pos = deskPos(0.78, 0.34); var sc = pos.scale;
+        var mX = pos.x - 0.022 * sc, mY = pos.y - 0.044 * sc;
+        var mW = 0.044 * sc, mH = 0.042 * sc;
+        ctx.fillStyle = 'rgba(0,0,0,.18)';
+        ctx.beginPath(); ctx.ellipse(px(pos.x), py(pos.y + 0.008 * sc), px(mW * 0.6), py(0.006 * sc), 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = linG(mX, mY, mX, mY + mH, [[0, '#D8B880'], [1, '#B89050']]); ctx.fillRect(px(mX), py(mY), px(mW), py(mH));
+        fr(mX, mY, mW, 0.007 * sc, '#C0A06A');
+        fr(mX, mY + mH - 0.006 * sc, mW, 0.008 * sc, '#8A6030');
+        // Handle
+        ctx.strokeStyle = '#B08040'; ctx.lineWidth = px(0.007 * sc);
+        ctx.beginPath(); ctx.arc(px(mX + mW + 0.006 * sc), py(mY + mH * 0.5), px(0.014 * sc), -Math.PI * 0.55, Math.PI * 0.55); ctx.stroke();
+        // Top surface (ellipse)
+        ctx.fillStyle = '#6A3010';
+        ctx.beginPath(); ctx.ellipse(px(mX + mW * 0.5), py(mY), px(mW * 0.5), py(0.008 * sc), 0, 0, Math.PI * 2); ctx.fill();
+        // Steam
+        if (lampOn) {
+          for (var sti = 0; sti < 3; sti++) {
+            var sph = ((time * 0.8 + sti * 20) % 60) / 60;
+            var sa = Math.sin(sph * Math.PI) * 0.38;
+            fr(pos.x - 0.006 * sc + sti * 0.006 * sc, mY - sph * 0.045 * sc, 0.005 * sc, 0.010 * sc, 'rgba(255,240,218,.7)', sa);
+          }
+        }
+      })();
+
+      // ─ SMALL DESK LAMP (on desk, right side) ─
+      (function () {
+        var pos = deskPos(0.90, 0.16); var sc = pos.scale;
+        var lbX = pos.x, lbY = pos.y;
+        // Base disc
+        ctx.fillStyle = linG(lbX - 0.018 * sc, lbY, lbX + 0.018 * sc, lbY, [[0, '#1A0804'], [0.5, '#2C1208'], [1, '#1A0804']]);
+        ctx.beginPath(); ctx.ellipse(px(lbX), py(lbY), px(0.018 * sc), py(0.005 * sc), 0, 0, Math.PI * 2); ctx.fill();
+        // Pole
+        fr(lbX - 0.003 * sc, lbY - 0.055 * sc, 0.006 * sc, 0.055 * sc, '#2E1006');
+        // Shade
+        var shX = lbX - 0.028 * sc, shY = lbY - 0.075 * sc;
+        fp([shX, shY, shX + 0.056 * sc, shY, shX + 0.046 * sc, shY + 0.032 * sc, shX + 0.010 * sc, shY + 0.032 * sc],
+          lampOn ? '#C08840' : '#3E1808');
+        if (lampOn) {
+          fr(shX + 0.008 * sc, shY + 0.004 * sc, 0.040 * sc, 0.024 * sc, 'rgba(255,225,140,.85)');
+          var dlg = ctx.createRadialGradient(px(lbX), py(lbY - 0.04 * sc), px(0.005), px(lbX), py(lbY - 0.04 * sc), px(0.22 * sc));
+          dlg.addColorStop(0, 'rgba(255,200,80,.55)'); dlg.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = dlg; ctx.fillRect(0, py(DESK_TOP_Y), W, py(1 - DESK_TOP_Y));
+        }
+      })();
+
+      // ── 16. DUST MOTES ─────────────────────────────────────────────
       if (lampOn) {
         for (var dmi = 0; dmi < dust.length; dmi++) {
           var d = dust[dmi];
           d.x += d.vx + Math.sin(time * 0.012 + d.life * 6) * 0.00028;
           d.y += d.vy; d.life += 0.0014;
-          if (d.y < 0.07 || d.life > 1) resetDust(d);
-          var inShaft = (d.x > WX + 0.01 && d.x < WX + WW + 0.09 && d.y > FY - 0.50 && d.y < FY);
-          var da = Math.sin(d.life * Math.PI) * (inShaft ? 0.80 : 0.35);
+          if (d.y < 0.06 || d.life > 1) resetDust(d);
+          var da = Math.sin(d.life * Math.PI) * 0.45;
           ctx.globalAlpha = da;
-          ctx.fillStyle = inShaft ? 'rgba(255,238,155,1)' : 'rgba(255,208,115,1)';
-          ctx.beginPath(); ctx.arc(px(d.x), py(d.y), d.sz * (inShaft ? 1.6 : 1.0), 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = 'rgba(255,230,140,1)';
+          ctx.beginPath(); ctx.arc(px(d.x), py(d.y), d.sz * 1.1, 0, Math.PI * 2); ctx.fill();
           ctx.globalAlpha = 1;
         }
       }
 
-      // ─ GLOBAL LIGHT TINT ─
-      var pal2 = pal;
+      // ── 17. GLOBAL LIGHT TINT ────────────────────────────────────
       if (lampOn) {
-        // Warm base wash — lifted from .07 to .13 for actual visible warmth
-        ctx.fillStyle = 'rgba(' + pal2.aR + ',' + pal2.aG + ',' + pal2.aB + ',.13)'; ctx.fillRect(0, 0, W, H);
-        // Radial warmth centred on lamp
-        var wsg = ctx.createRadialGradient(px(LX), py(LY + 0.1), px(0.01), px(LX), py(LY + 0.1), px(0.75));
-        wsg.addColorStop(0, 'rgba(' + pal2.aR + ',' + pal2.aG + ',' + pal2.aB + ',.30)');
-        wsg.addColorStop(0.4, 'rgba(' + pal2.aR + ',' + pal2.aG + ',' + pal2.aB + ',.12)');
+        ctx.fillStyle = 'rgba(' + pal.aR + ',' + pal.aG + ',' + pal.aB + ',.10)'; ctx.fillRect(0, 0, W, H);
+        // Warm radial from desk lamp
+        var wsg = ctx.createRadialGradient(px(LX), py(LY - 0.04), px(0.01), px(LX), py(LY - 0.04), px(0.55));
+        wsg.addColorStop(0, 'rgba(' + pal.aR + ',' + pal.aG + ',' + pal.aB + ',.25)');
         wsg.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = wsg; ctx.fillRect(0, 0, W, H);
       } else {
-        // Lamp off — slight cool moonlight tint but not pitch black
-        ctx.fillStyle = 'rgba(0,0,8,.30)'; ctx.fillRect(0, 0, W, H);
-        var mlg = ctx.createRadialGradient(px(WX + WW * 0.5), py(WY + WH * 0.5), px(0.01), px(WX + WW * 0.5), py(WY + WH * 0.5), px(0.46));
-        mlg.addColorStop(0, 'rgba(95,125,200,.15)'); mlg.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = 'rgba(0,0,8,.28)'; ctx.fillRect(0, 0, W, H);
+        var mlg = ctx.createRadialGradient(px(WX + WW * 0.5), py(WY + WH * 0.4), px(0.01), px(WX + WW * 0.5), py(WY + WH * 0.4), px(0.5));
+        mlg.addColorStop(0, 'rgba(90,120,195,.18)'); mlg.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = mlg; ctx.fillRect(0, 0, W, H);
       }
 
-      // ─ SOFT VIGNETTE (reduced from .92/.68 to keep warmth in) ─
-      var vgAlpha = lampOn ? 0.52 : 0.70;
-      var vg = ctx.createRadialGradient(W * 0.5, H * 0.5, H * 0.18, W * 0.5, H * 0.5, H * 0.82);
-      vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,' + vgAlpha + ')');
+      // ── 18. VIGNETTE ──────────────────────────────────────────────
+      var vgA = lampOn ? 0.48 : 0.68;
+      var vg = ctx.createRadialGradient(W * 0.5, H * 0.5, H * 0.16, W * 0.5, H * 0.5, H * 0.85);
+      vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,' + vgA + ')');
       ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
-      // Corner darkening — toned down from .68 to .36
-      var cAlpha = lampOn ? 0.36 : 0.52;
-      var corners = [[0, 0], [W, 0], [0, H], [W, H]];
-      for (var ci = 0; ci < corners.length; ci++) {
-        var cv = ctx.createRadialGradient(corners[ci][0], corners[ci][1], 0, corners[ci][0], corners[ci][1], H * 0.60);
-        cv.addColorStop(0, 'rgba(0,0,0,' + cAlpha + ')'); cv.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = cv; ctx.fillRect(0, 0, W, H);
-      }
+      // Hover halo
+      if (hov) drawUIHalo(hov);
 
-      // Hover highlight removed as requested
-      if (hov) {
-        // Only tooltip logic remains elsewhere
-      }
-
-      // Update badges
-      var tLab = { dawn: 'pale morning light', day: 'afternoon in your study', dusk: 'golden hour fading', night: 'deep evening quiet' };
+      // ── 19. UPDATE BADGES ─────────────────────────────────────────
+      var tLab = { dawn: 'pale morning light', day: 'afternoon at your desk', dusk: 'golden hour fading', night: 'deep evening quiet' };
       document.getElementById('timebadge').textContent = tLab[getTOD()] || 'a quiet moment';
       var wLab = { rain: 'soft rain outside', snow: 'snow falling quietly' };
-      document.getElementById('weatherbadge').textContent = wLab[weatherType] || '';
+      document.getElementById('weatherbadge').textContent = wLab[weatherType] || (anyOpen ? 'a gentle breeze' : '');
+    }
+
+    // ── SIDE BOOKSHELF (left wall, foreshortened) ─────────────────
+    function drawFrontBookshelf() {
+      // Front-facing bookshelf on the left wall, full height
+      var cabX = SX, cabY = SY, cabW = SW, cabH = SH;
+
+      // Shelf frame / back panel (darker wood)
+      fr(cabX, cabY, cabW, cabH, '#1C0C06');
+      fr(cabX + 0.012, cabY + 0.010, cabW - 0.024, cabH - 0.020, '#0E0604'); // back panel dark
+
+      // Side panels
+      fr(cabX, cabY, 0.014, cabH, '#2E1608');
+      fr(cabX + cabW - 0.014, cabY, 0.014, cabH, '#2E1608');
+
+      // Top cap
+      fr(cabX - 0.005, cabY - 0.014, cabW + 0.010, 0.018, '#3A1C0A');
+      fr(cabX - 0.005, cabY - 0.003, cabW + 0.010, 0.006, '#4A2610');
+      // Base / feet
+      fr(cabX - 0.004, cabY + cabH, cabW + 0.008, 0.017, '#2A1206');
+      fr(cabX + 0.014, cabY + cabH + 0.017, 0.018, 0.012, '#231008');
+      fr(cabX + cabW - 0.032, cabY + cabH + 0.017, 0.018, 0.012, '#231008');
+
+      // Shelf boards (4 shelves)
+      var SHLS = [0.20, 0.40, 0.60, 0.80];
+      for (var shi = 0; shi < SHLS.length; shi++) {
+        var shY2 = cabY + SHLS[shi] * cabH;
+        fr(cabX + 0.012, shY2, cabW - 0.024, 0.014, '#3A1C0A');
+        fr(cabX + 0.014, shY2 + 0.014, cabW - 0.028, 0.005, 'rgba(0,0,0,.35)'); // shelf shadow
+        fr(cabX + 0.014, shY2, cabW - 0.028, 0.004, 'rgba(100,60,20,.22)'); // shelf top highlight
+      }
+
+      // Books on each shelf
+      for (var bi = 0; bi < books.length; bi++) {
+        var b = books[bi];
+        var shelfIdx = b.shelf;
+        var shTop2 = cabY + SHLS[shelfIdx] * cabH;
+        var bXf = cabX + 0.016 + b.bx * (cabW - 0.032) / (SW - 0.022);
+        var bWf = b.bw * (cabW - 0.032) / (SW - 0.022);
+        if (bXf + bWf > cabX + cabW - 0.016) continue;
+        // Book body
+        fr(bXf, shTop2 - b.bh * 0.88, bWf, b.bh * 0.88, b.col);
+        // Spine highlight (left edge)
+        fr(bXf, shTop2 - b.bh * 0.88, bWf * 0.12, b.bh * 0.88, 'rgba(255,255,255,.10)');
+        // Shadow divider
+        fr(bXf + bWf, shTop2 - b.bh * 0.88, 0.002, b.bh * 0.88, 'rgba(0,0,0,.25)');
+        // Top edge
+        fr(bXf, shTop2 - b.bh * 0.88, bWf, 0.004, 'rgba(255,255,255,.12)');
+      }
+
+      // Mood plant (top section of shelf, above first shelf)
+      drawPlant(cabX + 0.040, cabY + 0.010, journalDays);
+
+      // Small decorative knick-knack (second shelf, right side)
+      var kx = cabX + cabW * 0.72, ky = cabY + SHLS[1] * cabH;
+      fr(kx - 0.010, ky - 0.040, 0.022, 0.040, '#6A3018'); // small figurine
+      circ(kx, ky - 0.045, px(0.010), '#8A4828');
+
+      // Separator panel edge shadow (right side of shelf fades into wall)
+      var sEdge = ctx.createLinearGradient(px(cabX + cabW), 0, px(cabX + cabW + 0.04), 0);
+      sEdge.addColorStop(0, 'rgba(0,0,0,.40)'); sEdge.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = sEdge; ctx.fillRect(px(cabX + cabW), py(cabY - 0.015), px(0.04), py(cabH + 0.04));
+
+      // Quest marker
+      drawQuestMarker(cabX + cabW * 0.50, cabY + SHLS[1] * cabH - 0.08, 'Archive');
+    }
+    function drawSideBookshelf() {
+      // The left wall recedes into the background.
+      // We draw the bookshelf as a foreshortened cabinet on the left strip.
+      var cabX = 0.00, cabW = SW, cabY = WY + 0.02, cabH = WH + 0.14;
+      // Wall shadow behind cabinet
+      var bss = ctx.createLinearGradient(px(cabX + cabW), 0, px(cabX + cabW + 0.06), 0);
+      bss.addColorStop(0, 'rgba(0,0,0,.60)'); bss.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = bss; ctx.fillRect(px(cabX + cabW), py(cabY), px(0.06), py(cabH));
+      // Cabinet body — slightly compressed in X to look foreshortened
+      fr(cabX, cabY, cabW, cabH, '#140802');
+      fr(cabX + 0.010, cabY + 0.010, cabW - 0.014, cabH - 0.020, '#0A0400');
+      fr(cabX, cabY, cabW, 0.013, '#2E1606'); fr(cabX, cabY + cabH - 0.013, cabW, 0.013, '#1E0E04');
+      fr(cabX + cabW - 0.012, cabY, 0.012, cabH, '#221008');
+      // Shelf boards
+      var SHLS = [0.22, 0.40, 0.58, 0.76];
+      for (var shi = 0; shi < SHLS.length; shi++) {
+        fr(cabX + 0.010, cabY + SHLS[shi] * cabH, cabW - 0.014, 0.013, '#2E1606');
+        fr(cabX + 0.012, cabY + SHLS[shi] * cabH + 0.013, cabW - 0.018, 0.004, 'rgba(70,35,15,.50)');
+      }
+      // Top molding
+      fr(cabX, cabY - 0.016, cabW + 0.006, 0.018, '#3A1C0A');
+      // Books (foreshortened — drawn narrow, stacked horizontally)
+      for (var bi = 0; bi < books.length; bi++) {
+        var b = books[bi];
+        var shTop = cabY + SHLS[b.shelf] * cabH;
+        // Foreshorten book width by ~38% to simulate side-wall angle
+        var bwF = b.bw * 0.62;
+        var bX = cabX + 0.011 + b.bx * 0.62;
+        if (bX + bwF > cabX + cabW - 0.014) continue;
+        fr(bX, shTop - b.bh * 0.90, bwF, b.bh * 0.90, b.col);
+        fr(bX, shTop - b.bh * 0.90, bwF * 0.12, b.bh * 0.90, 'rgba(0,0,0,.28)');
+        fr(bX, shTop - b.bh * 0.90, bwF, 0.004, 'rgba(255,255,255,.08)');
+      }
+      // Mood plant (top of shelf)
+      drawPlant(cabX + 0.010, cabY + 0.018, journalDays);
+      // Quest marker
+      drawQuestMarker(cabX + cabW * 0.5, cabY + cabH * 0.3, 'Archive');
     }
 
     // ── OBJECT DRAWERS ────────────────────────────────────────────
@@ -1168,15 +1480,22 @@
 
     // ── ZONES ─────────────────────────────────────────────────────
     var zones = [
+      // Window panels
+      { x: WX, y: WY, w: WW * 0.5, h: WH, title: 'Left Window', sub: leftOpen ? 'click to close' : 'click to open', winLeft: true },
+      { x: WX + WW * 0.5, y: WY, w: WW * 0.5, h: WH, title: 'Right Window', sub: rightOpen ? 'click to close' : 'click to open', winRight: true },
+      // Bookshelf
       { x: SX, y: SY, w: SW, h: SH, title: 'Journal Archive', sub: 'all your past entries', key: 'archive' },
-      { x: DX, y: DY, w: DW, h: 0.35, title: 'Writing Desk', sub: 'start a new entry', key: 'write' },
-      { x: CX, y: CY, w: CWW, h: CHH + 0.05, title: 'The Chair', sub: 'mood check', key: 'mood' },
-      { x: LX - 0.07, y: LY - 0.02, w: 0.14, h: 0.65, title: 'Floor Lamp', sub: 'click to toggle light', lamp: true },
-      { x: WX - 0.05, y: WY - 0.03, w: WW + 0.10, h: WH + 0.06, title: 'The Window', sub: 'soft light from outside', key: 'home' },
-      { x: SX + 0.20, y: SY + 0.015, w: 0.06, h: 0.17, title: 'Mood Plant', sub: journalDays >= 5 ? 'thriving' : 'needs your attention', key: 'plant' },
-      { x: DX + 0.012, y: DY - 0.075, w: 0.040, h: 0.075, title: 'Firefly Jar', sub: 'glowing thoughts', key: 'jar' },
-      { x: CX + CWW + 0.008, y: CY + CHH * 0.54, w: 0.062, h: 0.050, title: 'Record Player', sub: 'click to play', vinyl: true },
+      // Desk items (mapped to the 3D surface)
+      { x: 0.44, y: DESK_TOP_Y + 0.03, w: 0.12, h: 0.09, title: 'Writing Desk', sub: 'start a new entry', key: 'write' },
+      { x: 0.64, y: DESK_TOP_Y + 0.01, w: 0.07, h: 0.08, title: 'Firefly Jar', sub: 'glowing thoughts', key: 'jar' },
+      { x: 0.76, y: DESK_TOP_Y + 0.04, w: 0.07, h: 0.07, title: 'Morning Mug', sub: 'still warm', key: 'home' },
+      // Lamp
+      { x: 0.83, y: DESK_TOP_Y - 0.08, w: 0.10, h: 0.18, title: 'Desk Lamp', sub: 'click to toggle light', lamp: true },
     ];
+
+    // ── CLICK: WINDOW TOGGLES ─────────────────────────────────────
+    function toggleLeftWindow() { leftOpen = !leftOpen; zones[0].sub = leftOpen ? 'click to close' : 'click to open'; }
+    function toggleRightWindow() { rightOpen = !rightOpen; zones[1].sub = rightOpen ? 'click to close' : 'click to open'; }
 
     var TIP = document.getElementById('tip'), TTe = document.getElementById('ttt'), TSe = document.getElementById('tts');
 
@@ -1199,6 +1518,8 @@
       for (var i = 0; i < zones.length; i++) {
         var z = zones[i];
         if (mx >= z.x && mx <= z.x + z.w && my >= z.y && my <= z.y + z.h) {
+          if (z.winLeft) { toggleLeftWindow(); return; }
+          if (z.winRight) { toggleRightWindow(); return; }
           if (z.lamp) { toggleLamp(); return; }
           if (z.vinyl) { toggleMusic(); return; }
           if (z.key === 'write') { location.href = '/journal'; return; }
