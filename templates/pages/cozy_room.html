@@ -565,29 +565,141 @@
         // Only glow the window area
         ctx.fillStyle = wgg; ctx.fillRect(px(WX - 0.1), py(WY - 0.1), px(WW + 0.2), py(WH + 0.2));
       })();
-
       // ── 7. WINDOW FRAME ───────────────────────────────────────────
       var fT = 0.018;
-      fr(WX, WY, WW, WH, '#2E1408'); // full frame background
-      // Grids
-      fr(WX + WW * 0.5 - 0.010, WY, 0.020, WH, '#1A0804'); // Vertical
-      fr(WX, WY + WH * 0.5 - 0.010, WW, 0.020, '#1A0804'); // Horizontal
+      // Rails (Top, Bottom, Sides)
+      fr(WX, WY, WW, fT, '#2E1408'); // Top
+      fr(WX, WY + WH - fT, WW, fT, '#2E1408'); // Bottom
+      fr(WX, WY, fT, WH, '#2E1408'); // Left
+      fr(WX + WW - fT, WY, fT, WH, '#2E1408'); // Right
       // Border Highlights
       fr(WX, WY, WW, 0.006, '#3A1C0A'); // top
       fr(WX, WY + WH - 0.006, WW, 0.006, '#1A0804'); // bottom
 
-      // ── 8. WINDOW PANELS (Simple Flat logic) ─────────────────────
-      var pW = WW / 2 - 0.01, pH = WH - 0.02;
+      // ── 8. WINDOW PANELS (Inward Swing logic) ─────────────────────
+      var pW = WW / 2; // Exact half width for perfect seal
+      var pH = WH - 0.004; // Fill the frame height
       var pC = (tod === 'night' || tod === 'dusk') ? 'rgba(40,55,110,.35)' : 'rgba(255,245,210,.25)';
 
-      if (!leftOpen) {
-        fr(WX + 0.005, WY + 0.01, pW, pH, pC);
-        fr(WX + 0.005 + pW * 0.5 - 0.004, WY + 0.01, 0.008, pH, '#1A0804'); // vertical grid
+      function drawOutwardPanel(bx, by, pw, ph, isOpen, isLeft) {
+        ctx.save();
+        var barW = 0.012; // slightly thinner for the 4-pane detail
+        var grillCol = '#2A0E08'; // Deep Espresso
+        var pC = (tod === 'night' || tod === 'dusk') ? 'rgba(40,55,110,.35)' : 'rgba(255,245,210,.25)';
+
+        if (isOpen) {
+          // Perspective: Hinge side is stationary, Inner edge narrows and RECEDES (gets shorter)
+          var swingW = pw * 0.40;
+          var hScale = 0.85; // Receding scale
+          var xOff = isLeft ? 0 : (pw - swingW);
+
+          var x1 = bx + xOff, x2 = x1 + swingW;
+          var y_short = by + (ph * (1 - hScale) * 0.5);
+          var h_short = ph * hScale;
+
+          // Trapezoid Points: p1, p2 (top), p3, p4 (bottom)
+          var p1x, p1y, p2x, p2y, p3x, p3y, p4x, p4y;
+          if (isLeft) {
+            p1x = x1; p1y = by; p2x = x2; p2y = y_short;
+            p3x = x2; p3y = y_short + h_short; p4x = x1; p4y = by + ph;
+          } else {
+            p1x = x1; p1y = y_short; p2x = x2; p2y = by;
+            p3x = x2; p3y = by + ph; p4x = x1; p4y = y_short + h_short;
+          }
+
+          // Glass
+          ctx.fillStyle = pC;
+          ctx.beginPath(); ctx.moveTo(px(p1x), py(p1y)); ctx.lineTo(px(p2x), py(p2y)); ctx.lineTo(px(p3x), py(p3y)); ctx.lineTo(px(p4x), py(p4y)); ctx.closePath(); ctx.fill();
+
+          // Frame Rails (Top & Bottom thickness)
+          ctx.fillStyle = '#1A0804';
+          var railH = 0.012;
+          // Top Rail
+          ctx.beginPath(); ctx.moveTo(px(p1x), py(p1y)); ctx.lineTo(px(p2x), py(p2y)); ctx.lineTo(px(p2x), py(p2y + railH)); ctx.lineTo(px(p1x), py(p1y + railH)); ctx.closePath(); ctx.fill();
+          // Bottom Rail
+          ctx.beginPath(); ctx.moveTo(px(p4x), py(p4y)); ctx.lineTo(px(p3x), py(p3y)); ctx.lineTo(px(p3x), py(p3y - railH)); ctx.lineTo(px(p4x), py(p4y - railH)); ctx.closePath(); ctx.fill();
+
+          // PERSPECTIVE GRILLS (4-pane cross)
+          ctx.strokeStyle = grillCol; ctx.lineWidth = px(0.006);
+          ctx.lineCap = 'butt';
+
+          var mid1y, mid2y;
+          if (isLeft) {
+            mid1y = by + ph * 0.5; // Hinge side (left)
+            mid2y = y_short + h_short * 0.5; // Swinging side (right)
+          } else {
+            mid1y = y_short + h_short * 0.5; // Swinging side (left)
+            mid2y = by + ph * 0.5; // Hinge side (right)
+          }
+
+          // Horizontal Grill (Inset slightly to hide behind rails)
+          var th = 0.008;
+          ctx.beginPath();
+          ctx.moveTo(px(p1x + (isLeft ? th : 0)), py(mid1y));
+          ctx.lineTo(px(p2x - (isLeft ? 0 : th)), py(mid2y));
+          ctx.stroke();
+
+          // Vertical Grill (Inset slightly to hide behind top/bottom rails)
+          ctx.beginPath();
+          ctx.moveTo(px(p1x + (p2x - p1x) * 0.5), py(p1y + (p2y - p1y) * 0.5 + 0.012));
+          ctx.lineTo(px(p4x + (p3x - p4x) * 0.5), py(p4y + (p3y - p4y) * 0.5 - 0.012));
+          ctx.stroke();
+
+          // Side thickness (Vertical rails)
+          ctx.fillStyle = '#1A0804';
+          var th = 0.008;
+          if (isLeft) {
+            fr(p1x, by, th, ph); // Hinge rail
+            fr(p2x - th, y_short, th, h_short); // Outer rail
+          } else {
+            fr(p2x - th, by, th, ph); // Hinge rail
+            fr(p1x, y_short, th, h_short); // Outer rail
+          }
+
+          // Small Brass Handle (Drawn LAST to sit on top of the wood)
+          ctx.fillStyle = '#C0A060'; // Brass
+          var hndW = 0.004, hndH = 0.024;
+          var hndX = isLeft ? (p2x - th + 0.002) : (p1x + 0.002);
+          var hndY = y_short + h_short * 0.5 - hndH * 0.5;
+          fr(hndX, hndY, hndW, hndH);
+          fr(hndX + hndW * 0.4, hndY, hndW * 0.3, hndH, '#806020'); // detail
+
+        } else {
+          // Closed: Meeting in the middle with 4-pane cross per side
+          var extra = 0.003;
+          var finalW = pw + extra, finalX = isLeft ? bx : (bx - extra);
+          fr(finalX, by, finalW, ph, pC);
+
+          // Top & Bottom Wood Rails (Consistent with open state)
+          var railH0 = 0.012;
+          fr(finalX, by, finalW, railH0, '#1A0804'); // Top
+          fr(finalX, by + ph - railH0, finalW, railH0, '#1A0804'); // Bottom
+
+          // Outer Hinge/Side Edge
+          fr(isLeft ? finalX : finalX + finalW - 0.006, by, 0.006, ph, grillCol);
+
+          // Center Vertical Bar (Leading Edge)
+          var vX = isLeft ? (finalX + finalW - barW) : finalX;
+          fr(vX, by, barW, ph, grillCol);
+
+          // Horizontal Mid-bar
+          fr(finalX, by + ph * 0.5 - barW * 0.5, finalW, barW, grillCol);
+
+          // Internal Vertical bar (to create 4 panes)
+          fr(finalX + finalW * 0.5 - barW * 0.25, by, barW * 0.5, ph, grillCol);
+
+          // Brass Handles (Closed state - On the thick center wood)
+          ctx.fillStyle = '#C0A060';
+          var vX = isLeft ? (finalX + finalW - barW) : finalX;
+          var hX = isLeft ? (vX + 0.002) : (vX + barW - 0.006);
+          fr(hX, by + ph * 0.5 - 0.012, 0.004, 0.024);
+          fr(hX + 0.001, by + ph * 0.5 - 0.012, 0.002, 0.024, '#806020'); // detail
+        }
+        ctx.restore();
       }
-      if (!rightOpen) {
-        fr(WX + WW * 0.5 + 0.005, WY + 0.01, pW, pH, pC);
-        fr(WX + WW * 0.5 + 0.005 + pW * 0.5 - 0.004, WY + 0.01, 0.008, pH, '#1A0804'); // vertical grid
-      }
+
+      drawOutwardPanel(WX, WY + 0.002, pW, pH, leftOpen, true);
+      drawOutwardPanel(WX + WW * 0.5, WY + 0.002, pW, pH, rightOpen, false);
 
       // ── 9. CURTAINS (Sheer Glowing Amber with wavy texture) ────────
       var cFlutterL = anyOpen ? Math.sin(time * 0.07) * 0.012 : 0;
@@ -667,20 +779,6 @@
         }
       }
 
-      // ── 11. BREEZE ──
-      if (anyOpen) {
-        for (var bpi = 0; bpi < breezeParticles.length; bpi++) {
-          var bp = breezeParticles[bpi];
-          bp.x += bp.vx; bp.y += bp.vy; bp.life += 0.008;
-          bp.a = Math.sin(bp.life * Math.PI) * 0.4;
-          if (bp.life > 1 || bp.x < 0.05 || bp.x > 0.95) resetBreeze(bp, rightOpen && !leftOpen);
-          ctx.globalAlpha = bp.a;
-          ctx.strokeStyle = 'rgba(210,240,255,1)'; ctx.lineWidth = 0.6;
-          ctx.beginPath(); ctx.moveTo(px(bp.x), py(bp.y)); ctx.lineTo(px(bp.x - bp.vx * 18), py(bp.y)); ctx.stroke();
-          ctx.globalAlpha = 1;
-        }
-      }
-
       // ── 13. WALL BELOW WINDOW & SILL ──────────────────────────────
       var wallBelowY = WY + WH + 0.02;
       var wallBelowH = DESK_TOP_Y - wallBelowY;
@@ -694,7 +792,6 @@
       fr(SW, DESK_TOP_Y - 0.016, 1 - SW, 0.018, 'rgba(0,0,0,.15)');
 
       // ── 14. BOOKSHELF (Drawn here so it's in front of wall shadows/lines) ──
-      drawIvy();
       drawFrontBookshelf();
 
       // ── 14. DESK SURFACE (3D desk matching photo reference) ──────────
