@@ -1012,14 +1012,14 @@
         ctx.beginPath(); ctx.moveTo(px(lbX - shW_T * 0.4), py(shTopY + 0.005 * sc)); ctx.lineTo(px(lbX - shW_B * 0.4), py(shBotY - 0.005 * sc)); ctx.stroke();
 
         if (lampOn) {
-          // Internal bulb glow (enhanced)
+          // Internal bulb glow (balanced)
           var ig = ctx.createRadialGradient(px(lbX), py(shBotY - 0.02 * sc), 0, px(lbX), py(shBotY - 0.02 * sc), px(0.08 * sc));
-          ig.addColorStop(0, 'rgba(255,250,220,0.95)'); ig.addColorStop(0.4, 'rgba(255,210,120,0.6)'); ig.addColorStop(1, 'rgba(255,160,60,0)');
+          ig.addColorStop(0, 'rgba(255,250,220,0.85)'); ig.addColorStop(0.5, 'rgba(255,210,120,0.4)'); ig.addColorStop(1, 'rgba(255,160,60,0)');
           ctx.fillStyle = ig; ctx.beginPath(); ctx.ellipse(px(lbX), py(shBotY), px(shW_B * 1.1), py(0.020 * sc), 0, 0, Math.PI * 2); ctx.fill();
 
-          // Desk light pool (wider and smoother)
-          var dlg = ctx.createRadialGradient(px(lbX), py(lbY - 0.03 * sc), px(0.01), px(lbX), py(lbY - 0.03 * sc), px(0.45 * sc));
-          dlg.addColorStop(0, 'rgba(255,180,50,0.50)'); dlg.addColorStop(0.5, 'rgba(255,160,40,0.15)'); dlg.addColorStop(1, 'rgba(0,0,0,0)');
+          // Desk light pool (wider, much softer transition)
+          var dlg = ctx.createRadialGradient(px(lbX), py(lbY - 0.03 * sc), px(0.01), px(lbX), py(lbY - 0.03 * sc), px(0.55 * sc));
+          dlg.addColorStop(0, 'rgba(255,180,50,0.35)'); dlg.addColorStop(0.4, 'rgba(255,160,40,0.12)'); dlg.addColorStop(1, 'rgba(0,0,0,0)');
           ctx.fillStyle = dlg; ctx.fillRect(0, py(DESK_TOP_Y), W, py(1 - DESK_TOP_Y));
         }
       })();
@@ -1041,18 +1041,18 @@
 
       // ── 17. GLOBAL LIGHT TINT ────────────────────────────────────
       if (lampOn) {
-        // Base ambient warm wash (slightly stronger)
-        ctx.fillStyle = 'rgba(' + pal.aR + ',' + pal.aG + ',' + pal.aB + ',.14)'; ctx.fillRect(0, 0, W, H);
+        // Base ambient warm wash (softened global fill)
+        ctx.fillStyle = 'rgba(' + pal.aR + ',' + pal.aG + ',' + pal.aB + ',.18)'; ctx.fillRect(0, 0, W, H);
         
-        // Large, soft room-fill glow from the lamp
-        var roomGlow = ctx.createRadialGradient(px(LX), py(LY), px(0.05), px(LX), py(LY), px(0.85));
-        roomGlow.addColorStop(0, 'rgba(255, 180, 80, 0.18)');
+        // Extra large, nearly transparent room-fill glow
+        var roomGlow = ctx.createRadialGradient(px(LX), py(LY), px(0.05), px(LX), py(LY), px(1.2));
+        roomGlow.addColorStop(0, 'rgba(255, 180, 80, 0.12)');
         roomGlow.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = roomGlow; ctx.fillRect(0, 0, W, H);
 
-        // Warm directional core glow
-        var wsg = ctx.createRadialGradient(px(LX), py(LY - 0.04), px(0.01), px(LX), py(LY - 0.04), px(0.65));
-        wsg.addColorStop(0, 'rgba(' + pal.aR + ',' + pal.aG + ',' + pal.aB + ',.32)');
+        // Warm directional core glow (softened but wider reach)
+        var wsg = ctx.createRadialGradient(px(LX), py(LY - 0.04), px(0.01), px(LX), py(LY - 0.04), px(0.75));
+        wsg.addColorStop(0, 'rgba(' + pal.aR + ',' + pal.aG + ',' + pal.aB + ',.22)');
         wsg.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = wsg; ctx.fillRect(0, 0, W, H);
       } else {
