@@ -452,7 +452,7 @@
     var DESK_FRONT_Y = 0.82; // Front edge of the desk top surface
     // Items on desk
     var DX = 0.35, DY = 0.72, DW = 0.30, DH = 0.10; // for zone calculations
-    var LX = 0.88, LY = 0.55; // small desk lamp position
+    var LX = 0.26, LY = 0.55; // desk lamp position (moved to left side)
 
     // Book generation (for left side wall shelf)
     var BCOLS = ['#8B1A1A', '#1848A8', '#1E7830', '#C87A18', '#5C1A90', '#A83818', '#0A2E68', '#388014', '#8C2438', '#CA6820', '#1A5090', '#609830'];
@@ -652,8 +652,12 @@
         var x1 = WX - 0.07, y1 = WY - 0.02, x2 = WX + 0.04 + cFlutterL, y2 = WY + WH + 0.03;
         var g = ctx.createLinearGradient(px(x1), py(y1), px(x2), py(y2));
         g.addColorStop(0, cBase);
-        g.addColorStop(lampOn ? 0.7 : 1, cShadow);
-        if (lampOn) g.addColorStop(1, '#FFB040'); // catch the light at the bottom
+        g.addColorStop(lampOn ? 0.3 : 0.8, cBase);
+        g.addColorStop(lampOn ? 0.7 : 0.95, cShadow);
+        if (lampOn) {
+          g.addColorStop(0.85, 'rgba(255, 180, 50, 0.25)'); // soft ramp
+          g.addColorStop(1, 'rgba(255, 140, 20, 0.55)');   // rich core
+        }
 
         // Base drape
         fp([x1, y1, x2, y1, x2 + 0.01, y2, x1 - 0.01, y2], g);
@@ -671,8 +675,12 @@
         var x1 = WX + WW - 0.04 + cFlutterR, y1 = WY - 0.02, x2 = WX + WW + 0.07, y2 = WY + WH + 0.03;
         var g = ctx.createLinearGradient(px(WX + WW), py(y1), px(WX + WW), py(y2));
         g.addColorStop(0, cBase);
-        g.addColorStop(lampOn ? 0.6 : 0.9, cShadow);
-        if (lampOn) g.addColorStop(1, '#FFA030'); // stronger glow on the right (lamp side)
+        g.addColorStop(lampOn ? 0.4 : 0.8, cBase);
+        g.addColorStop(lampOn ? 0.8 : 0.95, cShadow);
+        if (lampOn) {
+          g.addColorStop(0.9, 'rgba(255, 200, 100, 0.15)'); // very subtle window-side catch
+          g.addColorStop(1, 'rgba(255, 180, 50, 0.35)');
+        }
 
         // Base drape
         fp([x1, y1, x2, y1, x2 + 0.01, y2, x1 - 0.01, y2], g);
@@ -957,23 +965,61 @@
         }
       })();
 
-      // ─ SMALL DESK LAMP (on desk, right side) ─
+      // ─ ORNATE DESK LAMP (moved and scaled up) ─
       (function () {
-        var pos = deskPos(0.90, 0.16); var sc = pos.scale;
+        var pos = deskPos(0.15, 0.18); var sc = pos.scale;
         var lbX = pos.x, lbY = pos.y;
-        // Base disc
-        ctx.fillStyle = linG(lbX - 0.018 * sc, lbY, lbX + 0.018 * sc, lbY, [[0, '#1A0804'], [0.5, '#2C1208'], [1, '#1A0804']]);
-        ctx.beginPath(); ctx.ellipse(px(lbX), py(lbY), px(0.018 * sc), py(0.005 * sc), 0, 0, Math.PI * 2); ctx.fill();
-        // Pole
-        fr(lbX - 0.003 * sc, lbY - 0.055 * sc, 0.006 * sc, 0.055 * sc, '#2E1006');
-        // Shade
-        var shX = lbX - 0.028 * sc, shY = lbY - 0.075 * sc;
-        fp([shX, shY, shX + 0.056 * sc, shY, shX + 0.046 * sc, shY + 0.032 * sc, shX + 0.010 * sc, shY + 0.032 * sc],
-          lampOn ? '#C08840' : '#3E1808');
+
+        // 1. Base (Ornate Bronze/Wood Pedestal)
+        ctx.fillStyle = linG(lbX - 0.04 * sc, lbY, lbX + 0.04 * sc, lbY, [[0, '#120804'], [0.4, '#3A1C10'], [0.6, '#3A1C10'], [1, '#120804']]);
+        ctx.beginPath(); ctx.ellipse(px(lbX), py(lbY), px(0.045 * sc), py(0.015 * sc), 0, 0, Math.PI * 2); ctx.fill();
+        fr(lbX - 0.025 * sc, lbY - 0.025 * sc, 0.05 * sc, 0.022 * sc, '#2A1408'); // larger pedestal block
+
+        // 2. Ornate Turned Stem (Bulbous sections)
+        var stY = lbY - 0.025 * sc;
+        // Bottom bulb
+        ctx.fillStyle = linG(lbX - 0.018 * sc, 0, lbX + 0.018 * sc, 0, [[0, '#1A0B05'], [0.5, '#4A2810'], [1, '#1A0B05']]);
+        ctx.beginPath(); ctx.ellipse(px(lbX), py(stY - 0.03 * sc), px(0.018 * sc), py(0.025 * sc), 0, 0, Math.PI * 2); ctx.fill();
+        // Middle spindle
+        fr(lbX - 0.007 * sc, stY - 0.14 * sc, 0.014 * sc, 0.12 * sc, '#2E1208');
+        // Top bulb
+        ctx.beginPath(); ctx.ellipse(px(lbX), py(stY - 0.12 * sc), px(0.014 * sc), py(0.022 * sc), 0, 0, Math.PI * 2); ctx.fill();
+        // Collar under shade
+        fr(lbX - 0.01 * sc, lbY - 0.18 * sc, 0.02 * sc, 0.015 * sc, '#1A0B05');
+
+        // 3. Peach Scalloped Shade
+        var shTopY = lbY - 0.35 * sc, shBotY = lbY - 0.18 * sc;
+        var shW_T = 0.06 * sc, shW_B = 0.125 * sc;
+
+        ctx.fillStyle = lampOn ? '#FFB870' : '#8A4828';
+        ctx.beginPath();
+        ctx.moveTo(px(lbX - shW_T), py(shTopY));
+        ctx.lineTo(px(lbX + shW_T), py(shTopY));
+        ctx.lineTo(px(lbX + shW_B), py(shBotY));
+        // Scalloped bottom edge
+        var steps = 8;
+        for (var i = 0; i < steps; i++) {
+          var t = (i + 0.5) / steps;
+          var sx = (lbX + shW_B) - (t * shW_B * 2);
+          var sy = shBotY + 0.010 * sc * Math.sin(i * Math.PI); // wavy effect
+          ctx.lineTo(px(sx), py(shBotY + 0.012 * sc));
+        }
+        ctx.lineTo(px(lbX - shW_B), py(shBotY));
+        ctx.closePath(); ctx.fill();
+
+        // Highline on shade
+        ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(px(lbX - shW_T * 0.4), py(shTopY + 0.005 * sc)); ctx.lineTo(px(lbX - shW_B * 0.4), py(shBotY - 0.005 * sc)); ctx.stroke();
+
         if (lampOn) {
-          fr(shX + 0.008 * sc, shY + 0.004 * sc, 0.040 * sc, 0.024 * sc, 'rgba(255,225,140,.85)');
-          var dlg = ctx.createRadialGradient(px(lbX), py(lbY - 0.04 * sc), px(0.005), px(lbX), py(lbY - 0.04 * sc), px(0.22 * sc));
-          dlg.addColorStop(0, 'rgba(255,200,80,.55)'); dlg.addColorStop(1, 'rgba(0,0,0,0)');
+          // Internal bulb glow (enhanced)
+          var ig = ctx.createRadialGradient(px(lbX), py(shBotY - 0.02 * sc), 0, px(lbX), py(shBotY - 0.02 * sc), px(0.08 * sc));
+          ig.addColorStop(0, 'rgba(255,250,220,0.95)'); ig.addColorStop(0.4, 'rgba(255,210,120,0.6)'); ig.addColorStop(1, 'rgba(255,160,60,0)');
+          ctx.fillStyle = ig; ctx.beginPath(); ctx.ellipse(px(lbX), py(shBotY), px(shW_B * 1.1), py(0.020 * sc), 0, 0, Math.PI * 2); ctx.fill();
+
+          // Desk light pool (wider and smoother)
+          var dlg = ctx.createRadialGradient(px(lbX), py(lbY - 0.03 * sc), px(0.01), px(lbX), py(lbY - 0.03 * sc), px(0.45 * sc));
+          dlg.addColorStop(0, 'rgba(255,180,50,0.50)'); dlg.addColorStop(0.5, 'rgba(255,160,40,0.15)'); dlg.addColorStop(1, 'rgba(0,0,0,0)');
           ctx.fillStyle = dlg; ctx.fillRect(0, py(DESK_TOP_Y), W, py(1 - DESK_TOP_Y));
         }
       })();
@@ -995,10 +1041,18 @@
 
       // ── 17. GLOBAL LIGHT TINT ────────────────────────────────────
       if (lampOn) {
-        ctx.fillStyle = 'rgba(' + pal.aR + ',' + pal.aG + ',' + pal.aB + ',.10)'; ctx.fillRect(0, 0, W, H);
-        // Warm radial from desk lamp
-        var wsg = ctx.createRadialGradient(px(LX), py(LY - 0.04), px(0.01), px(LX), py(LY - 0.04), px(0.55));
-        wsg.addColorStop(0, 'rgba(' + pal.aR + ',' + pal.aG + ',' + pal.aB + ',.25)');
+        // Base ambient warm wash (slightly stronger)
+        ctx.fillStyle = 'rgba(' + pal.aR + ',' + pal.aG + ',' + pal.aB + ',.14)'; ctx.fillRect(0, 0, W, H);
+        
+        // Large, soft room-fill glow from the lamp
+        var roomGlow = ctx.createRadialGradient(px(LX), py(LY), px(0.05), px(LX), py(LY), px(0.85));
+        roomGlow.addColorStop(0, 'rgba(255, 180, 80, 0.18)');
+        roomGlow.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = roomGlow; ctx.fillRect(0, 0, W, H);
+
+        // Warm directional core glow
+        var wsg = ctx.createRadialGradient(px(LX), py(LY - 0.04), px(0.01), px(LX), py(LY - 0.04), px(0.65));
+        wsg.addColorStop(0, 'rgba(' + pal.aR + ',' + pal.aG + ',' + pal.aB + ',.32)');
         wsg.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = wsg; ctx.fillRect(0, 0, W, H);
       } else {
@@ -1009,7 +1063,7 @@
       }
 
       // ── 18. VIGNETTE ──────────────────────────────────────────────
-      var vgA = lampOn ? 0.48 : 0.68;
+      var vgA = lampOn ? 0.38 : 0.68;
       var vg = ctx.createRadialGradient(W * 0.5, H * 0.5, H * 0.16, W * 0.5, H * 0.5, H * 0.85);
       vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,' + vgA + ')');
       ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
@@ -1528,8 +1582,8 @@
       { x: 0.44, y: DESK_TOP_Y + 0.03, w: 0.12, h: 0.09, title: 'Writing Desk', sub: 'start a new entry', key: 'write' },
       { x: 0.64, y: DESK_TOP_Y + 0.01, w: 0.07, h: 0.08, title: 'Firefly Jar', sub: 'glowing thoughts', key: 'jar' },
       { x: 0.76, y: DESK_TOP_Y + 0.04, w: 0.07, h: 0.07, title: 'Morning Mug', sub: 'still warm', key: 'home' },
-      // Lamp
-      { x: 0.83, y: DESK_TOP_Y - 0.08, w: 0.10, h: 0.18, title: 'Desk Lamp', sub: 'click to toggle light', lamp: true },
+      // Lamp (moved to left and scaled up)
+      { x: 0.22, y: DESK_TOP_Y - 0.16, w: 0.14, h: 0.28, title: 'Desk Lamp', sub: 'click to toggle light', lamp: true },
     ];
 
     // ── CLICK: WINDOW TOGGLES ─────────────────────────────────────
