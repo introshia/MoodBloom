@@ -707,17 +707,17 @@
 
       function drawWavyCurtain(x1, y1, x2, ybase, width, flutter, isLeft) {
         ctx.save();
-        // Base solid color (Amber/Orange) - Increased opacity to fix 'cut off' look
-        var color = 'rgba(255, 140, 20, 0.88)';
-        var highlight = 'rgba(255, 200, 50, 0.95)';
-        var deep = 'rgba(180, 60, 0, 0.85)';
+        // Base sheer color (Amber/Orange)
+        var color = 'rgba(255, 140, 20, 0.38)';
+        var highlight = 'rgba(255, 200, 50, 0.55)';
+        var deep = 'rgba(180, 60, 0, 0.45)';
 
         // Draw multiple overlapping vertical folds for the "wavy" look
-        var folds = 3;
+        var folds = 7;
         for (var i = 0; i <= folds; i++) {
           var t = i / folds;
-          var fx = x1 + t * width;
-          var fWidth = (width / folds) * 1.5; // Increased overlap for seamless look
+          var fx = x1 + t * width + (isLeft ? -0.01 : 0.01);
+          var fWidth = (width / folds) * 1.3;
 
           // Slight horizontal offset for each fold to create wavy depth
           var offset = Math.sin(t * Math.PI * 2) * 0.005;
@@ -750,7 +750,15 @@
         ctx.restore();
       }
 
-
+      // Left curtain
+      drawWavyCurtain(WX - 0.08, WY - 0.02, WX + 0.03, WY + WH + 0.04, 0.11, cFlutterL, true);
+      // Right curtain
+      drawWavyCurtain(WX + WW - 0.03, WY - 0.02, WX + WW + 0.08, WY + WH + 0.04, 0.11, cFlutterR, false);
+      // Curtain rod
+      fr(WX - 0.08, WY - 0.030, WW + 0.16, 0.018, '#4A2210');
+      ctx.fillStyle = '#6A3818';
+      ctx.beginPath(); ctx.arc(px(WX - 0.082), py(WY - 0.021), px(0.011), 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(px(WX + WW + 0.082), py(WY - 0.021), px(0.011), 0, Math.PI * 2); ctx.fill();
 
       // ── 10. WEATHER ─────────────────────────────────────────────
       if (weatherType === 'rain' && anyOpen) {
@@ -776,20 +784,9 @@
       var wallBelowH = DESK_TOP_Y - wallBelowY;
       fr(SW, wallBelowY, 1 - SW, wallBelowH, pal.w1);
 
-      // ── 12. WINDOW SILL (Bottom ledge) ──────────────────────────
+      // Simple Window Sill
       fr(WX - 0.04, WY + WH, WW + 0.08, 0.024, '#482410');
-      fr(WX - 0.04, WY + WH, WW + 0.08, 0.006, '#6A3818'); // Top bevel/highlight
-      fr(WX - 0.04, WY + WH + 0.006, WW + 0.08, 0.002, 'rgba(255,255,255,.10)'); // subtle edge rim
-
-      // ── 9. CURTAINS (Drawn AFTER sill so they hang in front) ──────
-      drawWavyCurtain(WX - 0.08, WY - 0.02, WX + 0.05, WY + WH + 0.04, 0.13, cFlutterL, true);
-      drawWavyCurtain(WX + WW - 0.05, WY - 0.02, WX + WW + 0.08, WY + WH + 0.04, 0.13, cFlutterR, false);
-
-      // Curtain rod (Drawn LAST atop the curtains)
-      fr(WX - 0.08, WY - 0.030, WW + 0.16, 0.018, '#4A2210');
-      ctx.fillStyle = '#6A3818';
-      ctx.beginPath(); ctx.arc(px(WX - 0.082), py(WY - 0.021), px(0.011), 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(px(WX + WW + 0.082), py(WY - 0.021), px(0.011), 0, Math.PI * 2); ctx.fill();
+      fr(WX - 0.04, WY + WH, WW + 0.08, 0.010, '#6A3818');
 
       // Baseboard
       fr(SW, DESK_TOP_Y - 0.016, 1 - SW, 0.018, 'rgba(0,0,0,.15)');
@@ -939,63 +936,39 @@
       (function () {
         // Centered (fx: 0.50) and positioned for a focal point look (fy: 0.45)
         var pos = deskPos(0.50, 0.45); var sc = pos.scale;
-        var jW = 0.15 * sc, jD = 0.26 * sc; // Significantly larger for a "hero" look
+        var jW = 0.10 * sc, jD = 0.20 * sc; // Balanced portrait size
 
         ctx.save();
         ctx.translate(px(pos.x), py(pos.y));
-        ctx.rotate(0.02); // Slight organic tilt
+        ctx.rotate(0); // Perfect straight alignment
 
         // Shadow
-        ctx.fillStyle = 'rgba(0,0,0,0.35)';
-        ctx.beginPath(); ctx.ellipse(0, py(0.008 * sc), px(jW * 0.55), py(jD * 0.55), 0.02, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = 'rgba(0,0,0,0.30)';
+        ctx.beginPath(); ctx.ellipse(0, py(0.005 * sc), px(jW * 0.52), py(jD * 0.52), 0, 0, Math.PI * 2); ctx.fill();
 
-        // Journal Body (Deep Forest Green Leather with subtle texture)
+        // Journal Body (Forest Green Leather)
         var jX = -jW * 0.5, jY = -jD * 0.5;
         var lg = ctx.createLinearGradient(px(jX), py(jY), px(jX + jW), py(jY + jD));
-        lg.addColorStop(0, '#213318'); lg.addColorStop(0.5, '#162412'); lg.addColorStop(1, '#0C1508');
-        ctx.fillStyle = lg; 
-        ctx.beginPath();
-        // Slightly rounded corners for high-quality leather look
-        var rad = px(0.005 * sc);
-        ctx.roundRect(px(jX), py(jY), px(jW), py(jD), rad);
-        ctx.fill();
+        lg.addColorStop(0, '#2A3A1F'); lg.addColorStop(0.5, '#1E2B16'); lg.addColorStop(1, '#141D0E');
+        ctx.fillStyle = lg; ctx.fillRect(px(jX), py(jY), px(jW), py(jD));
 
-        // Spine details
-        ctx.fillStyle = linG(jX, jY, jX + 0.02 * sc, jY, [[0, '#060B03'], [0.4, '#0B1506'], [1, 'rgba(0,0,0,0)']]);
-        ctx.fillRect(px(jX), py(jY), px(0.014 * sc), py(jD));
+        // Spine
+        ctx.fillStyle = linG(jX, jY, jX + 0.015 * sc, jY, [[0, '#080C04'], [0.4, '#0F1608'], [1, 'rgba(0,0,0,0)']]);
+        ctx.fillRect(px(jX), py(jY), px(0.010 * sc), py(jD));
 
-        // Horizontal ridge details on spine
-        ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.lineWidth = 1;
-        for (var ri = 0; ri < 3; ri++) {
-            var ry = jY + jD * 0.25 + ri * (jD * 0.25);
-            ctx.beginPath(); ctx.moveTo(px(jX), py(ry)); ctx.lineTo(px(jX + 0.012 * sc), py(ry)); ctx.stroke();
-        }
-
-        // Page volume (creamy aged paper)
+        // Page volume
         ctx.fillStyle = '#E2D2B0';
-        fr(jX + jW - 0.002*sc, jY + 0.006 * sc, 0.006 * sc, jD - 0.012 * sc, '#E2D2B0');
-        fr(jX + 0.012 * sc, jY + jD - 0.002*sc, jW - 0.014 * sc, 0.006 * sc, '#E2D2B0');
-        // subtle page lines
-        ctx.strokeStyle = 'rgba(0,0,0,0.08)';
-        for (var pi = 1; pi < 3; pi++) {
-            fr(jX + jW + (pi * 0.001 * sc), jY + 0.008 * sc, 0.001 * sc, jD - 0.016 * sc);
-        }
+        fr(jX + jW, jY + 0.005 * sc, 0.004 * sc, jD - 0.010 * sc, '#E2D2B0');
+        fr(jX + 0.010 * sc, jY + jD, jW - 0.010 * sc, 0.004 * sc, '#E2D2B0');
 
-        // Gold clasp (Ornate)
-        var clW = 0.01 * sc, clH = 0.024 * sc;
-        var clX = jX + jW - clW * 0.4, clY = jD * 0.0; // centered on the vertical
-        fr(clX, py(clY) - clH * 0.5, clW, clH, '#C09030');
-        fr(clX, py(clY) - clH * 0.5, clW * 0.3, clH, '#E0C060');
-        // Detail on clasp
-        ctx.fillStyle = '#806020';
-        ctx.fillRect(px(clX + clW * 0.4), py(clY) - clH * 0.2, px(clW * 0.2), py(clH * 0.4));
+        // Gold clasp
+        var clW = 0.007 * sc, clH = 0.018 * sc;
+        fr(jX + jW - clW * 0.5, py(jD * 0.45) - clH * 0.5, clW, clH, '#C09030');
+        fr(jX + jW - clW * 0.5, py(jD * 0.45) - clH * 0.5, clW * 0.3, clH, '#E0C060');
 
-        // Debossed detailing (Inlay border)
-        ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 1.2;
-        ctx.strokeRect(px(jX + 0.018 * sc), py(jY + 0.014 * sc), px(jW - 0.036 * sc), py(jD - 0.028 * sc));
-        // Gold foil emblem in center (subtle)
-        ctx.fillStyle = 'rgba(200,160,50,0.15)';
-        circ(0, 0, px(0.012 * sc), ctx.fillStyle);
+        // Debossed detailing
+        ctx.strokeStyle = 'rgba(0,0,0,0.22)'; ctx.lineWidth = 1;
+        ctx.strokeRect(px(jX + 0.014 * sc), py(jY + 0.010 * sc), px(jW - 0.028 * sc), py(jD - 0.020 * sc));
 
         ctx.restore();
       })();
@@ -1103,6 +1076,10 @@
           ig.addColorStop(0, 'rgba(255,250,220,0.85)'); ig.addColorStop(0.5, 'rgba(255,210,120,0.4)'); ig.addColorStop(1, 'rgba(255,160,60,0)');
           ctx.fillStyle = ig; ctx.beginPath(); ctx.ellipse(px(lbX), py(shBotY), px(shW_B * 1.1), py(0.020 * sc), 0, 0, Math.PI * 2); ctx.fill();
 
+          // Desk light pool (wider, much softer transition)
+          var dlg = ctx.createRadialGradient(px(lbX), py(lbY - 0.03 * sc), px(0.01), px(lbX), py(lbY - 0.03 * sc), px(0.55 * sc));
+          dlg.addColorStop(0, 'rgba(255,180,50,0.35)'); dlg.addColorStop(0.4, 'rgba(255,160,40,0.12)'); dlg.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = dlg; ctx.fillRect(0, py(DESK_TOP_Y), W, py(1 - DESK_TOP_Y));
         }
       })();
 
@@ -1183,7 +1160,13 @@
         fr(bXf, shTop2 - b.bh * 0.88, bWf, 0.004, 'rgba(255,255,255,.12)');
       }
 
+      // Mood plant (top section of shelf, above first shelf)
+      drawPlant(cabX + 0.040, cabY + 0.010, journalDays);
 
+      // Small decorative knick-knack (second shelf, right side)
+      var kx = cabX + cabW * 0.72, ky = cabY + SHLS[1] * cabH;
+      fr(kx - 0.010, ky - 0.040, 0.022, 0.040, '#6A3018'); // small figurine
+      circ(kx, ky - 0.045, px(0.010), '#8A4828');
 
       // Separator panel edge shadow (right side of shelf fades into wall)
       var sEdge = ctx.createLinearGradient(px(cabX + cabW), 0, px(cabX + cabW + 0.04), 0);
@@ -1227,7 +1210,8 @@
         fr(bX, shTop - b.bh * 0.90, bwF * 0.12, b.bh * 0.90, 'rgba(0,0,0,.28)');
         fr(bX, shTop - b.bh * 0.90, bwF, 0.004, 'rgba(255,255,255,.08)');
       }
-
+      // Mood plant (top of shelf)
+      drawPlant(cabX + 0.010, cabY + 0.018, journalDays);
       // Quest marker
       // Quest marker removed for minimalist look
       // drawQuestMarker(cabX + cabW * 0.5, cabY + cabH * 0.3, 'Archive');
@@ -1632,7 +1616,7 @@
       // Bookshelf
       { x: SX, y: SY, w: SW, h: SH, title: 'Journal Archive', sub: 'all your past entries', key: 'archive' },
       // Desk items (mapped to the 3D surface)
-      { x: 0.41, y: DESK_TOP_Y + 0.02, w: 0.18, h: 0.14, title: 'Writing Desk', sub: 'start a new entry', key: 'write' },
+      { x: 0.44, y: DESK_TOP_Y + 0.03, w: 0.12, h: 0.09, title: 'Writing Desk', sub: 'start a new entry', key: 'write' },
       { x: 0.64, y: DESK_TOP_Y + 0.01, w: 0.07, h: 0.08, title: 'Firefly Jar', sub: 'glowing thoughts', key: 'jar' },
       { x: 0.76, y: DESK_TOP_Y + 0.04, w: 0.07, h: 0.07, title: 'Morning Mug', sub: 'still warm', key: 'home' },
       // Lamp (moved to left and scaled up)
