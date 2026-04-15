@@ -272,6 +272,224 @@
       letter-spacing: .1em;
       pointer-events: none
     }
+
+    /* ═══════════════════════════════════════════
+       DESK OVERLAY
+    ═══════════════════════════════════════════ */
+    #desk-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.65s cubic-bezier(.4, 0, .2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #desk-overlay.show {
+      opacity: 1;
+      pointer-events: all
+    }
+
+    .desk-surface {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 35%, #8A5A30 0%, #6A3E1C 30%, #4A2810 65%, #2E1808 100%);
+    }
+
+    .desk-surface::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(87deg, transparent 0, transparent 38px, rgba(0, 0, 0, .05) 38px, rgba(0, 0, 0, .05) 40px);
+      pointer-events: none;
+    }
+
+    .desk-surface::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(255, 180, 80, .08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .btn-back-room {
+      position: absolute;
+      top: 20px;
+      left: 24px;
+      z-index: 200;
+      background: rgba(10, 4, 1, .7);
+      border: 1px solid rgba(180, 90, 25, .25);
+      border-radius: 20px;
+      padding: 8px 18px;
+      color: rgba(200, 130, 50, .6);
+      font-size: 11px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      transition: all .2s;
+    }
+
+    .btn-back-room:hover {
+      color: rgba(255, 190, 90, .9);
+      border-color: rgba(200, 130, 50, .4)
+    }
+
+    /* ═══════════════════════════════════════════
+       CLOSED JOURNAL — portrait orientation
+    ═══════════════════════════════════════════ */
+    #j-closed {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -52%) perspective(1000px) rotateX(12deg) rotateZ(-2deg);
+      width: clamp(100px, 11vw, 150px);
+      height: clamp(145px, 17vw, 220px);
+      cursor: pointer;
+      transition: transform .35s cubic-bezier(.34, 1.56, .64, 1);
+    }
+
+    #j-closed:hover {
+      transform: translate(-50%, -55%) perspective(1000px) rotateX(10deg) rotateZ(-2deg) scale(1.05);
+    }
+
+    .j-cover-body {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(160deg, #1E2B14 0%, #2A3A1C 45%, #1A2810 100%);
+      border-radius: 3px 4px 4px 3px;
+      position: relative;
+      box-shadow: 0 20px 55px rgba(0, 0, 0, .65), 0 6px 16px rgba(0, 0, 0, .4), inset 0 1px 0 rgba(255, 255, 255, .05);
+    }
+
+    .j-spine-edge {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 12px;
+      background: linear-gradient(to right, #060A04, #0E1608, rgba(0, 0, 0, 0));
+      border-radius: 3px 0 0 3px;
+    }
+
+    /* Rings visible on spine of closed journal */
+    .j-rings-closed {
+      position: absolute;
+      left: -4px;
+      top: 0;
+      bottom: 0;
+      width: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      padding: 20% 0;
+      pointer-events: none;
+    }
+
+    .j-ring-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #E0B830, #8A6010);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .5);
+    }
+
+    .j-page-edge {
+      position: absolute;
+      right: -4px;
+      top: 4px;
+      bottom: 4px;
+      width: 5px;
+      background: linear-gradient(to right, #D8C88A, #C4B070, #DDD0A0);
+      border-radius: 0 2px 2px 0;
+    }
+
+    .j-page-edge-btm {
+      position: absolute;
+      bottom: -4px;
+      left: 10px;
+      right: 4px;
+      height: 5px;
+      background: linear-gradient(to bottom, #D8C88A, #C4B070);
+      border-radius: 0 0 2px 2px;
+    }
+
+    .j-open-hint {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(180, 160, 100, .6);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 9px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity .3s;
+      white-space: nowrap;
+    }
+
+    #j-closed:hover .j-open-hint {
+      opacity: 1
+    }
+
+    /* ═══════════════════════════════════════════
+       COVER FLIP ANIMATION
+    ═══════════════════════════════════════════ */
+    #j-cover-flap {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform-origin: left center;
+      transform: translate(-50%, -52%) perspective(1000px);
+      width: clamp(50px, 5.5vw, 75px);
+      height: clamp(145px, 17vw, 220px);
+      background: linear-gradient(160deg, #1E2B14 0%, #2A3A1C 45%, #1A2810 100%);
+      border-radius: 0 4px 4px 0;
+      box-shadow: 0 20px 55px rgba(0, 0, 0, .65);
+      display: none;
+      z-index: 110;
+    }
+
+    #j-cover-flap.flipping {
+      display: block;
+      animation: cover-flip 0.85s cubic-bezier(.4, 0, .2, 1) forwards;
+    }
+
+    @keyframes cover-flip {
+      0% {
+        transform: translate(-50%, -52%) perspective(1200px) rotateY(0deg);
+      }
+
+      100% {
+        transform: translate(-140%, -52%) perspective(1200px) rotateY(-160deg);
+      }
+    }
+
+    /* ═══════════════════════════════════════════
+       OPEN JOURNAL — dark MoodBloom design
+    ═══════════════════════════════════════════ */
+    #j-open {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .5s ease;
+      gap: 14px;
+    }
+
+    #j-open.visible {
+      opacity: 1;
+      pointer-events: all
+    }
   </style>
 </head>
 
@@ -281,8 +499,7 @@
   <nav id="nav">
     <div class="logo" id="logo-btn">&#10022; Folio <span>/ sanctuary</span></div>
     <div class="links">
-      <a href="/dashboard">Folio</a>
-      <a href="/sanctuary" class="active">Sanctuary</a>
+      <a href="/dashboard">Dashboard</a>
       <a href="/journal">Journal</a>
       <a href="#" onclick="openM('mood');return false;">Mood</a>
     </div>
@@ -311,6 +528,9 @@
   <div id="timebadge">a quiet evening in your study</div>
   <div id="weatherbadge"></div>
 
+  <script id="recent-entries-data" type="application/json">
+    {{ recent_entries | default([]) | tojson }}
+  </script>
   <script>
     // ── STATE ─────────────────────────────────────────────────────
     var lampOn = true, time = 0, hov = null;
@@ -376,7 +596,63 @@
       document.getElementById('modal').classList.add('show');
     }
     function closeM() { document.getElementById('modal').classList.remove('show'); }
+
+    // ═══════════════════════════════════════════════════════════
+    // DAILY PROMPTS & SCENES
+    // ═══════════════════════════════════════════════════════════
+    var DAILY_PROMPTS = [
+      { title: 'Give It My All', icon: '◎', time: '11:00 PM', quote: 'I just do it, without worrying about the result. If it\'s not successful, I accept the outcome.', caption: 'A silence that held all the answers.', scene: 0 },
+      { title: 'Small Steps', icon: '◈', time: '8:30 AM', quote: 'Every tiny movement forward is still progress. I honor the courage it takes to begin.', caption: 'A morning that asked nothing of me.', scene: 1 },
+      { title: 'Let It Be', icon: '◉', time: '9:15 PM', quote: 'There is freedom in releasing what I cannot control. My peace does not depend on how things turn out.', caption: 'Waves that know where they belong.', scene: 2 },
+      { title: 'Root Down', icon: '◆', time: '7:00 AM', quote: 'I am allowed to be still. To rest and grow quietly, without explanation or urgency.', caption: 'Mountains that have always known patience.', scene: 3 },
+      { title: 'Open Hands', icon: '◇', time: '3:00 PM', quote: 'What is meant for me will not pass me by. I release my grip and trust the path ahead.', caption: 'A garden that keeps its promises.', scene: 4 },
+      { title: 'Infinite Sky', icon: '✦', time: '11:45 PM', quote: 'I am more than my worries. There is a vastness inside me that fear has never touched.', caption: 'Stars that remember every wish.', scene: 5 },
+      { title: 'Let Go', icon: '◉', time: '5:30 PM', quote: 'I release what has already passed. Every ending creates space for something beautiful.', caption: 'Leaves that dance on their way down.', scene: 6 },
+      { title: 'Be Here', icon: '◎', time: '10:00 AM', quote: 'This moment is enough. I do not need to be anywhere else or anyone other than who I am right now.', caption: 'A field that holds its own warmth.', scene: 7 },
+      { title: 'Bloom Gently', icon: '◈', time: '6:15 AM', quote: 'I do not have to rush my becoming. Growth has its own perfect timing, and I trust mine.', caption: 'Petals that know their own season.', scene: 8 },
+      { title: 'Still Waters', icon: '◉', time: '8:00 PM', quote: 'Beneath all the noise, there is a quiet part of me that has always known what matters.', caption: 'A reflection that tells the truth.', scene: 9 }
+    ];
+
+    function getSceneSVG(idx) {
+      var s = idx % 10;
+      var scenes = [
+        '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s0sky" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#1A3D28"/><stop offset="100%" stop-color="#4A7840"/></linearGradient><radialGradient id="s0sun" cx="52%" cy="32%" r="55%"><stop offset="0%" stop-color="#FFD080" stop-opacity="0.55"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs><rect fill="url(#s0sky)" width="200" height="200"/><rect fill="url(#s0sun)" width="200" height="200"/><ellipse cx="55" cy="125" rx="32" ry="46" fill="#0E2A1A" opacity="0.92"/><ellipse cx="148" cy="115" rx="36" ry="55" fill="#0A2014" opacity="0.9"/><rect x="51" y="145" width="9" height="55" fill="#2A1A0C"/><rect x="144" y="148" width="9" height="52" fill="#2A1A0C"/><ellipse cx="100" cy="188" rx="85" ry="22" fill="#162E12"/><circle cx="100" cy="162" r="9" fill="#F5C89A"/><ellipse cx="100" cy="173" rx="12" ry="7" fill="#8A6850"/><ellipse cx="76" cy="181" rx="9" ry="5" fill="#C07040"/><ellipse cx="122" cy="183" rx="7" ry="4" fill="#D8D8C8"/><ellipse cx="132" cy="180" rx="5" ry="3" fill="#C0C0B0"/><line x1="100" y1="28" x2="65" y2="155" stroke="rgba(255,220,100,0.14)" stroke-width="20"/><line x1="100" y1="28" x2="135" y2="148" stroke="rgba(255,220,100,0.10)" stroke-width="15"/></svg>',
+        '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s1sky" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#0E1830"/><stop offset="60%" stop-color="#2A3870"/><stop offset="100%" stop-color="#5060A8"/></linearGradient><linearGradient id="s1sea" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#1A2858"/><stop offset="100%" stop-color="#0A1020"/></linearGradient></defs><rect fill="url(#s1sky)" width="200" height="200"/><ellipse cx="100" cy="95" rx="28" ry="28" fill="rgba(255,220,140,0.18)"/><ellipse cx="100" cy="95" rx="16" ry="16" fill="rgba(255,240,180,0.45)"/><rect fill="url(#s1sea)" x="0" y="110" width="200" height="90"/><path d="M0 120 Q50 112 100 120 Q150 128 200 120 L200 200 L0 200Z" fill="rgba(20,40,100,0.6)"/><path d="M0 135 Q40 130 80 135 Q120 140 160 135 Q180 132 200 135" stroke="rgba(100,150,255,0.25)" stroke-width="2" fill="none"/><path d="M20 150 Q60 145 100 150 Q140 155 180 150" stroke="rgba(100,150,255,0.15)" stroke-width="1.5" fill="none"/><circle cx="30" cy="65" r="1.5" fill="rgba(255,255,200,0.8)"/><circle cx="75" cy="40" r="1" fill="rgba(255,255,200,0.7)"/><circle cx="150" cy="55" r="1.5" fill="rgba(255,255,200,0.8)"/><circle cx="170" cy="30" r="1" fill="rgba(255,255,200,0.6)"/><circle cx="55" cy="25" r="1" fill="rgba(255,255,200,0.6)"/></svg>',
+        '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s2bg" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#1A2030"/><stop offset="100%" stop-color="#101520"/></linearGradient></defs><rect fill="url(#s2bg)" width="200" height="200"/><rect x="10" y="10" width="180" height="180" fill="rgba(60,100,140,0.12)" rx="6"/><line x1="100" y1="10" x2="100" y2="190" stroke="rgba(80,120,160,0.3)" stroke-width="3"/><line x1="10" y1="100" x2="190" y2="100" stroke="rgba(80,120,160,0.3)" stroke-width="3"/><g stroke="rgba(160,210,255,0.45)" stroke-width="1.2" stroke-linecap="round"><line x1="30" y1="5" x2="25" y2="30"/><line x1="55" y1="0" x2="50" y2="25"/><line x1="80" y1="8" x2="75" y2="33"/><line x1="120" y1="3" x2="115" y2="28"/><line x1="155" y1="0" x2="150" y2="25"/><line x1="178" y1="6" x2="173" y2="31"/><line x1="40" y1="40" x2="35" y2="65"/><line x1="70" y1="45" x2="65" y2="70"/><line x1="105" y1="38" x2="100" y2="63"/><line x1="140" y1="42" x2="135" y2="67"/><line x1="170" y1="40" x2="165" y2="65"/><line x1="20" y1="80" x2="15" y2="105"/><line x1="60" y1="85" x2="55" y2="110"/><line x1="95" y1="78" x2="90" y2="103"/><line x1="130" y1="82" x2="125" y2="107"/><line x1="165" y1="80" x2="160" y2="105"/><line x1="35" y1="120" x2="30" y2="145"/><line x1="75" y1="125" x2="70" y2="150"/><line x1="115" y1="118" x2="110" y2="143"/><line x1="150" y1="122" x2="145" y2="147"/><line x1="185" y1="120" x2="180" y2="145"/></g><circle cx="50" cy="30" r="2.5" fill="rgba(180,220,255,0.4)"/><circle cx="130" cy="65" r="2" fill="rgba(180,220,255,0.35)"/><circle cx="75" cy="110" r="3" fill="rgba(180,220,255,0.3)"/></svg>',
+        '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s3sky" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#080C20"/><stop offset="100%" stop-color="#1A1A3A"/></linearGradient></defs><rect fill="url(#s3sky)" width="200" height="200"/><polygon points="100,20 45,110 155,110" fill="#1A1A38"/><polygon points="100,20 45,110 155,110" fill="rgba(200,200,255,0.06)"/><polygon points="100,30 55,110 92,110" fill="#E8E8F5" opacity="0.85"/><polygon points="100,30 108,110 155,110" fill="#D0D0E8" opacity="0.7"/><polygon points="40,70 0,140 85,140" fill="#14142E"/><polygon points="40,70 10,140 55,140" fill="#E0E0F0" opacity="0.6"/><polygon points="160,60 115,140 200,140" fill="#14142E"/><polygon points="160,60 148,140 195,140" fill="#E0E0F0" opacity="0.55"/><rect x="0" y="140" width="200" height="60" fill="#0C0C1E"/><path d="M0 145 Q50 140 100 145 Q150 150 200 145 L200 200 L0 200Z" fill="#10101C"/><circle cx="35" cy="25" r="1.2" fill="rgba(255,255,200,0.9)"/><circle cx="80" cy="15" r="0.9" fill="rgba(255,255,200,0.8)"/><circle cx="165" cy="20" r="1.2" fill="rgba(255,255,200,0.9)"/><circle cx="140" cy="10" r="0.9" fill="rgba(255,255,200,0.8)"/></svg>',
+        '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s4sky" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#1A3020"/><stop offset="100%" stop-color="#2A4830"/></linearGradient></defs><rect fill="url(#s4sky)" width="200" height="200"/><ellipse cx="100" cy="110" rx="55" ry="16" fill="rgba(20,60,20,0.7)"/><path d="M85 200 L92 110 L108 110 L115 200Z" fill="#2A3818"/><path d="M88 200 L94 115 L106 115 L112 200Z" fill="#3A5025"/><ellipse cx="20" cy="150" rx="25" ry="35" fill="#0E2210"/><ellipse cx="25" cy="145" rx="20" ry="28" fill="#142E14"/><ellipse cx="180" cy="145" rx="25" ry="35" fill="#0E2210"/><ellipse cx="175" cy="140" rx="20" ry="28" fill="#142E14"/><circle cx="40" cy="130" r="8" fill="#1A3A10"/><circle cx="160" cy="125" r="8" fill="#1A3A10"/><circle cx="50" cy="160" r="5" fill="#FF6080" opacity="0.7"/><circle cx="42" cy="168" r="4" fill="#FF80A0" opacity="0.6"/><circle cx="152" cy="155" r="5" fill="#FF6080" opacity="0.7"/><rect x="0" y="170" width="200" height="30" fill="#1A2810"/><path d="M90 120 Q95 140 100 170 Q105 140 110 120" fill="#2A4018" opacity="0.5"/><circle cx="100" cy="60" r="20" fill="rgba(255,220,100,0.12)"/><circle cx="100" cy="60" r="10" fill="rgba(255,220,100,0.25)"/></svg>',
+        '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="s5bg" cx="50%" cy="50%" r="70%"><stop offset="0%" stop-color="#12183A"/><stop offset="100%" stop-color="#060810"/></radialGradient><radialGradient id="s5glow" cx="30%" cy="25%" r="40%"><stop offset="0%" stop-color="rgba(100,130,255,0.18)"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs><rect fill="url(#s5bg)" width="200" height="200"/><rect fill="url(#s5glow)" width="200" height="200"/><g fill="rgba(255,255,220,1)"><circle cx="20" cy="18" r="1.3"/><circle cx="45" cy="8" r="1.8" opacity="0.9"/><circle cx="70" cy="22" r="1.1"/><circle cx="98" cy="12" r="1.5"/><circle cx="130" cy="5" r="1.2"/><circle cx="158" cy="18" r="1.8" opacity="0.9"/><circle cx="178" cy="9" r="1.1"/><circle cx="12" cy="45" r="1.2"/><circle cx="55" cy="38" r="1.5"/><circle cx="85" cy="50" r="1.1"/><circle cx="115" cy="35" r="1.3"/><circle cx="145" cy="42" r="1.6"/><circle cx="172" cy="32" r="1.2"/><circle cx="30" cy="70" r="1.4"/><circle cx="62" cy="62" r="1.1"/><circle cx="92" cy="75" r="1.5"/><circle cx="122" cy="60" r="1.2"/><circle cx="150" cy="68" r="1.4"/><circle cx="185" cy="55" r="1.1"/></g><path d="M100 30 L102 38 L110 38 L104 43 L106 51 L100 46 L94 51 L96 43 L90 38 L98 38Z" fill="rgba(255,240,160,0.55)" transform="scale(0.7) translate(43,30)"/><ellipse cx="100" cy="175" rx="80" ry="25" fill="#080C18"/><path d="M20 160 Q60 155 100 160 Q140 165 180 160" stroke="rgba(60,80,160,0.2)" stroke-width="1.5" fill="none"/></svg>',
+        '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s6sky" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#1A100C"/><stop offset="100%" stop-color="#2E1808"/></linearGradient></defs><rect fill="url(#s6sky)" width="200" height="200"/><rect x="0" y="165" width="200" height="35" fill="#1A0C08"/><rect x="90" y="100" width="8" height="65" fill="#2A1404"/><ellipse cx="94" cy="90" rx="42" ry="48" fill="#1A1008"/><ellipse cx="80" cy="80" rx="28" ry="32" fill="#1E1208"/><ellipse cx="108" cy="85" rx="24" ry="28" fill="#1A1008"/><g opacity="0.9"><ellipse cx="55" cy="60" rx="12" ry="8" fill="#C04010" transform="rotate(-30 55 60)"/><ellipse cx="145" cy="50" rx="10" ry="7" fill="#E05010" transform="rotate(20 145 50)"/><ellipse cx="35" cy="100" rx="9" ry="6" fill="#A03010" transform="rotate(-45 35 100)"/><ellipse cx="168" cy="85" rx="11" ry="7" fill="#D04810" transform="rotate(35 168 85)"/><ellipse cx="70" cy="145" rx="10" ry="7" fill="#B03808" transform="rotate(-20 70 145)"/><ellipse cx="130" cy="140" rx="9" ry="6" fill="#C04010" transform="rotate(15 130 140)"/><ellipse cx="100" cy="155" rx="8" ry="5" fill="#E06018" transform="rotate(-10 100 155)"/><ellipse cx="50" cy="170" rx="12" ry="8" fill="#A03010" transform="rotate(40 50 170)"/><ellipse cx="155" cy="165" rx="10" ry="7" fill="#D04818" transform="rotate(-25 155 165)"/></g></svg>',
+        '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s7sky" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#1A1E30"/><stop offset="100%" stop-color="#2A3050"/></linearGradient></defs><rect fill="url(#s7sky)" width="200" height="200"/><ellipse cx="100" cy="92" rx="50" ry="50" fill="rgba(230,235,255,0.06)"/><rect x="0" y="130" width="200" height="70" fill="#1A2030"/><path d="M0 130 Q50 122 100 130 Q150 138 200 130 L200 200 L0 200Z" fill="#141820"/><path d="M0 142 Q40 136 80 142 Q120 148 160 142 Q180 139 200 142" stroke="rgba(200,215,255,0.2)" stroke-width="1.5" fill="none"/><g stroke="rgba(200,220,255,0.5)" stroke-linecap="round" stroke-width="1.2"><line x1="30" y1="90" x2="30" y2="100"/><line x1="25" y1="95" x2="35" y2="95"/><line x1="27" y1="91" x2="33" y2="99"/><line x1="33" y1="91" x2="27" y2="99"/><line x1="80" y1="55" x2="80" y2="65"/><line x1="75" y1="60" x2="85" y2="60"/><line x1="77" y1="56" x2="83" y2="64"/><line x1="83" y1="56" x2="77" y2="64"/><line x1="155" y1="80" x2="155" y2="90"/><line x1="150" y1="85" x2="160" y2="85"/><line x1="152" y1="81" x2="158" y2="89"/><line x1="158" y1="81" x2="152" y2="89"/></g><g fill="rgba(220,230,255,0.7)"><circle cx="25" cy="50" r="1.5"/><circle cx="60" cy="35" r="1.2"/><circle cx="110" cy="20" r="1.5"/><circle cx="165" cy="40" r="1.2"/><circle cx="185" cy="70" r="1"/></g><rect x="88" y="80" width="6" height="45" fill="#2A3848"/><ellipse cx="91" cy="76" rx="14" ry="18" fill="#1E2838"/></svg>',
+        '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s8sky" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#1E1028"/><stop offset="100%" stop-color="#301828"/></linearGradient></defs><rect fill="url(#s8sky)" width="200" height="200"/><rect x="0" y="160" width="200" height="40" fill="#180C18"/><rect x="95" y="120" width="7" height="40" fill="#1C1014"/><path d="M98 120 Q70 100 50 70 Q80 80 98 120Z" fill="#1C1014"/><path d="M98 120 Q130 95 155 65 Q125 80 98 120Z" fill="#1C1014"/><path d="M98 120 Q75 85 85 45 Q100 75 98 120Z" fill="#1C1014"/><g opacity="0.85"><circle cx="60" cy="75" r="5" fill="#E8609A"/><circle cx="58" cy="80" r="4.5" fill="#F080B0"/><circle cx="55" cy="72" r="3.5" fill="#E060A0"/><circle cx="65" cy="78" r="4" fill="#F088B8"/><circle cx="85" cy="55" r="5" fill="#E8609A"/><circle cx="83" cy="60" r="4.5" fill="#F080B0"/><circle cx="90" cy="52" r="3.5" fill="#E060A0"/><circle cx="78" cy="58" r="4" fill="#F088B8"/><circle cx="140" cy="68" r="5" fill="#E8609A"/><circle cx="138" cy="73" r="4.5" fill="#F080B0"/><circle cx="145" cy="65" r="3.5" fill="#E060A0"/><circle cx="133" cy="70" r="4" fill="#F088B8"/><circle cx="108" cy="48" r="5" fill="#E8609A"/><circle cx="106" cy="53" r="4.5" fill="#F080B0"/></g><g fill="rgba(240,160,200,0.6)" font-size="6"><text x="30" y="120">❋</text><text x="155" y="130">❋</text><text x="68" y="150">❋</text><text x="120" y="158">❋</text><text x="45" y="165">❋</text><text x="170" y="155">❋</text></g></svg>',
+        '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s9sky" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#080E18"/><stop offset="100%" stop-color="#141C30"/></linearGradient><linearGradient id="s9water" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#0C1828"/><stop offset="100%" stop-color="#060E14"/></linearGradient></defs><rect fill="url(#s9sky)" width="200" height="100"/><rect fill="url(#s9water)" x="0" y="100" width="200" height="100"/><path d="M0 100 Q30 95 60 100 Q90 105 120 100 Q150 95 180 100 Q190 101 200 100" stroke="rgba(80,140,180,0.18)" stroke-width="1" fill="none"/><rect x="0" y="98" width="200" height="4" fill="rgba(40,80,120,0.3)"/><ellipse cx="60" cy="70" rx="22" ry="28" fill="#0A1820"/><ellipse cx="140" cy="65" rx="28" ry="34" fill="#0A1820"/><rect x="56" y="90" width="7" height="10" fill="#0A1018"/><rect x="136" y="90" width="7" height="10" fill="#0A1018"/><path d="M60 105 Q62 112 60 118 Q58 125 60 130 Q62 138 60 145" stroke="rgba(80,140,180,0.3)" stroke-width="18" stroke-linecap="round" fill="none"/><path d="M140 105 Q138 112 140 118 Q142 125 140 130 Q138 138 140 145" stroke="rgba(80,140,180,0.3)" stroke-width="22" stroke-linecap="round" fill="none"/><circle cx="100" cy="30" r="14" fill="rgba(255,220,120,0.18)"/><circle cx="100" cy="30" r="7" fill="rgba(255,220,120,0.4)"/><path d="M90 170 Q100 165 110 170 Q100 175 90 170Z" fill="rgba(255,220,120,0.35)"/><path d="M88 160 Q100 155 112 160" stroke="rgba(255,220,100,0.2)" stroke-width="2" fill="none"/></svg>'
+      ];
+      return scenes[s];
+    }
+
+    function getTodIcon() {
+      var h = new Date().getHours();
+      if (h >= 5 && h < 8) return '&#127748;';
+      if (h >= 8 && h < 18) return '&#9728;';
+      if (h >= 18 && h < 20) return '&#127747;';
+      return '&#9790;';
+    }
+
+
+
+    // ═══════════════════════════════════════════════════════════
+    // DESK VIEW (Triggers the overlay)
+    // ═══════════════════════════════════════════════════════════
+    function openDeskView() {
+      if (window.startOpenJournal) {
+        document.getElementById('desk-overlay').classList.add('show');
+        var tip = document.getElementById('tip');
+        if (tip) tip.style.opacity = '0';
+      }
+    }
+
     window.openM = openM; window.closeM = closeM;
+    window.openDeskView = openDeskView;
 
     document.getElementById('logo-btn').addEventListener('click', function () { location.href = '/dashboard'; });
 
@@ -428,7 +704,7 @@
 
     // ── LAYOUT (Pixel Room — bookshelf left, window right) ────────────
     // Window: right side of wall (substantially larger)
-    var WX = 0.28, WY = 0.05, WW = 0.70, WH = 0.58;
+    var WX = 0.32, WY = 0.05, WW = 0.64, WH = 0.58;
     // Window panel open/close state
     var leftOpen = false, rightOpen = false;
     // Breeze particles
@@ -492,19 +768,18 @@
       var tod = getTOD();
       var anyOpen = leftOpen || rightOpen;
 
-      // ── 1. FULL WALL BACKGROUND ────────────────────────────────────
-      // Cream-colored wall fills everything behind furniture
+      // ── 1. WALL & BACKGROUND ───────────────────────────────────────
       ctx.fillStyle = linG(0.5, 0, 0.5, FY, [[0, pal.ceil], [0.08, pal.w0], [0.5, pal.w1], [1, pal.w1]]);
       ctx.fillRect(0, 0, W, py(FY));
 
-      // Subtle wallpaper texture on wall areas (skip where window/shelf will be)
+      // Wallpaper texture (subtle)
       ctx.globalAlpha = 0.045;
       var STEP = Math.max(18, Math.round(W / 42));
       for (var wx2 = 0; wx2 < W; wx2 += STEP) {
         for (var wy2 = py(0.07); wy2 < py(FY); wy2 += STEP) {
           var nx2 = wx2 / W;
-          if (nx2 >= WX - 0.01 && nx2 <= WX + WW + 0.01) continue; // skip window area
-          if (nx2 <= SX + SW + 0.01) continue; // skip shelf area
+          if (nx2 >= WX - 0.01 && nx2 <= WX + WW + 0.01) continue;
+          if (nx2 <= SX + SW + 0.01) continue;
           ctx.fillStyle = '#A08050';
           ctx.save(); ctx.translate(wx2, wy2); ctx.rotate(Math.PI / 4);
           var ss2 = STEP * 0.32; ctx.fillRect(-ss2, -ss2, ss2 * 2, ss2 * 2); ctx.restore();
@@ -515,278 +790,194 @@
       // Crown molding
       fr(0, 0.040, 1, 0.016, 'rgba(0,0,0,.12)');
       fr(0, 0.028, 1, 0.014, 'rgba(0,0,0,.08)');
-      // Baseboard (only for the wall behind the desk/window)
+      // Baseboard
       fr(SW, FY - 0.018, 1 - SW, 0.020, 'rgba(0,0,0,.18)');
-      fr(SW, FY - 0.022, 1 - SW, 0.006, 'rgba(0,0,0,.10)');
 
-      // Wall-shelf dividing edge (where left wall meets front wall)
-      var wEdge = ctx.createLinearGradient(px(SW), 0, px(SW + 0.05), 0);
-      wEdge.addColorStop(0, 'rgba(0,0,0,.35)'); wEdge.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = wEdge; ctx.fillRect(px(SW), py(0.04), px(0.05), py(FY - 0.04));
-
-      // ── 2. SKY BACKGROUND ──────────────────────────────────────────
+      // ── 2. SKY BACKGROUND ─────────────────────────────────────────
       (function () {
-        var skyTop, skyBot;
-        if (tod === 'dawn') { skyTop = '#3A2050'; skyBot = '#D07848'; }
-        else if (tod === 'day') { skyTop = '#2A5CA8'; skyBot = '#6898D8'; }
-        else if (tod === 'dusk') { skyTop = '#18102A'; skyBot = '#A03810'; }
-        else { skyTop = '#050810'; skyBot = '#10122A'; }
-
+        var sT, sB;
+        if (tod === 'dawn') { sT = '#3A2050'; sB = '#D07848'; }
+        else if (tod === 'day') { sT = '#2A5CA8'; sB = '#6898D8'; }
+        else if (tod === 'dusk') { sT = '#18102A'; sB = '#A03810'; }
+        else { sT = '#050810'; sB = '#10122A'; }
         var skyG = ctx.createLinearGradient(0, py(WY), 0, py(WY + WH));
-        skyG.addColorStop(0, skyTop); skyG.addColorStop(1, skyBot);
-
+        skyG.addColorStop(0, sT); skyG.addColorStop(1, sB);
         ctx.save();
         ctx.beginPath(); ctx.rect(px(WX), py(WY), px(WW), py(WH)); ctx.clip();
         ctx.fillStyle = skyG; ctx.fillRect(px(WX), py(WY), px(WW), py(WH));
         ctx.restore();
       })();
 
-      // ── 3. FLOOR ────────────────────────────────────────────────────
+      // ── 3. FLOOR ──────────────────────────────────────────────────
       ctx.fillStyle = linG(0.5, FY, 0.5, 1, [[0, '#5A3A18'], [0.3, '#4A2E10'], [1, '#2A1808']]);
       ctx.fillRect(0, py(FY), W, py(1 - FY));
-      // Floor planks
-      ctx.strokeStyle = 'rgba(0,0,0,.22)'; ctx.lineWidth = 0.5;
-      for (var fy3 = FY; fy3 < 1.0; fy3 += 0.022) {
-        ctx.beginPath(); ctx.moveTo(0, py(fy3)); ctx.lineTo(W, py(fy3)); ctx.stroke();
-      }
-      ctx.strokeStyle = 'rgba(0,0,0,.10)'; ctx.lineWidth = 0.4;
-      for (var fpk = 0; fpk < 18; fpk++) { var ftx = fpk / 17; ctx.beginPath(); ctx.moveTo(px(ftx), py(FY)); ctx.lineTo(px(ftx + 0.15 * (ftx - 0.5)), py(1)); ctx.stroke(); }
 
-      // ── 4. WINDOW GLOW ──────────────────────────────────────────
-
-      // ── 5. WINDOW GLOW ──────────────────────────────────────────
+      // ── 5. WINDOW GLOW ────────────────────────────────────────────
       (function () {
-        var wa = lampOn ? 0.35 : 0.15;
-        if (anyOpen) wa = Math.min(wa + 0.10, 0.65);
+        var wa = lampOn ? 0.35 : 0.15; if (anyOpen) wa = Math.min(wa + 0.10, 0.65);
         var wgg = ctx.createRadialGradient(px(WX + WW * 0.5), py(WY + WH * 0.5), px(0.01), px(WX + WW * 0.5), py(WY + WH * 0.5), px(WW * 0.6));
         var gCol = lampOn ? '255,180,50' : pal.wGlow;
-        wgg.addColorStop(0, 'rgba(' + gCol + ',' + wa + ')');
-        wgg.addColorStop(1, 'rgba(0,0,0,0)');
-        // Only glow the window area
+        wgg.addColorStop(0, 'rgba(' + gCol + ',' + wa + ')'); wgg.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = wgg; ctx.fillRect(px(WX - 0.1), py(WY - 0.1), px(WW + 0.2), py(WH + 0.2));
       })();
+
       // ── 7. WINDOW FRAME ───────────────────────────────────────────
       var fT = 0.018;
-      // Rails (Top, Bottom, Sides)
-      fr(WX, WY, WW, fT, '#2E1408'); // Top
-      fr(WX, WY + WH - fT, WW, fT, '#2E1408'); // Bottom
-      fr(WX, WY, fT, WH, '#2E1408'); // Left
-      fr(WX + WW - fT, WY, fT, WH, '#2E1408'); // Right
-      // Border Highlights
-      fr(WX, WY, WW, 0.006, '#3A1C0A'); // top
-      fr(WX, WY + WH - 0.006, WW, 0.006, '#1A0804'); // bottom
+      fr(WX, WY, WW, fT, '#2E1408'); fr(WX, WY + WH - fT, WW, fT, '#2E1408');
+      fr(WX, WY, fT, WH, '#1A0804'); fr(WX + WW - fT, WY, fT, WH, '#1A0804');
 
-      // ── 8. WINDOW PANELS (Inward Swing logic) ─────────────────────
-      var pW = WW / 2; // Exact half width for perfect seal
-      var pH = WH - 0.004; // Fill the frame height
-      var pC = (tod === 'night' || tod === 'dusk') ? 'rgba(40,55,110,.35)' : 'rgba(255,245,210,.25)';
-
+      // ── 8. WINDOW PANELS (Traditional detailed inward swing) ───────
+      // ── 8. WINDOW PANELS (Traditional detailed inward swing) ───────
       function drawOutwardPanel(bx, by, pw, ph, isOpen, isLeft) {
         ctx.save();
-        var barW = 0.012; // slightly thinner for the 4-pane detail
-        var grillCol = '#2A0E08'; // Deep Espresso
+        var barW = 0.012, grillCol = '#2A0E08';
         var pC = (tod === 'night' || tod === 'dusk') ? 'rgba(40,55,110,.35)' : 'rgba(255,245,210,.25)';
-
         if (isOpen) {
-          // Perspective: Hinge side is stationary, Inner edge narrows and RECEDES (gets shorter)
-          var swingW = pw * 0.40;
-          var hScale = 0.85; // Receding scale
-          var xOff = isLeft ? 0 : (pw - swingW);
+          var swingW = pw * 0.40, hScale = 0.85, xOff = isLeft ? 0 : (pw - swingW);
+          var x1 = bx + xOff, x2 = x1 + swingW, y_s = by + (ph * (1 - hScale) * 0.5), h_s = ph * hScale;
 
-          var x1 = bx + xOff, x2 = x1 + swingW;
-          var y_short = by + (ph * (1 - hScale) * 0.5);
-          var h_short = ph * hScale;
-
-          // Trapezoid Points: p1, p2 (top), p3, p4 (bottom)
-          var p1x, p1y, p2x, p2y, p3x, p3y, p4x, p4y;
+          // Glass Pane
+          ctx.fillStyle = pC; ctx.beginPath();
           if (isLeft) {
-            p1x = x1; p1y = by; p2x = x2; p2y = y_short;
-            p3x = x2; p3y = y_short + h_short; p4x = x1; p4y = by + ph;
+            ctx.moveTo(px(x1), py(by)); ctx.lineTo(px(x2), py(y_s));
+            ctx.lineTo(px(x2), py(y_s + h_s)); ctx.lineTo(px(x1), py(by + ph));
           } else {
-            p1x = x1; p1y = y_short; p2x = x2; p2y = by;
-            p3x = x2; p3y = by + ph; p4x = x1; p4y = y_short + h_short;
+            ctx.moveTo(px(x1), py(y_s)); ctx.lineTo(px(x2), py(by));
+            ctx.lineTo(px(x2), py(by + ph)); ctx.lineTo(px(x1), py(y_s + h_s));
+          }
+          ctx.closePath(); ctx.fill();
+
+          // Perspective Bar Helper
+          function pBar(h1, h2, t1, t2, col) {
+            ctx.fillStyle = col; ctx.beginPath();
+            var y1_l = by + ph * h1, y1_r = y_s + h_s * h1;
+            var y2_l = by + ph * h2, y2_r = y_s + h_s * h2;
+            if (isLeft) {
+              ctx.moveTo(px(x1), py(y1_l)); ctx.lineTo(px(x2), py(y1_r));
+              ctx.lineTo(px(x2), py(y2_r)); ctx.lineTo(px(x1), py(y2_l));
+            } else {
+              ctx.moveTo(px(x1), py(y1_r)); ctx.lineTo(px(x2), py(y1_l));
+              ctx.lineTo(px(x2), py(y2_l)); ctx.lineTo(px(x1), py(y2_r));
+            }
+            ctx.closePath(); ctx.fill();
           }
 
-          // Glass
-          ctx.fillStyle = pC;
-          ctx.beginPath(); ctx.moveTo(px(p1x), py(p1y)); ctx.lineTo(px(p2x), py(p2y)); ctx.lineTo(px(p3x), py(p3y)); ctx.lineTo(px(p4x), py(p4y)); ctx.closePath(); ctx.fill();
-
-          // Frame Rails (Top & Bottom thickness)
-          ctx.fillStyle = '#1A0804';
-          var railH = 0.012;
-          // Top Rail
-          ctx.beginPath(); ctx.moveTo(px(p1x), py(p1y)); ctx.lineTo(px(p2x), py(p2y)); ctx.lineTo(px(p2x), py(p2y + railH)); ctx.lineTo(px(p1x), py(p1y + railH)); ctx.closePath(); ctx.fill();
-          // Bottom Rail
-          ctx.beginPath(); ctx.moveTo(px(p4x), py(p4y)); ctx.lineTo(px(p3x), py(p3y)); ctx.lineTo(px(p3x), py(p3y - railH)); ctx.lineTo(px(p4x), py(p4y - railH)); ctx.closePath(); ctx.fill();
-
-          // PERSPECTIVE GRILLS (4-pane cross)
-          ctx.strokeStyle = grillCol; ctx.lineWidth = px(0.006);
-          ctx.lineCap = 'butt';
-
-          var mid1y, mid2y;
-          if (isLeft) {
-            mid1y = by + ph * 0.5; // Hinge side (left)
-            mid2y = y_short + h_short * 0.5; // Swinging side (right)
-          } else {
-            mid1y = y_short + h_short * 0.5; // Swinging side (left)
-            mid2y = by + ph * 0.5; // Hinge side (right)
+          // Vertical Perspective Bar Helper
+          function pBarV(x_norm, w_norm, col) {
+            ctx.fillStyle = col; ctx.beginPath();
+            var xl = x1 + (x2 - x1) * x_norm, xr = xl + (x2 - x1) * w_norm;
+            var yl_t = by + (y_s - by) * x_norm, yl_b = (by + ph) + ((y_s + h_s) - (by + ph)) * x_norm;
+            var yr_t = by + (y_s - by) * (x_norm + w_norm), yr_b = (by + ph) + ((y_s + h_s) - (by + ph)) * (x_norm + w_norm);
+            if (!isLeft) {
+              yl_t = y_s + (by - y_s) * x_norm; yl_b = (y_s + h_s) + ((by + ph) - (y_s + h_s)) * x_norm;
+              yr_t = y_s + (by - y_s) * (x_norm + w_norm); yr_b = (y_s + h_s) + ((by + ph) - (y_s + h_s)) * (x_norm + w_norm);
+            }
+            ctx.moveTo(px(xl), py(yl_t)); ctx.lineTo(px(xr), py(yr_t));
+            ctx.lineTo(px(xr), py(yr_b)); ctx.lineTo(px(xl), py(yl_b));
+            ctx.closePath(); ctx.fill();
           }
 
-          // Horizontal Grill (Inset slightly to hide behind rails)
-          var th = 0.008;
-          ctx.beginPath();
-          ctx.moveTo(px(p1x + (isLeft ? th : 0)), py(mid1y));
-          ctx.lineTo(px(p2x - (isLeft ? 0 : th)), py(mid2y));
-          ctx.stroke();
+          // Top/Bottom Wood Edges (Horizontal)
+          var twe = 0.012 / ph;
+          pBar(0, twe, 0, 1, '#1A0804');
+          pBar(1 - twe, 1, 0, 1, '#1A0804');
 
-          // Vertical Grill (Inset slightly to hide behind top/bottom rails)
-          ctx.beginPath();
-          ctx.moveTo(px(p1x + (p2x - p1x) * 0.5), py(p1y + (p2y - p1y) * 0.5 + 0.012));
-          ctx.lineTo(px(p4x + (p3x - p4x) * 0.5), py(p4y + (p3y - p4y) * 0.5 - 0.012));
-          ctx.stroke();
+          // Horizontal Grill
+          var gh = 0.012 / ph;
+          pBar(0.5 - gh * 0.5, 0.5 + gh * 0.5, 0, 1, grillCol);
 
-          // Side thickness (Vertical rails)
-          ctx.fillStyle = '#1A0804';
-          var th = 0.008;
-          if (isLeft) {
-            fr(p1x, by, th, ph); // Hinge rail
-            fr(p2x - th, y_short, th, h_short); // Outer rail
-          } else {
-            fr(p2x - th, by, th, ph); // Hinge rail
-            fr(p1x, y_short, th, h_short); // Outer rail
-          }
+          // Vertical Frame Bars & Grill
+          var vw = 0.008 / (x2 - x1);
+          pBarV(0, vw, '#1A0804'); // hinge side
+          pBarV(1 - vw, vw, '#1A0804'); // opening side
 
-          // Small Brass Handle (Drawn LAST to sit on top of the wood)
-          ctx.fillStyle = '#C0A060'; // Brass
-          var hndW = 0.004, hndH = 0.024;
-          var hndX = isLeft ? (p2x - th + 0.002) : (p1x + 0.002);
-          var hndY = y_short + h_short * 0.5 - hndH * 0.5;
-          fr(hndX, hndY, hndW, hndH);
-          fr(hndX + hndW * 0.4, hndY, hndW * 0.3, hndH, '#806020'); // detail
+          var vgw = 0.006 / (x2 - x1);
+          pBarV(0.5 - vgw * 0.5, vgw, grillCol); // middle vertical grill
 
+          // Brass Handle (Subtle)
+          ctx.fillStyle = '#FFD700'; var hW = 0.004, hH = 0.022;
+          var hX = isLeft ? (x2 - 0.008 + 0.002) : (x1 + 0.002);
+          var hY = y_s + h_s * 0.5 - hH * 0.5;
+          fr(hX, hY, hW, hH);
+          fr(hX + 0.001, hY + 0.003, 0.001, 0.016, 'rgba(255,255,255,0.4)'); // glint
         } else {
-          // Closed: Meeting in the middle with 4-pane cross per side
-          var extra = 0.003;
-          var finalW = pw + extra, finalX = isLeft ? bx : (bx - extra);
-          fr(finalX, by, finalW, ph, pC);
-
-          // Top & Bottom Wood Rails (Consistent with open state)
-          var railH0 = 0.012;
-          fr(finalX, by, finalW, railH0, '#1A0804'); // Top
-          fr(finalX, by + ph - railH0, finalW, railH0, '#1A0804'); // Bottom
-
-          // Outer Hinge/Side Edge
-          fr(isLeft ? finalX : finalX + finalW - 0.006, by, 0.006, ph, grillCol);
-
-          // Center Vertical Bar (Leading Edge)
-          var vX = isLeft ? (finalX + finalW - barW) : finalX;
-          fr(vX, by, barW, ph, grillCol);
-
-          // Horizontal Mid-bar
-          fr(finalX, by + ph * 0.5 - barW * 0.5, finalW, barW, grillCol);
-
-          // Internal Vertical bar (to create 4 panes)
-          fr(finalX + finalW * 0.5 - barW * 0.25, by, barW * 0.5, ph, grillCol);
-
-          // Brass Handles (Closed state - On the thick center wood)
-          ctx.fillStyle = '#C0A060';
-          var vX = isLeft ? (finalX + finalW - barW) : finalX;
-          var hX = isLeft ? (vX + 0.002) : (vX + barW - 0.006);
-          fr(hX, by + ph * 0.5 - 0.012, 0.004, 0.024);
-          fr(hX + 0.001, by + ph * 0.5 - 0.012, 0.002, 0.024, '#806020'); // detail
+          var ex = 0.003, fw = pw + ex, fx = isLeft ? bx : (bx - ex);
+          fr(fx, by, fw, ph, pC);
+          fr(fx, by, fw, 0.012, '#1A0804'); fr(fx, by + ph - 0.012, fw, 0.012, '#1A0804');
+          fr(isLeft ? fx + fw - 0.012 : fx, by, 0.012, ph, '#1A0804');
+          fr(fx, by + ph * 0.5 - 0.006, fw, 0.012, grillCol);
+          fr(fx + fw * 0.5 - 0.003, by, 0.006, ph, grillCol);
+          // Standard handles (Gold)
+          // Standard handles (Gold)
+          var hX = isLeft ? (fx + fw - 0.010) : (fx + 0.006);
+          var hY = by + ph * 0.5 - 0.011;
+          ctx.fillStyle = '#FFD700';
+          fr(hX, hY, 0.004, 0.022);
+          fr(hX + 0.001, hY + 0.003, 0.001, 0.016, 'rgba(255,255,255,0.4)'); // handle glint
         }
         ctx.restore();
       }
+      drawOutwardPanel(WX, WY + 0.002, WW / 2, WH - 0.004, leftOpen, true);
+      drawOutwardPanel(WX + WW * 0.5, WY + 0.002, WW / 2, WH - 0.004, rightOpen, false);
 
-      drawOutwardPanel(WX, WY + 0.002, pW, pH, leftOpen, true);
-      drawOutwardPanel(WX + WW * 0.5, WY + 0.002, pW, pH, rightOpen, false);
+      // ── 13. SILL & WALL BELOW (Drawn BEFORE Curtains) ────────────────
+      var wallBelowY = WY + WH;
+      fr(WX - 0.02, wallBelowY, WW + 0.04, 0.024, '#482410');
+      fr(SW, wallBelowY + 0.01, 1 - SW, FY - (wallBelowY + 0.01), pal.w1);
 
-      // ── 9. CURTAINS (Sheer Glowing Amber with wavy texture) ────────
+      // ── 9. CURTAINS (Original premium wavy version) ──────────
       var cFlutterL = anyOpen ? Math.sin(time * 0.07) * 0.012 : 0;
       var cFlutterR = anyOpen ? Math.sin(time * 0.07 + 0.8) * 0.012 : 0;
 
-      function drawWavyCurtain(x1, y1, x2, ybase, width, flutter, isLeft) {
+      function drawWavyCurtain(x1, y1, width, ybase, flutter) {
         ctx.save();
-        // Base sheer color (Amber/Orange)
-        var color = 'rgba(255, 140, 20, 0.38)';
-        var highlight = 'rgba(255, 200, 50, 0.55)';
-        var deep = 'rgba(180, 60, 0, 0.45)';
-
-        // Draw multiple overlapping vertical folds for the "wavy" look
-        var folds = 7;
-        for (var i = 0; i <= folds; i++) {
-          var t = i / folds;
-          var fx = x1 + t * width + (isLeft ? -0.01 : 0.01);
-          var fWidth = (width / folds) * 1.3;
-
-          // Slight horizontal offset for each fold to create wavy depth
-          var offset = Math.sin(t * Math.PI * 2) * 0.005;
-          var curX = fx + offset + (t * flutter);
-
-          var g = ctx.createLinearGradient(px(curX), py(y1), px(curX + fWidth), py(y1));
-          g.addColorStop(0, deep);
-          g.addColorStop(0.4, color);
-          g.addColorStop(0.6, highlight);
-          g.addColorStop(1, deep);
-
-          ctx.beginPath();
-          ctx.moveTo(px(curX), py(y1));
-          ctx.lineTo(px(curX + fWidth), py(y1));
-
-          // Wavy bottom edge using Bezier
-          var bx = curX + fWidth + flutter;
-          var by = ybase + 0.015 * Math.sin(t * 10 + time * 0.05);
-          ctx.lineTo(px(bx), py(by));
-          ctx.bezierCurveTo(px(bx - fWidth * 0.5), py(by + 0.02), px(curX + flutter + fWidth * 0.5), py(by + 0.02), px(curX + flutter), py(by));
-
-          ctx.closePath();
-          ctx.fillStyle = g;
-          ctx.fill();
-
-          // Subtle vertical fold line
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-          ctx.beginPath(); ctx.moveTo(px(curX + fWidth * 0.5), py(y1)); ctx.lineTo(px(curX + fWidth * 0.5 + flutter), py(by)); ctx.stroke();
+        var color = 'rgba(255, 140, 20, 0.22)', highlight = 'rgba(255, 200, 50, 0.35)', deep = 'rgba(180, 60, 0, 0.28)';
+        ctx.beginPath(); ctx.moveTo(px(x1), py(y1)); ctx.lineTo(px(x1 + width), py(y1));
+        var vSteps = 24;
+        for (var j = 1; j <= vSteps; j++) {
+          var vt = j / vSteps;
+          var wave = Math.sin(vt * Math.PI * 1.5 + time * 0.03) * 0.003;
+          var vbx = x1 + width + (vt * flutter) + wave;
+          ctx.lineTo(px(vbx), py(y1 + vt * (ybase - y1)));
         }
+        for (var i = 32; i >= 0; i--) {
+          var ht = i / 32;
+          ctx.lineTo(px(x1 + ht * width + (ht * flutter)), py(ybase + Math.sin(ht * Math.PI * 1.5 + time * 0.03) * 0.002));
+        }
+        for (var j = vSteps - 1; j >= 0; j--) {
+          var vt = j / vSteps;
+          var wave = Math.sin(vt * Math.PI * 1.5 + time * 0.03 + 0.8) * 0.003;
+          var vbx = x1 + wave;
+          ctx.lineTo(px(vbx), py(y1 + vt * (ybase - y1)));
+        }
+        ctx.closePath();
+        var g = ctx.createLinearGradient(px(x1), py(y1), px(x1 + width), py(y1));
+        g.addColorStop(0, deep); g.addColorStop(0.3, color); g.addColorStop(0.5, highlight); g.addColorStop(0.7, color); g.addColorStop(1, deep);
+        ctx.fillStyle = g; ctx.fill();
         ctx.restore();
       }
+      drawWavyCurtain(WX - 0.06, WY - 0.02, 0.12, FY, cFlutterL);
+      drawWavyCurtain(WX + WW - 0.06, WY - 0.02, 0.12, FY, cFlutterR);
+      fr(WX - 0.08, WY - 0.030, WW + 0.16, 0.020, '#4A2210'); // rod
 
-      // Left curtain
-      drawWavyCurtain(WX - 0.08, WY - 0.02, WX + 0.03, WY + WH + 0.04, 0.11, cFlutterL, true);
-      // Right curtain
-      drawWavyCurtain(WX + WW - 0.03, WY - 0.02, WX + WW + 0.08, WY + WH + 0.04, 0.11, cFlutterR, false);
-      // Curtain rod
-      fr(WX - 0.08, WY - 0.030, WW + 0.16, 0.018, '#4A2210');
-      ctx.fillStyle = '#6A3818';
-      ctx.beginPath(); ctx.arc(px(WX - 0.082), py(WY - 0.021), px(0.011), 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(px(WX + WW + 0.082), py(WY - 0.021), px(0.011), 0, Math.PI * 2); ctx.fill();
-
-      // ── 10. WEATHER ─────────────────────────────────────────────
+      // ── 10. WEATHER ───────────────────────────────────────────────
       if (weatherType === 'rain' && anyOpen) {
         ctx.strokeStyle = 'rgba(180,215,255,.55)'; ctx.lineWidth = 1;
         for (var ri = 0; ri < raindrops.length; ri++) {
-          var rd = raindrops[ri]; rd.y += rd.spd;
-          if (rd.y > 0.7) rd.y = -0.1;
-          ctx.globalAlpha = rd.a; ctx.beginPath();
-          ctx.moveTo(px(rd.x), py(rd.y)); ctx.lineTo(px(rd.x - 0.002), py(rd.y + rd.len)); ctx.stroke();
+          var rd = raindrops[ri]; rd.y += rd.spd; if (rd.y > 0.7) rd.y = -0.1;
+          ctx.beginPath(); ctx.moveTo(px(rd.x), py(rd.y)); ctx.lineTo(px(rd.x - 0.002), py(rd.y + rd.len)); ctx.stroke();
         }
-        ctx.globalAlpha = 1;
       }
       if (weatherType === 'snow' && anyOpen) {
         for (var sni = 0; sni < snowflakes.length; sni++) {
           var sf = snowflakes[sni]; sf.y += sf.spd; sf.x += Math.sin(time * 0.02 + sf.drift) * 0.0003;
-          if (sf.y > 0.7) sf.y = -0.1;
-          circ(sf.x, sf.y, sf.r, 'rgba(218,232,255,1)', sf.a);
+          if (sf.y > 0.7) sf.y = -0.1; circ(sf.x, sf.y, sf.r, 'rgba(218,232,255,1)', sf.a);
         }
       }
 
-      // ── 13. WALL BELOW WINDOW & SILL ──────────────────────────────
-      var wallBelowY = WY + WH + 0.02;
-      var wallBelowH = DESK_TOP_Y - wallBelowY;
-      fr(SW, wallBelowY, 1 - SW, wallBelowH, pal.w1);
 
-      // Simple Window Sill
-      fr(WX - 0.04, WY + WH, WW + 0.08, 0.024, '#482410');
-      fr(WX - 0.04, WY + WH, WW + 0.08, 0.010, '#6A3818');
+
+
 
       // Baseboard
       fr(SW, DESK_TOP_Y - 0.016, 1 - SW, 0.018, 'rgba(0,0,0,.15)');
@@ -1161,12 +1352,12 @@
       }
 
       // Mood plant (top section of shelf, above first shelf)
-      drawPlant(cabX + 0.040, cabY + 0.010, journalDays);
+      // drawPlant(cabX + 0.040, cabY + 0.010, journalDays);
 
       // Small decorative knick-knack (second shelf, right side)
       var kx = cabX + cabW * 0.72, ky = cabY + SHLS[1] * cabH;
       fr(kx - 0.010, ky - 0.040, 0.022, 0.040, '#6A3018'); // small figurine
-      circ(kx, ky - 0.045, px(0.010), '#8A4828');
+      // circ(kx, ky - 0.045, px(0.010), '#8A4828');
 
       // Separator panel edge shadow (right side of shelf fades into wall)
       var sEdge = ctx.createLinearGradient(px(cabX + cabW), 0, px(cabX + cabW + 0.04), 0);
@@ -1211,7 +1402,7 @@
         fr(bX, shTop - b.bh * 0.90, bwF, 0.004, 'rgba(255,255,255,.08)');
       }
       // Mood plant (top of shelf)
-      drawPlant(cabX + 0.010, cabY + 0.018, journalDays);
+      // drawPlant(cabX + 0.010, cabY + 0.018, journalDays);
       // Quest marker
       // Quest marker removed for minimalist look
       // drawQuestMarker(cabX + cabW * 0.5, cabY + cabH * 0.3, 'Archive');
@@ -1652,7 +1843,7 @@
           if (z.winRight) { toggleRightWindow(); return; }
           if (z.lamp) { toggleLamp(); return; }
           if (z.vinyl) { toggleMusic(); return; }
-          if (z.key === 'write') { location.href = '/journal'; return; }
+          if (z.key === 'write') { openDeskView(); return; }
           if (z.key === 'archive') { location.href = '/dashboard'; return; }
           if (z.key) { openM(z.key); return; }
         }
@@ -1665,6 +1856,8 @@
     resize();
     loop();
   </script>
+
+  {% include 'components/journal_overlay.html' %}
 </body>
 
 </html>

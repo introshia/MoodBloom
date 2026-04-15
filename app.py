@@ -32,16 +32,43 @@ def get_db_connection():
 
 # --- AI & ANALYTICS LOGIC ---
 def analyze_sentiment(content):
-    content = content.lower()
-    positive = ['happy', 'great', 'love', 'amazing', 'excited', 'good', 'blessed']
-    negative = ['sad', 'bad', 'cry', 'hurt', 'lonely', 'terrible', 'depressed']
-    stressed = ['stress', 'hard', 'tired', 'exam', 'deadline', 'busy', 'pressure']
+    c = content.lower()
     
-    score = 3  # Default Neutral
-    if any(word in content for word in positive): score = 5
-    elif any(word in content for word in negative): score = 1
-    elif any(word in content for word in stressed): score = 2
-    return score
+    # Mood Mapping
+    positive = ['happy', 'great', 'love', 'amazing', 'excited', 'good', 'blessed', 'proud', 'wonderful', 'joy']
+    negative = ['sad', 'bad', 'cry', 'hurt', 'lonely', 'terrible', 'depressed', 'grief', 'heavy', 'miserable']
+    stressed = ['stress', 'hard', 'tired', 'exam', 'deadline', 'busy', 'pressure', 'overwhelmed', 'anxious']
+    
+    score = 3
+    if any(w in c for w in positive): score = 5
+    elif any(w in c for w in negative): score = 1
+    elif any(w in c for w in stressed): score = 2
+    
+    # Pillar Detection
+    pillar = "Peace" # Default
+    if any(w in c for w in ['work', 'time', 'manage', 'schedule', 'todo', 'busy', 'juggling', 'deadline']): pillar = "Balance"
+    elif any(w in c for w in ['learn', 'new', 'goal', 'better', 'future', 'skill', 'try', 'growth', 'evolve']): pillar = "Growth"
+    elif any(w in c for w in ['health', 'body', 'eat', 'sleep', 'energy', 'feeling', 'wellness', 'yoga', 'medicine']): pillar = "Wellness"
+    elif any(w in c for w in ['quiet', 'still', 'calm', 'nature', 'breathe', 'meditate', 'peace', 'serene']): pillar = "Peace"
+
+    # Reflective Question Generator
+    questions = {
+        "Balance": "Is it the quantity of tasks—or the weight of expectations—that truly feels out of balance today?",
+        "Growth": "What part of this 'new' self are you most afraid to leave behind as you grow?",
+        "Wellness": "If your body could speak without using words right now, what's the first thing it would ask for?",
+        "Peace": "In the middle of this quiet moment, what's the one noise you're still trying to ignore?"
+    }
+    
+    # Dynamic nuance for reflection
+    reflection = questions.get(pillar, "What is one truth you've been avoiding that this entry is trying to tell you?")
+    if score >= 4: reflection = f"This vibrancy feels real—how can you preserve a piece of this light for a darker day?"
+    elif score <= 2: reflection = f"When the weight feels this heavy, what is the smallest possible kindness you can show yourself?"
+
+    return {
+        "score": score,
+        "pillar": pillar.lower(),
+        "reflection": reflection
+    }
 
 def get_quote_for_entry(content):
     content = content.lower()
@@ -330,7 +357,22 @@ def cozy_room():
     
     user_id = session['user_id']
     streak = calculate_streak(user_id)
-    return render_template('pages/cozy_room.html', streak_days=streak)
+    
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT content FROM journal_entries WHERE user_id = %s ORDER BY entry_date DESC LIMIT 30", (user_id,))
+    recent_entries = cursor.fetchall()
+    conn.close()
+    
+    processed_entries = []
+    for e in recent_entries:
+        text = get_preview_text(e['content'])
+        processed_entries.append({"text": text, "location": "", "cats": [], "fav": False})
+        
+    # We want chronological order in the journal (oldest to newest), so reverse the descending list
+    processed_entries.reverse()
+
+    return render_template('pages/cozy_room.html', streak_days=streak, recent_entries=processed_entries)
 
 @app.route('/profile')
 def profile():
@@ -388,48 +430,52 @@ def update_profile():
 
 @app.route('/journal')
 def journal():
-    # SECURITY
     if 'user_id' not in session:
         return redirect(url_for('login'))
-        
-    user_id = session['user_id']
-    new_quote = request.args.get('quote_text')
-    new_author = request.args.get('quote_author')
-    preselected_mood = request.args.get('mood') # From the new Daily Pulse dashboard feature!
-    
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True) # Fetch as dictionary so we can access columns by name
-    
-    # Fetch all past entries for this user to populate the Archive grid
-    cursor.execute("SELECT * FROM journal_entries WHERE user_id = %s ORDER BY entry_date ASC", (user_id,))
-    past_entries = cursor.fetchall()
-    conn.close()
-    
-    # Format entries for the new frontend
-    formatted_entries = []
-    for entry in past_entries:
-        # Convert the 1-5 database score to a 0-100 scale for Claude's UI logic
-        converted_score = entry['mood_score'] * 20 if entry.get('mood_score') else 50
-        formatted_entries.append({
-            'date': entry['entry_date'].strftime("%b %d, %Y"),
-            'content': entry['content'],
-            'mood_score': converted_score
-        })
-    
-    # Prepare the header variables
-    current_date = datetime.now().strftime("%B %d, %Y")
-    page_num = str(len(past_entries) + 1).zfill(2)
-    
-    return render_template('pages/journal.html', 
-                           display_quote={'text': new_quote, 'author': new_author} if new_quote else None,
-                           current_date=current_date,
-                           page_number=page_num,
-                           entries=formatted_entries,
-                           preselected_mood=preselected_mood)
+    return redirect(url_for('cozy_room', open='journal'))
 
-@app.route('/almanac')
-def almanac():
-    return redirect(url_for('journal'))
+@app.route('/save_entry', methods=['POST'])
+def save_entry():
+    # SECURITY
+    if 'user_id' not in session:
+        return {'success': False, 'message': 'Unauthorized'}, 401
+    
+    try:
+        data = request.get_json()
+        content = data.get('content', '').strip()
+        mood_score_override = data.get('mood_score', None)
+        
+        if not content:
+            return {'success': False, 'message': 'Content cannot be empty'}, 400
+        
+        user_id = session['user_id']
+        
+        # Analyze sentiment from content
+        ai_result = analyze_sentiment(content)
+        mood_score = ai_result['score']
+        
+        # Get a relevant quote (legacy support)
+        quote = get_quote_for_entry(content)
+        
+        # Save to database
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO journal_entries (content, mood_score, theme, user_id) VALUES (%s, %s, %s, %s)",
+            (content, mood_score, 'Default', user_id)
+        )
+        conn.commit()
+        conn.close()
+        
+        return {
+            'success': True,
+            'message': 'Entry saved successfully',
+            'ai_analysis': ai_result,
+            'quote': quote.get('text') if quote else None
+        }, 200
+        
+    except Exception as e:
+        return {'success': False, 'message': str(e)}, 500
 
 
 @app.route('/add', methods=['POST'])
@@ -442,7 +488,8 @@ def add_entry():
     mood_chip = request.form.get('mood') # Catches the selected chip from the new UI!
     
     if content:
-        mood_score = analyze_sentiment(content)
+        ai_result = analyze_sentiment(content)
+        mood_score = ai_result['score']
         quote = get_quote_for_entry(content)
         user_id = session['user_id']
         
