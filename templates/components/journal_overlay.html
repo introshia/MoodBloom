@@ -1,0 +1,526 @@
+<style>
+    /* ─── JOURNAL OVERLAY STYLES ─── */
+    #desk-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(20, 10, 5, 0.4), rgba(0, 0, 0, 0.95));
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.6s ease;
+      backdrop-filter: blur(8px);
+    }
+
+    #desk-overlay.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .btn-back-room {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.5);
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+
+    .btn-back-room:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    /* Journal Animation States */
+    #j-open {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+        transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        pointer-events: none;
+    }
+    #j-open.visible {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: all;
+    }
+
+    /* Outer journal container */
+    .journal-outer {
+      display: flex;
+      width: min(92vw, 1050px);
+      max-height: 85vh;
+      aspect-ratio: 1.414 / 1;
+      background: #1B1F2D;
+      border: 2px dashed rgba(80, 140, 200, .28);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 32px 80px rgba(0, 0, 0, .75), 0 8px 24px rgba(0, 0, 0, .5);
+      transform-style: preserve-3d;
+      transition: transform .35s ease, opacity .35s ease;
+    }
+
+    .journal-outer.flip-fwd { animation: jflip-fwd .55s cubic-bezier(.4, 0, .2, 1) both }
+    .journal-outer.flip-bwd { animation: jflip-bwd .55s cubic-bezier(.4, 0, .2, 1) both }
+
+    @keyframes jflip-fwd {
+      0% { transform: rotateY(0) scale(1); opacity: 1 }
+      45% { transform: rotateY(-12deg) scale(.97); opacity: .6; filter: brightness(.8) }
+      55% { transform: rotateY(-12deg) scale(.97); opacity: .6; filter: brightness(.8) }
+      100% { transform: rotateY(0) scale(1); opacity: 1; filter: brightness(1) }
+    }
+
+    @keyframes jflip-bwd {
+      0% { transform: rotateY(0) scale(1); opacity: 1 }
+      45% { transform: rotateY(12deg) scale(.97); opacity: .6; filter: brightness(.8) }
+      55% { transform: rotateY(12deg) scale(.97); opacity: .6; filter: brightness(.8) }
+      100% { transform: rotateY(0) scale(1); opacity: 1; filter: brightness(1) }
+    }
+
+    /* ─── LEFT PAGE ─── */
+    .jl-page {
+      flex: 1; flex-basis: 0; background: #1B1F2D;
+      padding: clamp(16px, 2.5vw, 28px);
+      display: flex; flex-direction: column; gap: 12px;
+      overflow: hidden; position: relative;
+    }
+
+    .jl-page::before {
+      content: ''; position: absolute; inset: 0;
+      background-image: radial-gradient(rgba(255, 255, 255, .025) 1px, transparent 1px);
+      background-size: 22px 22px; pointer-events: none;
+    }
+
+    .jl-date-row { display: flex; align-items: flex-start; gap: 10px; position: relative; z-index: 1 }
+    .jl-sun { font-size: clamp(20px, 2.8vw, 34px); line-height: 1; flex-shrink: 0; filter: drop-shadow(0 0 10px rgba(255, 200, 80, .55)) }
+    .jl-date-text { flex: 1 }
+    .jl-weekday { font-family: 'Lora', serif; font-weight: 600; font-size: clamp(13px, 1.5vw, 18px); color: #E8E0D0; line-height: 1.2 }
+    .jl-datestr { font-family: 'DM Sans', sans-serif; font-size: clamp(9px, .95vw, 12px); color: rgba(200, 185, 160, .6); letter-spacing: .04em; margin-top: 2px }
+    .jl-entry-num { font-family: 'Cormorant Garamond', serif; font-size: clamp(26px, 3.8vw, 50px); font-weight: 300; color: rgba(200, 185, 160, .18); line-height: 1; letter-spacing: -.02em; align-self: flex-start }
+
+    .jl-image-frame { flex: 1; display: flex; flex-direction: column; gap: 8px; min-height: 0; position: relative; z-index: 1 }
+    .jl-image-inner { flex: 1; min-height: 0; border-radius: 10px; overflow: hidden; background: #0D1018; border: 1px solid rgba(255, 255, 255, .07); box-shadow: 0 6px 24px rgba(0, 0, 0, .5), inset 0 0 40px rgba(0, 0, 0, .35); }
+    .jl-image-inner svg { width: 100%; height: 100%; display: block }
+    .jl-caption { font-family: 'Lora', serif; font-style: italic; font-size: clamp(9px, .95vw, 12px); color: rgba(200, 185, 160, .65); text-align: center; line-height: 1.5; }
+
+    .jl-categories { display: flex; justify-content: space-around; padding: 8px 0 2px; border-top: 1px solid rgba(255, 255, 255, .06); position: relative; z-index: 1; flex-shrink: 0; }
+    .jl-cat { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; opacity: .3; transition: all .4s cubic-bezier(.4, 0, .2, 1); position: relative; }
+    .jl-cat:hover { opacity: .85; transform: translateY(-2px); }
+    .jl-cat.active { opacity: 1; transform: scale(1.1); }
+    .jl-cat[data-cat="balance"].active svg { stroke: #5BB8F5; filter: drop-shadow(0 0 8px rgba(91, 184, 245, 0.6)); }
+    .jl-cat[data-cat="peace"].active svg { stroke: #6DBF8A; filter: drop-shadow(0 0 8px rgba(109, 191, 138, 0.6)); }
+    .jl-cat[data-cat="growth"].active svg { stroke: #F5C842; filter: drop-shadow(0 0 8px rgba(245, 200, 66, 0.6)); }
+    .jl-cat[data-cat="wellness"].active svg { stroke: #E87FA0; filter: drop-shadow(0 0 8px rgba(232, 127, 160, 0.6)); }
+    .jl-cat.active .jl-cat-label { color: #fff; text-shadow: 0 0 5px rgba(255, 255, 255, 0.3); }
+    .jl-cat svg { width: clamp(16px, 2vw, 22px); height: clamp(16px, 2vw, 22px); stroke: rgba(200, 185, 160, .85); fill: none; stroke-width: 1.5; transition: all .4s; }
+    .jl-cat-label { font-family: 'DM Sans', sans-serif; font-size: clamp(7px, .7vw, 9px); letter-spacing: .14em; text-transform: uppercase; color: rgba(200, 185, 160, .5); transition: color .4s; }
+
+    .jl-image-inner { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transition: filter 1.2s ease, opacity 0.8s ease; }
+    .mood-vibrant { filter: saturate(1.4) contrast(1.1) drop-shadow(0 0 15px rgba(255, 210, 120, 0.15)); }
+    .mood-serene { filter: hue-rotate(10deg) saturate(0.9); }
+    .mood-pensive { filter: grayscale(0.2) sepia(0.1) brightness(0.9); }
+    .mood-heavy { filter: grayscale(0.6) brightness(0.8) contrast(0.9); }
+
+    /* ─── CENTER SPINE ─── */
+    .jl-spine { width: 24px; min-width: 24px; flex-shrink: 0; background: linear-gradient(to right, #0A0C15, #131620, #0A0C15); display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 38px 0; z-index: 5; position: relative; }
+    .jl-spine::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to right, rgba(255, 200, 80, .0), rgba(255, 200, 80, .04), rgba(255, 200, 80, .0)); }
+    .jl-clasp { width: 16px; height: 20px; background: linear-gradient(145deg, #6A6A80, #3A3A50, #5A5A70); border-radius: 4px; box-shadow: 0 2px 6px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 255, 255, .14); position: relative; }
+    .jl-clasp::after { content: ''; position: absolute; inset: 4px 3px; background: #1A1A28; border-radius: 2px }
+
+    /* ─── RIGHT PAGE ─── */
+    .jr-page { flex: 1; flex-basis: 0; background: #1D2132; padding: clamp(16px, 2.5vw, 24px); display: flex; flex-direction: column; gap: 12px; overflow: hidden; position: relative; }
+    .jr-card-wrap { position: relative; flex-shrink: 0 }
+    .jr-card-wrap::before, .jr-card-wrap::after { content: ''; position: absolute; border-radius: 16px; inset: 0; z-index: 0; }
+    .jr-card-wrap::before { background: #272B40; transform: rotate(2deg) translate(3px, 4px); }
+    .jr-card-wrap::after { background: #222638; transform: rotate(-1.2deg) translate(-2px, 2px); }
+    .jr-card { background: #2C3149; border-radius: 14px; padding: clamp(14px, 2vw, 20px); position: relative; z-index: 2; box-shadow: 0 8px 28px rgba(0, 0, 0, .45); }
+    .jr-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px }
+    .jr-card-icon { font-size: 13px; color: rgba(200, 185, 160, .55) }
+    .jr-card-title { font-family: 'DM Sans', sans-serif; font-size: clamp(10px, 1.1vw, 13px); font-weight: 500; color: rgba(210, 195, 170, .8); letter-spacing: .04em; flex: 1; }
+    .jr-card-time { font-family: 'DM Sans', sans-serif; font-size: 10px; color: rgba(180, 165, 140, .4); letter-spacing: .04em }
+    .jr-card-quote { font-family: 'Lora', serif; font-size: clamp(12px, 1.4vw, 17px); font-weight: 600; color: #F0EAE0; line-height: 1.55; margin-bottom: 12px; }
+    .jr-card-actions { display: flex; gap: 18px; align-items: center }
+    .jr-action-btn { background: none; border: none; color: rgba(180, 165, 140, .38); cursor: pointer; font-size: 15px; padding: 0; transition: color .2s, transform .15s; line-height: 1; }
+    .jr-action-btn:hover { color: rgba(255, 210, 150, .75); transform: scale(1.2) }
+
+    .jr-journal-area { flex: 1; display: flex; flex-direction: column; gap: 7px; min-height: 0; position: relative }
+    .jr-instruction { font-family: 'Lora', serif; font-style: italic; font-size: clamp(9px, .9vw, 12px); color: rgba(180, 165, 140, .45); line-height: 1.6; flex-shrink: 0; }
+    .jr-textarea { flex: 1; background: transparent; border: none; outline: none; resize: none; font-family: 'Lora', serif; font-size: clamp(11px, 1.15vw, 15px); line-height: 2.2; color: rgba(220, 212, 200, .82); padding: 0; background-image: repeating-linear-gradient(transparent, transparent calc(2.2em - 1px), rgba(255, 255, 255, .055) calc(2.2em - 1px), rgba(255, 255, 255, .055) 2.2em); background-size: 100% 2.2em; background-position: 0 .8em; caret-color: rgba(255, 210, 120, .7); }
+    .jr-textarea::placeholder { color: rgba(180, 165, 140, .28); font-style: italic }
+
+    .jr-bottom { display: flex; align-items: center; gap: 8px; padding-top: 8px; border-top: 1px solid rgba(255, 255, 255, .06); flex-shrink: 0; }
+    .jr-loc-icon { color: rgba(180, 165, 140, .3); font-size: 12px; flex-shrink: 0 }
+    .jr-location-input { flex: 1; background: transparent; border: none; outline: none; font-family: 'Lora', serif; font-style: italic; font-size: clamp(10px, 1vw, 13px); color: rgba(180, 165, 140, .5); }
+    .jr-location-input::placeholder { color: rgba(180, 165, 140, .25) }
+    .jr-save-btn { padding: 6px 16px; border-radius: 18px; flex-shrink: 0; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .1); color: rgba(200, 185, 160, .6); font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: .08em; cursor: pointer; transition: all .2s; }
+    .jr-save-btn:hover { background: rgba(255, 200, 100, .12); color: rgba(255, 220, 160, .9); border-color: rgba(255, 200, 100, .24) }
+
+    .journal-controls { display: flex; align-items: center; gap: 14px; position: relative; z-index: 20; }
+    .j-nav-btn { width: 36px; height: 36px; border-radius: 50%; background: rgba(12, 6, 2, .75); border: 1px solid rgba(180, 100, 30, .35); color: #D4A574; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; font-family: inherit; flex-shrink: 0; }
+    .j-nav-btn:hover:not(:disabled) { background: rgba(60, 30, 10, .9); color: #FFBA60; border-color: rgba(200, 130, 50, .6) }
+    .j-nav-btn:disabled { opacity: .3; cursor: default }
+    .spread-indicator { font-family: 'Lora', serif; font-style: italic; font-size: 12px; color: rgba(200, 140, 60, .6); min-width: 52px; text-align: center; letter-spacing: .04em; }
+    .j-close-btn { margin-left: 16px; padding: 7px 18px; border-radius: 20px; background: rgba(12, 6, 2, .7); border: 1px solid rgba(180, 90, 25, .28); color: rgba(200, 130, 50, .6); font-size: 11px; cursor: pointer; font-family: 'DM Sans', sans-serif; letter-spacing: .1em; text-transform: uppercase; transition: all .2s; }
+    .j-close-btn:hover { color: rgba(255, 190, 90, .9); border-color: rgba(255, 190, 90, .35) }
+    .save-status { font-family: 'Lora', serif; font-style: italic; font-size: 11px; color: rgba(180, 220, 140, .7); letter-spacing: .04em; opacity: 0; transition: opacity .4s; }
+    .save-status.show { opacity: 1 }
+
+    /* CLOSED JOURNAL — portrait, top-down view on desk */
+    #j-closed {
+      width: clamp(100px, 11vw, 150px);
+      aspect-ratio: 0.72 / 1;
+      position: absolute;
+      left: 50%; top: 52%;
+      transform: translate(-50%, -52%) perspective(1000px) rotateX(12deg) rotateZ(-2deg);
+      cursor: pointer;
+      z-index: 100;
+      transition: all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    #j-closed:hover {
+      transform: translate(-50%, -55%) perspective(1000px) rotateX(10deg) rotateZ(-2deg) scale(1.05);
+      filter: brightness(1.2) drop-shadow(0 15px 30px rgba(0,0,0,0.4));
+    }
+    .j-cover-body {
+      width: 100%; height: 100%;
+      background: linear-gradient(160deg, #1E2B14 0%, #2A3A1C 45%, #1A2810 100%);
+      border-radius: 4px 12px 12px 4px;
+      box-shadow: inset -2px 0 8px rgba(0,0,0,0.3), 5px 15px 35px rgba(0,0,0,0.6);
+      position: relative; overflow: hidden;
+    }
+    .j-spine-edge { position: absolute; left: 0; top: 0; bottom: 0; width: 12px; background: rgba(0,0,0,0.25); border-radius: 4px 0 0 4px; }
+    .j-rings-closed { position: absolute; left: 2px; top: 0; bottom: 0; width: 10px; display: flex; flex-direction: column; justify-content: space-around; padding: 20px 0; }
+    .j-ring-dot { width: 4px; height: 4px; background: radial-gradient(circle at 35% 35%, #E0B830, #8A6010); border-radius: 50%; }
+    .j-page-edge { position: absolute; right: 4px; top: 3px; bottom: 3px; width: 6px; background: #E8E0D0; border-radius: 0 4px 4px 0; opacity: 0.6; }
+    .j-page-edge-btm { position: absolute; right: 8px; bottom: 0; width: 40%; height: 3px; background: #D8D0C0; opacity: 0.4; }
+    .j-open-hint { position: absolute; bottom: 10px; left: 0; right: 0; text-align: center; font-family: 'DM Sans', sans-serif; font-size: 8px; color: rgba(180, 160, 100, .6); text-transform: uppercase; letter-spacing: 0.15em; animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { opacity: 0.3; } 50% { opacity: 0.8; } 100% { opacity: 0.3; } }
+
+    /* FLAP ANIMATION */
+    #j-cover-flap {
+      width: clamp(100px, 11vw, 150px);
+      aspect-ratio: 0.72 / 1;
+      position: absolute;
+      left: 50%; top: 52%;
+      transform: translate(-50%, -52%) perspective(1000px);
+      background: linear-gradient(160deg, #1E2B14 0%, #2A3A1C 45%, #1A2810 100%);
+      border-radius: 4px 12px 12px 4px;
+      display: none; z-index: 110; transform-origin: left center;
+    }
+    #j-cover-flap.flipping { animation: j-flip-open 0.85s cubic-bezier(0.4, 0, 0.2, 1) forwards; display: block; }
+    @keyframes j-flip-open {
+      0% { transform: translate(-50%, -52%) perspective(1200px) rotateY(0deg); opacity: 1; }
+      100% { transform: translate(-140%, -52%) perspective(1200px) rotateY(-160deg); opacity: 0.8; }
+    }
+</style>
+
+<div id="desk-overlay">
+    <div class="desk-surface"></div>
+    <button class="btn-back-room" onclick="backToRoom()">&#8592; return to room</button>
+
+    <!-- CLOSED JOURNAL -->
+    <div id="j-closed" onclick="startOpenJournal()">
+      <div class="j-cover-body">
+        <div class="j-spine-edge"></div>
+        <div class="j-rings-closed">
+          <div class="j-ring-dot"></div>
+          <div class="j-ring-dot"></div>
+          <div class="j-ring-dot"></div>
+        </div>
+        <div class="j-page-edge"></div>
+        <div class="j-page-edge-btm"></div>
+        <div class="j-open-hint">&#10022; open journal</div>
+      </div>
+    </div>
+
+    <!-- COVER FLIP ANIMATION -->
+    <div id="j-cover-flap"></div>
+
+    <!-- OPEN JOURNAL -->
+    <div id="j-open">
+      <div class="journal-outer" id="journal-outer">
+        <div class="jl-page">
+          <div class="jl-date-row">
+            <span class="jl-sun" id="jl-tod-icon">&#9728;</span>
+            <div class="jl-date-text">
+              <div class="jl-weekday" id="jl-weekday">Wednesday</div>
+              <div class="jl-datestr" id="jl-datestr">Apr 15, 2026</div>
+            </div>
+            <div class="jl-entry-num" id="jl-entry-num">001</div>
+          </div>
+          <div class="jl-image-frame">
+            <div class="jl-image-inner" id="jl-image"></div>
+            <div class="jl-caption" id="jl-caption">A silence that held all the answers.</div>
+          </div>
+          <div class="jl-categories" id="jl-categories">
+            <div class="jl-cat" data-cat="balance" onclick="toggleCat(this)">
+              <svg viewBox="0 0 24 24"><path d="M12 3v18M4 8l8-5 8 5M4 16l8 5 8-5" /></svg>
+              <span class="jl-cat-label">Balance</span>
+            </div>
+            <div class="jl-cat" data-cat="peace" onclick="toggleCat(this)">
+              <svg viewBox="0 0 24 24"><path d="M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10zM12 2v20M2 12h20M5 5l14 14M19 5L5 19" stroke-linecap="round" /></svg>
+              <span class="jl-cat-label">Peace</span>
+            </div>
+            <div class="jl-cat" data-cat="growth" onclick="toggleCat(this)">
+              <svg viewBox="0 0 24 24"><path d="M12 22V8M5 14c2-4 5-6 7-6s5 2 7 6M8 8c1-3 2-5 4-5s3 2 4 5" stroke-linecap="round" /></svg>
+              <span class="jl-cat-label">Growth</span>
+            </div>
+            <div class="jl-cat" data-cat="wellness" onclick="toggleCat(this)">
+              <svg viewBox="0 0 24 24"><path d="M12 21s-8-5.5-8-11a8 8 0 0116 0c0 5.5-8 11-8 11z" stroke-linecap="round" stroke-linejoin="round" /><path d="M12 10a2 2 0 100 4 2 2 0 000-4z" /></svg>
+              <span class="jl-cat-label">Wellness</span>
+            </div>
+          </div>
+        </div>
+        <div class="jl-spine">
+          <div class="jl-clasp"></div><div class="jl-clasp"></div><div class="jl-clasp"></div>
+        </div>
+        <div class="jr-page">
+          <div class="jr-card-wrap">
+            <div class="jr-card">
+              <div class="jr-card-header">
+                <span class="jr-card-icon" id="jr-card-icon">&#9675;</span>
+                <span class="jr-card-title" id="jr-card-title">Prompt</span>
+                <span class="jr-card-time" id="jr-card-time">8:00 PM</span>
+              </div>
+              <div class="jr-card-quote" id="jr-card-quote">...</div>
+              <div class="jr-card-actions">
+                <button class="jr-action-btn" title="Copy" onclick="copyQuote()">&#10697;</button>
+                <button class="jr-action-btn" title="Favourite" id="btn-fav" onclick="toggleFav(this)">&#9825;</button>
+                <button class="jr-action-btn" title="Share">&#8599;</button>
+              </div>
+            </div>
+          </div>
+          <div class="jr-journal-area">
+            <div class="jr-instruction">&#128221; Write your reflections below</div>
+            <textarea class="jr-textarea" id="txt-main" placeholder="Feel free to journal..."></textarea>
+          </div>
+          <div class="jr-bottom">
+            <span class="jr-loc-icon">&#9673;</span>
+            <input type="text" class="jr-location-input" id="jr-location" placeholder="Where are you..." />
+            <button class="jr-save-btn" onclick="saveContent()">Save</button>
+          </div>
+        </div>
+      </div>
+      <div class="journal-controls">
+        <button class="j-nav-btn" id="btn-prev" onclick="prevSpread()" title="Previous">&#8249;</button>
+        <span class="spread-indicator" id="spread-ind">1 / 30</span>
+        <button class="j-nav-btn" id="btn-next" onclick="nextSpread()" title="Next">&#8250;</button>
+        <span class="save-status" id="save-status">saved &#10022;</span>
+        <button class="j-close-btn" onclick="closeJournal()">&#x2715; close</button>
+      </div>
+    </div>
+</div>
+
+<script>
+    // ═══════════════════════════════════════════════════════════
+    // JOURNAL COMPONENT LOGIC
+    // ═══════════════════════════════════════════════════════════
+    var TOTAL_SPREADS = 30;
+    var journalIsOpen = false;
+    var isFlipping = false;
+    var journalEntries = [];
+
+    // Prompts library
+    var DAILY_PROMPTS = [
+      { category: 'Deep Reflection', title: 'Still Waters', icon: '&#9678;', time: '8:00 PM', quote: 'Beneath all the noise, there is a quiet part of me that has always known what matters.', scene: 9, caption: 'A reflection that tells the truth.' },
+      { category: 'A Seed of Calm', title: 'Resting Breath', icon: '&#9673;', time: '7:45 AM', quote: 'Today, I choose to move at the speed of my own breathing, not the world’s expectations.', scene: 0, caption: 'Taking the first breath together.' },
+      { category: 'Nature’s Lesson', title: 'The Great Oak', icon: '&#9832;', time: '11:20 AM', quote: 'Growth is not always upwards. Sometimes it is deep, invisible, and silent—the strengthening of roots.', scene: 4, caption: 'Deep roots and quiet growth.' },
+      { category: 'Daily Mindset', title: 'Gentle Horizon', icon: '&#10034;', time: '5:30 PM', quote: 'I am allowed to be both a masterpiece and a work in progress, simultaneously.', scene: 1, caption: 'Accepting the tide as it comes.' }
+    ];
+
+    (function initJournal() {
+      var myRecent = [];
+      try {
+        var _dataEl = document.getElementById('recent-entries-data');
+        if (_dataEl) myRecent = JSON.parse(_dataEl.textContent);
+      } catch (e) { console.error("Recent entries parse error", e); }
+
+      for (var i = 0; i < TOTAL_SPREADS; i++) {
+        if (i < myRecent.length) journalEntries.push(myRecent[i]);
+        else journalEntries.push({ text: '', location: '', cats: [], fav: false });
+      }
+      window.currentSpread = Math.min(myRecent.length, TOTAL_SPREADS - 1);
+    })();
+
+    function saveContent() {
+      if (!journalIsOpen) return;
+      var txtMain = document.getElementById('txt-main');
+      var locMain = document.getElementById('jr-location');
+      if (!txtMain || !locMain) return;
+
+      var text = txtMain.value;
+      var loc = locMain.value;
+      journalEntries[window.currentSpread].text = text;
+      journalEntries[window.currentSpread].location = loc;
+
+      if (text.trim() || loc.trim()) {
+        fetch('/save_entry', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: JSON.stringify(journalEntries[window.currentSpread]), mood_score: 3 })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                if (data.ai_analysis) applyAIAnalysis(data.ai_analysis);
+                var ss = document.getElementById('save-status');
+                if (ss) {
+                    ss.classList.add('show');
+                    clearTimeout(ss._t);
+                    ss._t = setTimeout(() => ss.classList.remove('show'), 2200);
+                }
+            }
+        });
+      }
+    }
+
+    function loadSpread(idx) {
+      if (idx < 0 || idx >= TOTAL_SPREADS) return;
+      var p = DAILY_PROMPTS[idx % DAILY_PROMPTS.length];
+      var ent = journalEntries[idx];
+      var today = new Date();
+      var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+      var eIcon = document.getElementById('jl-tod-icon'); if (eIcon) eIcon.innerHTML = getTodIcon ? getTodIcon() : '&#9790;';
+      var eWd = document.getElementById('jl-weekday'); if (eWd) eWd.textContent = days[today.getDay()];
+      var eDt = document.getElementById('jl-datestr'); if (eDt) eDt.textContent = months[today.getMonth()] + ' ' + today.getDate() + ', ' + today.getFullYear();
+      var eNum = document.getElementById('jl-entry-num'); if (eNum) eNum.textContent = String(idx + 1).padStart(3, '0');
+      
+      var eImg = document.getElementById('jl-image'); 
+      if (eImg) {
+          eImg.innerHTML = getSceneSVG ? getSceneSVG(p.scene) : '';
+          var inner = eImg.querySelector('.jl-image-inner');
+          if (inner) inner.className = 'jl-image-inner';
+      }
+      
+      var eCap = document.getElementById('jl-caption'); if (eCap) eCap.textContent = p.caption;
+      document.querySelectorAll('.jl-cat').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.jl-cat').forEach(c => {
+          if ((ent.cats || []).includes(c.dataset.cat)) c.classList.add('active');
+      });
+
+      document.getElementById('jr-card-icon').innerHTML = p.icon;
+      document.getElementById('jr-card-title').textContent = p.title;
+      document.getElementById('jr-card-time').textContent = p.time;
+      document.getElementById('jr-card-quote').textContent = p.quote;
+
+      var favBtn = document.getElementById('btn-fav');
+      if (favBtn) {
+          favBtn.innerHTML = ent.fav ? '&#9829;' : '&#9825;';
+          favBtn.style.color = ent.fav ? 'rgba(255,120,140,.8)' : '';
+      }
+
+      document.getElementById('txt-main').value = ent.text || '';
+      document.getElementById('jr-location').value = ent.location || '';
+      document.getElementById('spread-ind').textContent = (idx + 1) + ' / ' + TOTAL_SPREADS;
+      document.getElementById('btn-prev').disabled = (idx === 0);
+      document.getElementById('btn-next').disabled = (idx === TOTAL_SPREADS - 1);
+    }
+
+    function toggleCat(el) {
+      el.classList.toggle('active');
+      var ent = journalEntries[window.currentSpread];
+      ent.cats = ent.cats || [];
+      var cat = el.dataset.cat;
+      var i = ent.cats.indexOf(cat);
+      if (i > -1) ent.cats.splice(i, 1); else ent.cats.push(cat);
+    }
+
+    function toggleFav(btn) {
+      var ent = journalEntries[window.currentSpread];
+      ent.fav = !ent.fav;
+      btn.innerHTML = ent.fav ? '&#9829;' : '&#9825;';
+      btn.style.color = ent.fav ? 'rgba(255,120,140,.8)' : '';
+    }
+
+    function copyQuote() {
+      var q = document.getElementById('jr-card-quote').textContent;
+      navigator.clipboard.writeText(q);
+      var btn = document.querySelector('.jr-action-btn');
+      if (btn) { btn.style.color = '#96FF96'; setTimeout(() => btn.style.color = '', 1200); }
+    }
+
+    function applyAIAnalysis(data) {
+        document.querySelectorAll('.jl-cat').forEach(c => c.classList.toggle('active', c.dataset.cat === data.pillar));
+        var cap = document.getElementById('jl-caption');
+        if (cap && data.reflection) {
+            cap.style.opacity = '0';
+            setTimeout(() => {
+                cap.textContent = data.reflection;
+                cap.style.color = '#fff';
+                cap.style.fontStyle = 'normal';
+                cap.style.opacity = '1';
+            }, 400);
+        }
+        var inner = document.querySelector('#jl-image .jl-image-inner');
+        if (inner) {
+            var mood = 'mood-serene';
+            if (data.score <= 1) mood = 'mood-heavy';
+            else if (data.score <= 2) mood = 'mood-pensive';
+            else if (data.score >= 5) mood = 'mood-vibrant';
+            inner.className = 'jl-image-inner ' + mood;
+        }
+    }
+
+    function startOpenJournal() {
+      if (journalIsOpen) return;
+      var jClosed = document.getElementById('j-closed'), jFlap = document.getElementById('j-cover-flap'), jOpen = document.getElementById('j-open');
+      jClosed.style.opacity = '0';
+      jFlap.style.display = 'block'; jFlap.classList.add('flipping');
+      loadSpread(window.currentSpread);
+      setTimeout(() => { jOpen.classList.add('visible'); journalIsOpen = true; setTimeout(() => document.getElementById('txt-main').focus(), 50); }, 420);
+      setTimeout(() => { jFlap.style.display = ''; jFlap.classList.remove('flipping'); }, 900);
+    }
+
+    function closeJournal() {
+      if (!journalIsOpen) return;
+      saveContent();
+      var jOpen = document.getElementById('j-open'), jClosed = document.getElementById('j-closed'), jFlap = document.getElementById('j-cover-flap');
+      jOpen.classList.remove('visible'); journalIsOpen = false;
+      jFlap.style.animation = 'none'; jFlap.style.display = 'block';
+      jFlap.style.transform = 'translate(-140%,-52%) perspective(1200px) rotateY(-160deg)';
+      setTimeout(() => { jFlap.style.transition = 'transform 0.75s cubic-bezier(.4,0,.2,1)'; jFlap.style.transform = 'translate(-50%,-52%) perspective(1200px) rotateY(0deg)'; }, 20);
+      setTimeout(() => { jFlap.style.display = 'none'; jFlap.style.transition = ''; jFlap.style.transform = ''; jClosed.style.opacity = '1'; }, 800);
+    }
+
+    function nextSpread() {
+      if (isFlipping || window.currentSpread >= TOTAL_SPREADS - 1) return;
+      isFlipping = true; saveContent();
+      document.getElementById('journal-outer').classList.add('flip-fwd');
+      setTimeout(() => { window.currentSpread++; loadSpread(window.currentSpread); }, 275);
+      setTimeout(() => { document.getElementById('journal-outer').classList.remove('flip-fwd'); isFlipping = false; }, 560);
+    }
+
+    function prevSpread() {
+      if (isFlipping || window.currentSpread <= 0) return;
+      isFlipping = true; saveContent();
+      document.getElementById('journal-outer').classList.add('flip-bwd');
+      setTimeout(() => { window.currentSpread--; loadSpread(window.currentSpread); }, 275);
+      setTimeout(() => { document.getElementById('journal-outer').classList.remove('flip-bwd'); isFlipping = false; }, 560);
+    }
+
+    function backToRoom() {
+      if (journalIsOpen) saveContent();
+      document.getElementById('j-open').classList.remove('visible'); journalIsOpen = false;
+      document.getElementById('j-closed').style.opacity = '1';
+      document.getElementById('desk-overlay').classList.remove('show');
+    }
+
+    // Auto-open logic
+    window.addEventListener('load', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('open') === 'journal') {
+            document.getElementById('desk-overlay').classList.add('show');
+            setTimeout(startOpenJournal, 500);
+        }
+    });
+</script>

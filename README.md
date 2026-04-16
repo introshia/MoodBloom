@@ -10,7 +10,7 @@ MoodBloom is a full-stack digital journaling application crafted to help users u
 ## ✨ Major Updates (v1.5)
 * **Secure Authentication:** Implementation of a robust user registration and login system using hashed passwords (via `Werkzeug`) for maximum security.
 * **Private Almanac Lockers:** Individualized database sessions ensure users only ever see their own private entries, turning the database into a secure multi-user platform.
-* **Dark Academia UI:** A high-fidelity redesign featuring a custom frosted-glass navigation bar, vintage typography (**Pinyon Script**), and glassy cream-colored cards.
+* **Immersive Cozy Aesthetic:** A high-fidelity aesthetic redesign featuring a cozy, interactive room environment (Sanctuary) with a desk view, premium dark-mode stitched binder journal, and elegant typography.
 * **AI Sentiment Engine:** Real-time analysis of entry text to categorize moods and provide predictive "Emotional Cartography" using Linear Regression.
 * **Security Protocols:** Full integration of environment variables (`.env`) to protect sensitive database credentials from public exposure.
 
