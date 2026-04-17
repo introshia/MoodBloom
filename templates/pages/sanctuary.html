@@ -49,7 +49,8 @@
     .logo {
       font-family: 'Lora', serif;
       font-size: 17px;
-      color: rgba(255, 190, 90, .88);
+      color: #2D332A;
+      /* Deep Forest */
       pointer-events: all;
       cursor: pointer;
       letter-spacing: -.01em
@@ -68,7 +69,8 @@
 
     .links a {
       font-size: 12px;
-      color: rgba(200, 130, 50, .5);
+      color: #7A8274;
+      /* Muted Sage */
       text-decoration: none;
       letter-spacing: .12em;
       text-transform: uppercase;
@@ -80,7 +82,8 @@
 
     .links a:hover,
     .links a.active {
-      color: rgba(255, 190, 90, .9)
+      color: #2D332A
+        /* Deep Forest */
     }
 
     #tip {
@@ -89,23 +92,28 @@
       opacity: 0;
       transition: opacity .18s;
       z-index: 30;
-      background: rgba(10, 4, 1, .92);
-      border: 1px solid rgba(180, 90, 25, .25);
+      background: rgba(241, 243, 238, .96);
+      /* Misty Sage */
+      border: 1px solid rgba(45, 51, 42, .12);
+      /* Minimalist border */
       border-radius: 9px;
       padding: 7px 14px;
-      white-space: nowrap
+      white-space: nowrap;
+      box-shadow: 0 8px 30px rgba(45, 51, 42, 0.06)
     }
 
     #tip .tt {
       font-family: 'Lora', serif;
       font-size: 12px;
-      color: #FFA84A;
+      color: #2D332A;
+      /* Deep Forest */
       margin-bottom: 2px
     }
 
     #tip .ts {
       font-size: 10px;
-      color: rgba(160, 90, 30, .8);
+      color: #7A8274;
+      /* Muted Sage */
       font-weight: 300;
       letter-spacing: .04em
     }
@@ -499,8 +507,8 @@
   <nav id="nav">
     <div class="logo" id="logo-btn">&#10022; Folio <span>/ sanctuary</span></div>
     <div class="links">
-      <a href="/dashboard">Dashboard</a>
-      <a href="/journal">Journal</a>
+      <a href="/archive">Archive</a>
+      <a href="/writing">Journal</a>
       <a href="#" onclick="openM('mood');return false;">Mood</a>
     </div>
   </nav>
@@ -1354,10 +1362,7 @@
       // Mood plant (top section of shelf, above first shelf)
       // drawPlant(cabX + 0.040, cabY + 0.010, journalDays);
 
-      // Small decorative knick-knack (second shelf, right side)
-      var kx = cabX + cabW * 0.72, ky = cabY + SHLS[1] * cabH;
-      fr(kx - 0.010, ky - 0.040, 0.022, 0.040, '#6A3018'); // small figurine
-      // circ(kx, ky - 0.045, px(0.010), '#8A4828');
+
 
       // Separator panel edge shadow (right side of shelf fades into wall)
       var sEdge = ctx.createLinearGradient(px(cabX + cabW), 0, px(cabX + cabW + 0.04), 0);

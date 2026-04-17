@@ -9,7 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import mysql.connector
 import numpy as np
-from datetime import datetime
+from datetime import datetime, timedelta
 import io
 from sklearn.linear_model import LinearRegression
 
@@ -123,6 +123,54 @@ def calculate_energy_data(content):
     else: 
         return {"score": score, "mood": "drained", "label": "Heavy", "color": "#A99BC4", "light": "#C4B5E8", "dark": "#7E6BA9", "mouth": "M5 3 Q11 3 17 3"}
 
+def calculate_streak(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT DISTINCT DATE(entry_date) as entry_date 
+        FROM journal_entries 
+        WHERE user_id = %s 
+        ORDER BY entry_date DESC
+    """, (user_id,))
+    rows = cursor.fetchall()
+    conn.close()
+    
+    if not rows:
+        return 0
+        
+    today = datetime.now().date()
+    last_entry_date = rows[0]['entry_date']
+    
+    if last_entry_date < (today - timedelta(days=1)):
+        return 0
+    
+    streak = 1
+    current_date = last_entry_date
+    for row in rows[1:]:
+        if row['entry_date'] == (current_date - timedelta(days=1)):
+            streak += 1
+            current_date = row['entry_date']
+        else:
+            break
+            
+    return streak
+
+def get_preview_text(content):
+    if not content: return ""
+    
+    # Check if content is JSON (typical for Sanctuary canvas saves)
+    if content.strip().startswith('{') and content.strip().endswith('}'):
+        import json
+        try:
+            data = json.loads(content)
+            if 'text' in data:
+                return data['text'].strip().replace('\n', ' ')
+        except:
+            pass
+            
+    return content.strip().replace('\n', ' ')
+
+
 
 # --- AUTHENTICATION ROUTES ---
 
@@ -165,7 +213,7 @@ def login():
         if user and check_password_hash(user['password_hash'], password_attempt):
             session['user_id'] = user['id']
             session['username'] = user['username']
-            return redirect(url_for('cozy_room')) 
+            return redirect(url_for('sanctuary')) 
         else:
             return "Invalid username or password. Please try again."
 
@@ -183,175 +231,8 @@ def logout():
 def index():
     return render_template('pages/index.html')
 
-@app.route('/debug-gsap')
-def debug_gsap():
-    return render_template('pages/index.html')
-
-@app.route('/install')
-def install():
-    return render_template('pages/install.html')
-
-def get_preview_text(content):
-    if not content: return ""
-    import json
-    try:
-        data = json.loads(content)
-        if isinstance(data, dict):
-            # Format A: New Journal {"text": "..."}
-            if 'text' in data and data['text']:
-                return data['text']
-            # Format B: Old Interaction Engine {"elements": [...]}
-            if 'elements' in data:
-                texts = []
-                for el in data['elements']:
-                    if el.get('type') == 'text' and el.get('content'):
-                        texts.append(el['content'])
-                return " ".join(texts)
-    except:
-        pass
-    return str(content) # Fallback to plain text
-
-@app.route('/dashboard')
-def dashboard():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-        
-    user_id = session['user_id']
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    
-    # 1. Fetch ALL entries
-    cursor.execute("SELECT * FROM journal_entries WHERE user_id = %s ORDER BY entry_date DESC", (user_id,))
-    all_entries = cursor.fetchall()
-    conn.close()
-
-    # 2. Process and Curate
-    now = datetime.now()
-    current_month_str = now.strftime("%B %Y")
-    
-    shelves_data = {} # (Month Year) -> [entries]
-
-    color_map = {
-        5: 'c-sage', 4: 'c-slate', 3: 'c-ochre', 2: 'c-terr', 1: 'c-rose', 'default': 'c-dust'
-    }
-
-    for entry in all_entries:
-        month_year = entry['entry_date'].strftime("%B %Y")
-        if month_year not in shelves_data: shelves_data[month_year] = []
-        
-        # Prepare individual entry
-        display_text = get_preview_text(entry['content'])
-        entry['display_text'] = (display_text[:60] + '...') if len(display_text) > 60 else display_text
-        entry['color_class'] = color_map.get(entry['mood_score'], color_map['default'])
-        entry['formatted_date'] = entry['entry_date'].strftime("%b %d")
-        
-        shelves_data[month_year].append(entry)
-
-    # 3. Final Curation (Limit to 3 per shelf)
-    ordered_shelves = []
-    
-    # Current Writing First
-    if current_month_str in shelves_data:
-        entries = shelves_data[current_month_str]
-        ordered_shelves.append({
-            "label": "Currently Writing",
-            "featured": entries[:3],
-            "archive_count": max(0, len(entries) - 3)
-        })
-        del shelves_data[current_month_str]
-    else:
-        ordered_shelves.append({"label": "Currently Writing", "featured": [], "archive_count": 0})
-
-    # Sort remaining archives chronologically
-    sorted_months = sorted(shelves_data.keys(), key=lambda x: datetime.strptime(x, "%B %Y"), reverse=True)
-    for month in sorted_months:
-        entries = shelves_data[month]
-        ordered_shelves.append({
-            "label": month,
-            "featured": entries[:3],
-            "archive_count": max(0, len(entries) - 3)
-        })
-
-    # 4. AI Mood Trend (Linear Regression)
-    trend = calculate_mood_trend(all_entries)
-    
-    # 5. Chart Data (Grouped by date for clarity)
-    chart_data_map = {}
-    config_map = {
-        5: {"c": "#5BB8F5", "label": "Radiant"},
-        4: {"c": "#6DBF8A", "label": "Serene"},
-        3: {"c": "#F5C842", "label": "Muted"},
-        2: {"c": "#E87FA0", "label": "Pensive"},
-        1: {"c": "#A99BC4", "label": "Heavy"}
-    }
-    for e in reversed(all_entries[:15]): # Last 15 days
-        d_str = e['entry_date'].strftime("%b %d")
-        score = e['mood_score']
-        chart_data_map[d_str] = {
-            "val": score, 
-            "color": config_map.get(score, config_map[3])["c"],
-            "label": config_map.get(score, config_map[3])["label"]
-        }
-    
-    chart_labels = list(chart_data_map.keys())
-    chart_scores = [v["val"] for v in chart_data_map.values()]
-    chart_colors = [v["color"] for v in chart_data_map.values()]
-    chart_moods = [v["label"] for v in chart_data_map.values()]
-
-    # Greeting & Stats
-    hour = now.hour
-    greeting_prefix = "Good morning" if hour < 12 else "Good afternoon" if hour < 17 else "Good evening"
-    greeting = f"{greeting_prefix}, {session.get('username', 'Alex')}."
-    year_count = sum(1 for e in all_entries if e['entry_date'].year == now.year)
-    stats_msg = f"You've inscribed {len(all_entries)} memories in your Almanac this year."
-
-    # 6. Atmosphere Companion (Energy Widget)
-    latest_text = get_preview_text(all_entries[0]['content']) if all_entries else ""
-    companion_data = calculate_energy_data(latest_text)
-
-    return render_template('pages/dashboard.html', 
-                          shelves=ordered_shelves, 
-                          greeting=greeting, 
-                          stats_msg=stats_msg,
-                          trend=trend,
-                          chart_labels=chart_labels,
-                          chart_scores=chart_scores,
-                          chart_colors=chart_colors,
-                          chart_moods=chart_moods,
-                          companion=companion_data)
-
-def calculate_streak(user_id):
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT DISTINCT DATE(entry_date) as day FROM journal_entries WHERE user_id = %s ORDER BY day DESC", (user_id,))
-    dates = [row['day'] for row in cursor.fetchall()]
-    conn.close()
-
-    if not dates: return 0
-
-    from datetime import date, timedelta
-    today = date.today()
-    streak = 0
-    curr = today
-
-    # If they haven't written today, check if the streak was alive yesterday
-    if dates[0] != today:
-        if dates[0] == today - timedelta(days=1):
-            curr = today - timedelta(days=1)
-        else:
-            return 0 # Streak broken
-
-    # Count backwards
-    for d in dates:
-        if d == curr:
-            streak += 1
-            curr -= timedelta(days=1)
-        else:
-            break
-    return streak
-
-@app.route('/cozy-room')
-def cozy_room():
+@app.route('/sanctuary')
+def sanctuary():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
@@ -369,10 +250,160 @@ def cozy_room():
         text = get_preview_text(e['content'])
         processed_entries.append({"text": text, "location": "", "cats": [], "fav": False})
         
-    # We want chronological order in the journal (oldest to newest), so reverse the descending list
     processed_entries.reverse()
+    return render_template('pages/sanctuary.html', streak_days=streak, recent_entries=processed_entries)
 
-    return render_template('pages/cozy_room.html', streak_days=streak, recent_entries=processed_entries)
+@app.route('/archive')
+def archive():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+        
+    user_id = session['user_id']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    # 1. Fetch ALL entries for shelves
+    cursor.execute("SELECT * FROM journal_entries WHERE user_id = %s ORDER BY entry_date DESC", (user_id,))
+    all_entries = cursor.fetchall()
+    conn.close()
+
+    # 2. Process for traditional monthly shelves
+    now = datetime.now()
+    current_month_str = now.strftime("%B %Y")
+    shelves_data = {} 
+
+    color_map = {
+        5: 'c-sage', 4: 'c-slate', 3: 'c-ochre', 2: 'c-terr', 1: 'c-rose', 'default': 'c-dust'
+    }
+
+    # Mood-to-Art mapping for the 3D Shelf
+    art_map = {
+        5: 'botanical', 4: 'clouds', 3: 'linen', 2: 'face', 1: 'wood', 'default': 'linen'
+    }
+
+    arts = ['botanical', 'linen', 'face', 'wood', 'clouds']
+    bgs = ["#C8D898", "#EDE4D2", "#A8C4E4", "#DDBEAA", "#F0EAD6"]
+    elastics = ["#1a2810", "#222222", "#283858", "#604818", "#1A1A1A"]
+    featured_journals = []
+
+
+    for i, entry in enumerate(all_entries):
+        month_year = entry['entry_date'].strftime("%B %Y")
+        if month_year not in shelves_data: shelves_data[month_year] = []
+        
+        display_text = get_preview_text(entry['content'])
+        entry['display_text'] = (display_text[:60] + '...') if len(display_text) > 60 else display_text
+        entry['color_class'] = color_map.get(entry['mood_score'], color_map['default'])
+        entry['formatted_date'] = entry['entry_date'].strftime("%b %d")
+        
+        shelves_data[month_year].append(entry)
+
+        # Prepare first 5 for the 3D Featured Shelf with variety
+        if i < 5:
+            featured_journals.append({
+                "id": entry['id'],
+                "title": entry['formatted_date'],
+                "pages": entry['theme'] if (entry['theme'] and entry['theme'] != 'Default') else "Personal Chronicle",
+                "elastic": elastics[i % len(elastics)],
+                "bg": bgs[i % len(bgs)],
+                "art": arts[i % len(arts)],
+                "content_preview": entry['display_text']
+            })
+
+
+    # 3. Organize Monthly Shelves
+    ordered_shelves = []
+    if current_month_str in shelves_data:
+        entries = shelves_data[current_month_str]
+        ordered_shelves.append({
+            "label": "Currently Writing",
+            "featured": entries[:3],
+            "archive_count": max(0, len(entries) - 3)
+        })
+        del shelves_data[current_month_str]
+    else:
+        ordered_shelves.append({"label": "Currently Writing", "featured": [], "archive_count": 0})
+
+    sorted_months = sorted(shelves_data.keys(), key=lambda x: datetime.strptime(x, "%B %Y"), reverse=True)
+    for month in sorted_months:
+        entries = shelves_data[month]
+        ordered_shelves.append({
+            "label": month,
+            "featured": entries[:3],
+            "archive_count": max(0, len(entries) - 3)
+        })
+
+    # 4. AI Mood Trend (Linear Regression)
+    trend = calculate_mood_trend(all_entries)
+    
+    # 5. Chart Data
+    chart_data_map = {}
+    config_map = {
+        5: {"c": "#5BB8F5", "label": "Radiant"},
+        4: {"c": "#6DBF8A", "label": "Serene"},
+        3: {"c": "#F5C842", "label": "Muted"},
+        2: {"c": "#E87FA0", "label": "Pensive"},
+        1: {"c": "#A99BC4", "label": "Heavy"}
+    }
+    for e in reversed(all_entries[:15]): 
+        d_str = e['entry_date'].strftime("%b %d")
+        score = e['mood_score']
+        chart_data_map[d_str] = {
+            "val": score, 
+            "color": config_map.get(score, config_map[3])["c"],
+            "label": config_map.get(score, config_map[3])["label"]
+        }
+    
+    chart_labels = list(chart_data_map.keys())
+    chart_scores = [v["val"] for v in chart_data_map.values()]
+    chart_colors = [v["color"] for v in chart_data_map.values()]
+    chart_moods = [v["label"] for v in chart_data_map.values()]
+
+    # Greeting & Stats
+    hour = now.hour
+    greeting_prefix = "Good morning" if hour < 12 else "Good afternoon" if hour < 17 else "Good evening"
+    greeting = f"{greeting_prefix}, {session.get('username', 'Alex')}."
+    stats_msg = f"You've inscribed {len(all_entries)} memories in your Archive this year."
+
+    # 6. Atmosphere Companion (Energy Widget)
+    latest_text = get_preview_text(all_entries[0]['content']) if all_entries else ""
+    companion_data = calculate_energy_data(latest_text)
+
+    return render_template('pages/archive.html', 
+                          shelves=ordered_shelves, 
+                          featured_journals=featured_journals,
+                          greeting=greeting, 
+                          stats_msg=stats_msg,
+                          trend=trend,
+                          chart_labels=chart_labels,
+                          chart_scores=chart_scores,
+                          chart_colors=chart_colors,
+                          chart_moods=chart_moods,
+                          companion=companion_data)
+
+@app.route('/writing')
+def writing():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    return redirect(url_for('sanctuary', open='journal'))
+
+# --- LEGACY REDIRECTS ---
+@app.route('/dashboard')
+def legacy_dashboard():
+    return redirect(url_for('archive'))
+
+@app.route('/cozy-room')
+def legacy_cozy_room():
+    return redirect(url_for('sanctuary'))
+
+@app.route('/journal')
+def legacy_journal():
+    return redirect(url_for('writing'))
+
+
+@app.route('/install')
+def install():
+    return render_template('pages/install.html')
 
 @app.route('/profile')
 def profile():
@@ -427,12 +458,6 @@ def update_profile():
         conn.close()
         
     return redirect(url_for('profile'))
-
-@app.route('/journal')
-def journal():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-    return redirect(url_for('cozy_room', open='journal'))
 
 @app.route('/save_entry', methods=['POST'])
 def save_entry():
@@ -569,6 +594,7 @@ def get_media(media_id):
 @app.route('/sw.js')
 def serve_sw():
     return app.send_static_file('sw.js')
+
 
 # --- ERROR HANDLERS ---
 @app.errorhandler(404)

@@ -2,15 +2,14 @@
     <div class="navbar-container">
         <a href="{{ url_for('index') }}" class="navbar-logo">
             &#10022; Folio
-            <span>/ {% if request.endpoint == 'cozy_room' %}sanctuary{% elif request.endpoint == 'dashboard' %}shelf{% elif request.endpoint == 'journal' %}writing{% else %}bloom{% endif %}</span>
+            <span>/ {% if request.endpoint == 'sanctuary' %}sanctuary{% elif request.endpoint == 'archive' %}archive{% elif request.endpoint == 'writing' %}writing{% else %}bloom{% endif %}</span>
         </a>
-
         <div class="navbar-center">
             {% if session.get('user_id') %}
             <a href="{{ url_for('index') }}" class="navbar-link">Home</a>
-            <a href="{{ url_for('dashboard') }}" class="navbar-link {% if request.endpoint == 'dashboard' %}active{% endif %}">Dashboard</a>
-            <a href="{{ url_for('cozy_room') }}" class="navbar-link {% if request.endpoint == 'cozy_room' %}active{% endif %}">Sanctuary</a>
-            <a href="{{ url_for('journal') }}" class="navbar-link {% if request.endpoint == 'journal' %}active{% endif %}">Journal</a>
+            <a href="{{ url_for('archive') }}" class="navbar-link {% if request.endpoint == 'archive' %}active{% endif %}">Archive</a>
+            <a href="{{ url_for('sanctuary') }}" class="navbar-link {% if request.endpoint == 'sanctuary' %}active{% endif %}">Sanctuary</a>
+            <a href="{{ url_for('writing') }}" class="navbar-link {% if request.endpoint == 'writing' %}active{% endif %}">Writing</a>
             {% else %}
             <a href="{{ url_for('index') }}#features" class="navbar-link">Features</a>
             <a href="{{ url_for('index') }}#how-it-works" class="navbar-link">How it Works</a>

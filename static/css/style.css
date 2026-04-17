@@ -4,24 +4,24 @@
 */
 
 :root {
-    --bg-canvas: #FDFCFB; /* Warm Paper */
-    --text-black: #1C1917; /* Ink */
-    --text-gray: #8C877E; /* Muted */
-    --color-gold: #FFA840; /* Golden highlight */
-    --color-amber: #B45A19; /* Warm accent */
-    --color-glow: rgba(240, 150, 60, 0.15); /* Soft glow */
-    --white: #FFFFFF;
-    --border: 1px solid rgba(180, 90, 25, 0.15);
-    --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    --bg-canvas: #F1F3EE; /* Misty Sage - Lighter & Calmer */
+    --text-black: #2D332A; /* Deep Forest - Softer Ink */
+    --text-gray: #7A8274; /* Muted Sage */
+    --color-gold: #D4A373; /* Muted Gold */
+    --color-amber: #A98467; /* Earthy Amber */
+    --color-glow: rgba(169, 132, 103, 0.12);
+    --white: #FAFAF8; /* Bright contrast for cards */
+    --border: 1px solid rgba(45, 51, 42, 0.08); /* Minimalist border */
+    --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* DARK THEME: The "Golden Sanctuary" default */
+/* REFINED DARK THEME: 'Midnight Moss' */
 body.dark-theme {
-    --bg-canvas: #180C05; /* Deep Warm Wood */
-    --text-black: #FFBA60; /* Gold Highlight Text */
-    --text-gray: rgba(180, 110, 40, 0.75); /* Amber Body Text */
-    --white: #2D140A; /* Dark Wood Card */
-    --border: 1px solid rgba(180, 90, 25, 0.35);
+    --bg-canvas: #1A1F1A; /* Deep Charcoal Moss */
+    --text-black: #E9EDC9; /* Soft Pale Green highlight */
+    --text-gray: rgba(233, 237, 201, 0.65); /* Faded highlight */
+    --white: #242B24; /* Dark Moss Card */
+    --border: 1px solid rgba(233, 237, 201, 0.12);
 }
 
 * {
@@ -63,7 +63,7 @@ main {
     position: fixed;
     top: 0;
     width: 100%;
-    background: linear-gradient(rgba(24, 12, 5, 0.95), rgba(24, 12, 5, 0.8), transparent);
+    background: linear-gradient(var(--bg-canvas), transparent);
     backdrop-filter: blur(8px);
     z-index: 1000;
     transition: var(--transition);
@@ -660,8 +660,8 @@ main {
 
 /* FOOTER */
 .site-footer {
-    background: var(--color-yellow);
-    color: #000000 !important;
+    background: var(--bg-canvas);
+    color: var(--text-black) !important;
     padding: 100px 40px 40px;
     border-top: var(--border);
 }
