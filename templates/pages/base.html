@@ -22,7 +22,10 @@
 </head>
 
 <body>
-    {% include 'components/_navbar.html' %}
+    {% block navbar %}
+        {% include 'components/_navbar.html' %}
+    {% endblock %}
+
 
     <main>
         {% block content %}{% endblock %}
@@ -31,6 +34,7 @@
     {% block footer %}
         {% include 'components/_footer.html' %}
     {% endblock %}
+
 
     <!-- Floating PWA Installer -->
     <button id="pwa-global-btn" style="display: block;">

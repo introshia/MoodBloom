@@ -1,1032 +1,886 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Folio — Archive</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap"
-        rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <style>
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        :root {
-            --bg: #F1F3EE;
-            --surface: #FAFAF8;
-            --text: #2D332A;
-            --muted: #7A8274;
-            --rule: rgba(45, 51, 42, 0.08);
-            --nav-height: 52px;
-            --bw: 154px;
-            /* Book Width */
-            --bh: 214px;
-            /* Book Height */
-            --sw: 14px;
-            /* Spine Width */
-        }
-
-        body {
-            background: var(--bg);
-            font-family: 'DM Sans', sans-serif;
-            color: var(--text);
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
-        }
-
-        /* ── NAV ─────────────────────────────────── */
-        nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: var(--nav-height);
-            background: var(--bg);
-            border-bottom: 1px solid var(--rule);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 52px;
-            z-index: 1000;
-        }
-
-        .nav-logo {
-            font-family: 'Lora', serif;
-            font-size: 17px;
-            font-weight: 500;
-            color: var(--text);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-        }
-
-        .nav-logo span {
-            font-size: 13px;
-            color: var(--muted);
-            font-family: 'DM Sans', sans-serif;
-            font-weight: 300;
-        }
-
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 28px;
-        }
-
-        .nav-link {
-            font-size: 13px;
-            color: var(--muted);
-            text-decoration: none;
-            transition: color 0.15s;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            color: var(--text);
-        }
-
-        .nav-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: var(--surface);
-            border: 1px solid var(--rule);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            color: var(--muted);
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        /* ── MAIN ────────────────────────────────── */
-        main {
-            padding-top: calc(var(--nav-height) + 10px);
-        }
-
-        /* ── INSIGHTS SECTION ────────────────────── */
-        .insights-section {
-            padding: 40px 52px 20px;
-            display: grid;
-            grid-template-columns: 1fr 1.8fr;
-            gap: 60px;
-            align-items: flex-start;
-        }
-
-        .left-column {
-            display: flex;
-            flex-direction: column;
-            gap: 32px;
-        }
-
-        .greeting-block h1 {
-            font-family: 'Lora', serif;
-            font-size: 32px;
-            font-weight: 400;
-            color: var(--text);
-            margin-bottom: 8px;
-        }
-
-        .stats-block {
-            font-size: 14px;
-            color: var(--muted);
-            font-weight: 300;
-            margin-bottom: 20px;
-        }
-
-        .insight-card {
-            background: var(--surface);
-            border: 1px solid var(--rule);
-            border-radius: 8px;
-            padding: 24px;
-            position: relative;
-        }
-
-        .insight-label {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.14em;
-            color: var(--muted);
-            margin-bottom: 12px;
-            display: block;
-        }
-
-        .trend-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 50px;
-            font-size: 11px;
-            font-weight: 500;
-            margin-top: 8px;
-            background: var(--surface);
-            color: var(--text);
-        }
-
-        .trend-Blooming {
-            background: rgba(140, 166, 140, 0.2);
-            color: #4A5D4A;
-        }
-
-        .trend-Cloudy {
-            background: rgba(166, 140, 140, 0.2);
-            color: #5D4A4A;
-        }
-
-        /* Blob Card */
-        .blob-card {
-            background: transparent;
-            width: 100%;
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 24px;
-            padding: 10px 0;
-        }
-
-        .blob-stage {
-            width: 100px;
-            height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .blob-main {
-            width: 80px;
-            height: 80px;
-            position: relative;
-            animation: blobFloat var(--speed, 3s) ease-in-out infinite;
-        }
-
-        .blob-body {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: radial-gradient(circle at 35% 30%, var(--light), var(--base));
-            animation: blobMorph var(--speed, 3s) ease-in-out infinite alternate;
-        }
-
-        .blob-face {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
-        .blob-eyes {
-            display: flex;
-            gap: 10px;
-        }
-
-        .blob-eye {
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: rgba(0, 0, 0, 0.5);
-        }
-
-        .blob-score-num {
-            font-family: 'Lora', serif;
-            font-size: 38px;
-            color: var(--text);
-        }
-
-        .blob-score-label {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--muted);
-        }
-
-        /* Chart */
-        .chart-container {
-            position: relative;
-            background: var(--surface);
-            border: 1px solid var(--rule);
-            border-radius: 22px;
-            padding: 32px;
-            min-height: 340px;
-            box-shadow: 0 12px 40px rgba(45, 51, 42, 0.04);
-        }
-
-        .aw-canvas {
-            display: block;
-            width: 100%;
-            height: 240px;
-            cursor: crosshair;
-        }
-
-        .atip {
-            position: absolute;
-            background: #fff;
-            border-radius: 12px;
-            padding: 10px 16px;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity .15s;
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            z-index: 100;
-        }
-
-        .atip-s {
-            font-family: 'Lora', serif;
-            font-size: 24px;
-            font-weight: 500;
-        }
-
-        .atip-l {
-            font-size: 11px;
-            color: var(--muted);
-            text-transform: uppercase;
-        }
-
-        /* ── 3D CAROUSEL SECTION ─────────────────── */
-        .featured-archive {
-            padding: 40px 0 60px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .featured-header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .featured-label {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            color: var(--muted);
-            margin-bottom: 8px;
-        }
-
-        .featured-title {
-            font-family: 'Lora', serif;
-            font-size: 24px;
-            color: var(--text);
-        }
-
-        .journal-track {
-            display: flex;
-            gap: 32px;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            padding: 40px 0;
-            width: 100%;
-            scrollbar-width: none;
-            padding-left: calc(50% - (var(--bw) / 2));
-            padding-right: calc(50% - (var(--bw) / 2));
-        }
-
-        .journal-track::-webkit-scrollbar {
-            display: none;
-        }
-
-        .journal-item {
-            scroll-snap-align: center;
-            flex-shrink: 0;
-            cursor: pointer;
-            transition: transform 0.5s ease;
-        }
-
-        .book-wrap {
-            width: var(--bw);
-            height: var(--bh);
-            perspective: 1000px;
-            position: relative;
-        }
-
-        .book-pages {
-            position: absolute;
-            top: 2px;
-            left: calc(var(--sw) + 2px);
-            width: calc(var(--bw) - var(--sw) - 4px);
-            height: calc(var(--bh) - 4px);
-            background: #F8F4EE;
-            border-radius: 0 3px 3px 0;
-            z-index: 1;
-            box-shadow: inset 20px 0 30px rgba(0, 0, 0, 0.05);
-            overflow: hidden;
-        }
-
-        .book-pages::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image: repeating-linear-gradient(to bottom, transparent, transparent 15px, #E8E2D5 15px, #E8E2D5 16px);
-        }
-
-        .book-cover {
-            position: absolute;
-            inset: 0;
-            transform-style: preserve-3d;
-            transform-origin: var(--sw) 50%;
-            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 2;
-        }
-
-        .book-cover.open {
-            transform: rotateY(-165deg);
-        }
-
-        .cover-front,
-        .cover-back {
-            position: absolute;
-            inset: 0;
-            backface-visibility: hidden;
-            border-radius: 2px 4px 4px 2px;
-        }
-
-        .cover-front {
-            z-index: 2;
-            box-shadow: 4px 10px 25px rgba(0, 0, 0, 0.12);
-        }
-
-        .cover-back {
-            transform: rotateY(180deg);
-            background: #ECE5D8;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .elastic-band {
-            position: absolute;
-            top: 50%;
-            left: var(--sw);
-            right: 0;
-            height: 4px;
-            transform: translateY(-50%);
-            z-index: 3;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            opacity: 1;
-            transition: opacity 0.3s;
-        }
-
-        .book-cover.open .elastic-band {
-            opacity: 0;
-        }
-
-        /* ── UI ELEMENTS ────────────────────────── */
-        .archive-header {
-            text-align: center;
-            margin-bottom: 40px;
-            transition: opacity 0.3s;
-            width: 100%;
-        }
-
-        .archive-title {
-            font-family: 'Lora', serif;
-            font-size: 32px;
-            color: var(--text);
-            margin: 0;
-            letter-spacing: 0.02em;
-        }
-
-        .archive-subtitle {
-            font-size: 11px;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            margin-top: 8px;
-        }
-
-        .dot-nav {
-            display: flex;
-            gap: 8px;
-            margin-top: 24px;
-            justify-content: center;
-            width: 100%;
-        }
-
-        .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .dot.active {
-            background: var(--text);
-            width: 20px;
-            border-radius: 10px;
-        }
-
-        .action-bar {
-            margin-top: 40px;
-            background: rgba(0, 0, 0, 0.03);
-            padding: 12px 24px;
-            border-radius: 50px;
-            backdrop-filter: blur(10px);
-            display: flex;
-            gap: 16px;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .action-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            border: none;
-            background: var(--surface);
-            color: var(--muted);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-        }
-
-        .action-btn:hover {
-            transform: translateY(-2px);
-            color: var(--text);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-        }
-
-        /* ── TRADITIONAL SHELVES SECTION ─────────── */
-        .historical-shelves {
-            padding: 40px 52px;
-        }
-
-        .shelf-row {
-            margin-bottom: 60px;
-        }
-
-        .shelf-header {
-            display: flex;
-            align-items: baseline;
-            gap: 16px;
-            border-bottom: 1px solid var(--rule);
-            padding-bottom: 12px;
-            margin-bottom: 40px;
-        }
-
-        .shelf-label {
-            font-size: 11.5px;
-            text-transform: uppercase;
-            letter-spacing: 0.14em;
-            color: var(--muted);
-        }
-
-        .shelf-count {
-            font-size: 11.5px;
-            color: rgba(45, 51, 42, 0.2);
-        }
-
-        .shelf-books {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 32px;
-            justify-content: center;
-        }
-
-        .flat-journal {
-            width: 140px;
-            text-decoration: none;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            transition: transform 0.2s;
-        }
-
-        .flat-journal:hover {
-            transform: translateY(-4px);
-        }
-
-        .flat-cover {
-            width: 140px;
-            height: 204px;
-            border-radius: 3px 6px 6px 3px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 18px 16px;
-            filter: drop-shadow(4px 8px 12px rgba(0, 0, 0, 0.08));
-        }
-
-        .flat-spine {
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 11px;
-            background: rgba(0, 0, 0, 0.1);
-        }
-
-        .flat-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.6);
-        }
-
-        .flat-text {
-            font-family: 'Lora', serif;
-            font-size: 11px;
-            color: white;
-            line-height: 1.4;
-            opacity: 0.9;
-        }
-
-        .flat-meta h3 {
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text);
-            margin-bottom: 2px;
-        }
-
-        .flat-meta p {
-            font-size: 11px;
-            color: var(--muted);
-            font-weight: 300;
-        }
-
-        @keyframes blobFloat {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-8px);
-            }
-        }
-
-        @keyframes blobMorph {
-            0% {
-                border-radius: 50% 40% 60% 40% / 40% 50% 40% 60%;
-            }
-
-            100% {
-                border-radius: 58% 38% 52% 46% / 44% 60% 38% 52%;
-            }
-        }
-
-        /* Journal Colors */
-        .c-rose {
-            background: #C17A6F;
-        }
-
-        .c-slate {
-            background: #4F6A80;
-        }
-
-        .c-sage {
-            background: #5E7A63;
-        }
-
-        .c-ochre {
-            background: #A08242;
-        }
-
-        .c-terr {
-            background: #9A5B45;
-        }
-
-        .c-dust {
-            background: #7A6A8A;
-        }
-    </style>
-</head>
-
-<body>
-
-    <nav>
-        <a class="nav-logo" href="{{ url_for('archive') }}">
-            &#10022; Folio <span>/ archive</span>
-        </a>
-        <div class="nav-right">
-            <a href="{{ url_for('index') }}" class="nav-link">Home</a>
-            <a href="{{ url_for('archive') }}" class="nav-link active">Archive</a>
-            <a href="{{ url_for('sanctuary') }}" class="nav-link">Sanctuary</a>
-            <a href="{{ url_for('writing') }}" class="nav-link">Writing</a>
-            <a href="{{ url_for('profile') }}" class="nav-avatar">{{ session.get('username', 'A')[0].upper() }}</a>
-        </div>
-    </nav>
-
-    <main>
-
-        <!-- SECTION 1: INSIGHTS & ATMOSPHERE -->
-        <div class="insights-section">
-            <div class="left-column">
-                <div class="greeting-block">
-                    <h1>{{ greeting }}</h1>
-                    <div class="stats-block">{{ stats_msg }}</div>
-                </div>
-
-                <div class="insight-card">
-                    <span class="insight-label">AI Sentiment Analysis</span>
-                    <div class="trend-badge trend-{{ trend.status }}">Trending: {{ trend.status }}</div>
-                    <p style="font-size: 12px; color: var(--muted); margin-top: 12px; line-height: 1.5;">
-                        {{ trend.msg }} Your mood history reflects a {{ trend.status|lower }} pattern.
-                    </p>
-                </div>
-
-                <div class="blob-card"
-                    style="--base: {{ companion.color }}; --light: {{ companion.light }}; --dark: {{ companion.dark }}; --speed: 3s;">
-                    <div class="blob-stage">
-                        <div class="blob-main">
-                            <div class="blob-body"></div>
-                            <div class="blob-face">
-                                <div class="blob-eyes">
-                                    <div class="blob-eye"></div>
-                                    <div class="blob-eye"></div>
-                                </div>
-                                <svg width="20" height="8" viewBox="0 0 22 10" fill="none">
-                                    <path d="{{ companion.mouth }}" stroke="rgba(0,0,0,0.4)" stroke-width="2.5"
-                                        stroke-linecap="round" fill="none" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="blob-score-num">{{ companion.score }}</div>
-                        <div class="blob-score-label">Energy Level · {{ companion.label }}</div>
-                    </div>
-                </div>
+{% extends 'pages/base.html' %}
+
+{% block title %}Archive{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+    :root {
+        --bg: #F1F3EE;
+        --surface: #FAFAF8;
+        --text: #2D332A;
+        --muted: #7A8274;
+        --rule: rgba(45, 51, 42, 0.08);
+        --nav-height: 52px;
+        --bw: 154px;
+        --bh: 214px;
+        --sw: 14px;
+    }
+
+    /* ── INSIGHTS SECTION ────────────────────── */
+    .insights-section {
+        padding: 40px 52px 20px;
+        display: grid;
+        grid-template-columns: 1fr 1.8fr;
+        gap: 60px;
+        align-items: flex-start;
+    }
+
+    .left-column {
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+    }
+
+    .greeting-block h1 {
+        font-family: 'Lora', serif;
+        font-size: 32px;
+        font-weight: 400;
+        color: var(--text);
+        margin-bottom: 8px;
+    }
+
+    .stats-block {
+        font-size: 14px;
+        color: var(--muted);
+        font-weight: 300;
+        margin-bottom: 20px;
+    }
+
+    .insight-card {
+        background: var(--surface);
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        padding: 24px;
+        position: relative;
+    }
+
+    .insight-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--muted);
+        margin-bottom: 12px;
+        display: block;
+    }
+
+    .trend-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 50px;
+        font-size: 11px;
+        font-weight: 500;
+        margin-top: 8px;
+        background: var(--surface);
+        color: var(--text);
+    }
+
+    .trend-Blooming {
+        background: rgba(140, 166, 140, 0.2);
+        color: #4A5D4A;
+    }
+
+    .trend-Cloudy {
+        background: rgba(166, 140, 140, 0.2);
+        color: #5D4A4A;
+    }
+
+    /* Blob Card */
+    .blob-card {
+        background: transparent;
+        width: 100%;
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        padding: 10px 0;
+    }
+
+    .blob-stage {
+        width: 100px;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    .blob-main {
+        width: 80px;
+        height: 80px;
+        position: relative;
+        animation: blobFloat var(--speed, 3s) ease-in-out infinite;
+    }
+
+    .blob-body {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, var(--light), var(--base));
+        animation: blobMorph var(--speed, 3s) ease-in-out infinite alternate;
+    }
+
+    .blob-face {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .blob-eyes {
+        display: flex;
+        gap: 10px;
+    }
+
+    .blob-eye {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    .blob-score-num {
+        font-family: 'Lora', serif;
+        font-size: 38px;
+        color: var(--text);
+    }
+
+    .blob-score-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+    }
+
+    /* Chart */
+    .chart-container {
+        position: relative;
+        background: var(--surface);
+        border: 1px solid var(--rule);
+        border-radius: 22px;
+        padding: 32px;
+        min-height: 340px;
+        box-shadow: 0 12px 40px rgba(45, 51, 42, 0.04);
+    }
+
+    .aw-canvas {
+        display: block;
+        width: 100%;
+        height: 240px;
+        cursor: crosshair;
+    }
+
+    .atip {
+        position: absolute;
+        background: #fff;
+        border-radius: 12px;
+        padding: 10px 16px;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity .15s;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        z-index: 100;
+    }
+
+    .atip-s {
+        font-family: 'Lora', serif;
+        font-size: 24px;
+        font-weight: 500;
+    }
+
+    .atip-l {
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+    }
+
+    /* ── 3D CAROUSEL SECTION ─────────────────── */
+    .featured-archive {
+        padding: 40px 0 60px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .featured-header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .featured-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--muted);
+        margin-bottom: 8px;
+    }
+
+    .featured-title {
+        font-family: 'Lora', serif;
+        font-size: 24px;
+        color: var(--text);
+    }
+
+    .journal-track {
+        display: flex;
+        gap: 32px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        padding: 40px 0;
+        width: 100%;
+        scrollbar-width: none;
+        padding-left: calc(50% - (var(--bw) / 2));
+        padding-right: calc(50% - (var(--bw) / 2));
+    }
+
+    .journal-track::-webkit-scrollbar {
+        display: none;
+    }
+
+    .journal-item {
+        scroll-snap-align: center;
+        flex-shrink: 0;
+        cursor: pointer;
+        transition: transform 0.5s ease;
+    }
+
+    .book-wrap {
+        width: var(--bw);
+        height: var(--bh);
+        perspective: 1000px;
+        position: relative;
+    }
+
+    .book-pages {
+        position: absolute;
+        top: 2px;
+        left: calc(var(--sw) + 2px);
+        width: calc(var(--bw) - var(--sw) - 4px);
+        height: calc(var(--bh) - 4px);
+        background: #F8F4EE;
+        border-radius: 0 3px 3px 0;
+        z-index: 1;
+        box-shadow: inset 20px 0 30px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .book-pages::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: repeating-linear-gradient(to bottom, transparent, transparent 15px, #E8E2D5 15px, #E8E2D5 16px);
+    }
+
+    .book-cover {
+        position: absolute;
+        inset: 0;
+        transform-style: preserve-3d;
+        transform-origin: var(--sw) 50%;
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 2;
+    }
+
+    .book-cover.open {
+        transform: rotateY(-165deg);
+    }
+
+    .cover-front,
+    .cover-back {
+        position: absolute;
+        inset: 0;
+        backface-visibility: hidden;
+        border-radius: 2px 4px 4px 2px;
+    }
+
+    .cover-front {
+        z-index: 2;
+        box-shadow: 4px 10px 25px rgba(0, 0, 0, 0.12);
+    }
+
+    .cover-back {
+        transform: rotateY(180deg);
+        background: #ECE5D8;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .elastic-band {
+        position: absolute;
+        top: 50%;
+        left: var(--sw);
+        right: 0;
+        height: 4px;
+        transform: translateY(-50%);
+        z-index: 3;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        opacity: 1;
+        transition: opacity 0.3s;
+    }
+
+    .book-cover.open .elastic-band {
+        opacity: 0;
+    }
+
+    /* ── UI ELEMENTS ────────────────────────── */
+    .archive-header {
+        text-align: center;
+        margin-bottom: 40px;
+        transition: opacity 0.3s;
+        width: 100%;
+    }
+
+    .archive-title {
+        font-family: 'Lora', serif;
+        font-size: 32px;
+        color: var(--text);
+        margin: 0;
+        letter-spacing: 0.02em;
+    }
+
+    .archive-subtitle {
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        margin-top: 8px;
+    }
+
+    .dot-nav {
+        display: flex;
+        gap: 8px;
+        margin-top: 24px;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .dot.active {
+        background: var(--text);
+        width: 20px;
+        border-radius: 10px;
+    }
+
+    .action-bar {
+        margin-top: 40px;
+        background: rgba(0, 0, 0, 0.03);
+        padding: 12px 24px;
+        border-radius: 50px;
+        backdrop-filter: blur(10px);
+        display: flex;
+        gap: 16px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .action-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: none;
+        background: var(--surface);
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.3s;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        color: var(--text);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    /* ── TRADITIONAL SHELVES SECTION ─────────── */
+    .historical-shelves {
+        padding: 40px 52px;
+    }
+
+    .shelf-row {
+        margin-bottom: 60px;
+    }
+
+    .shelf-header {
+        display: flex;
+        align-items: baseline;
+        gap: 16px;
+        border-bottom: 1px solid var(--rule);
+        padding-bottom: 12px;
+        margin-bottom: 40px;
+    }
+
+    .shelf-label {
+        font-size: 11.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--muted);
+    }
+
+    .shelf-count {
+        font-size: 11.5px;
+        color: rgba(45, 51, 42, 0.2);
+    }
+
+    .shelf-books {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 32px;
+        justify-content: center;
+    }
+
+    .flat-journal {
+        width: 140px;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        transition: transform 0.2s;
+    }
+
+    .flat-journal:hover {
+        transform: translateY(-4px);
+    }
+
+    .flat-cover {
+        width: 140px;
+        height: 204px;
+        border-radius: 3px 6px 6px 3px;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 18px 16px;
+        filter: drop-shadow(4px 8px 12px rgba(0, 0, 0, 0.08));
+    }
+
+    .flat-spine {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 11px;
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    .flat-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.6);
+    }
+
+    .flat-text {
+        font-family: 'Lora', serif;
+        font-size: 11px;
+        color: white;
+        line-height: 1.4;
+        opacity: 0.9;
+    }
+
+    .flat-meta h3 {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--text);
+        margin-bottom: 2px;
+    }
+
+    .flat-meta p {
+        font-size: 11px;
+        color: var(--muted);
+        font-weight: 300;
+    }
+
+    @keyframes blobFloat {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-8px);
+        }
+    }
+
+    @keyframes blobMorph {
+        0% {
+            border-radius: 50% 40% 60% 40% / 40% 50% 40% 60%;
+        }
+
+        100% {
+            border-radius: 58% 38% 52% 46% / 44% 60% 38% 52%;
+        }
+    }
+
+    /* Journal Colors */
+    .c-rose {
+        background: #C17A6F;
+    }
+
+    .c-slate {
+        background: #4F6A80;
+    }
+
+    .c-sage {
+        background: #5E7A63;
+    }
+
+    .c-ochre {
+        background: #A08242;
+    }
+
+    .c-terr {
+        background: #9A5B45;
+    }
+
+    .c-dust {
+        background: #7A6A8A;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main>
+    <!-- SECTION 1: INSIGHTS & ATMOSPHERE -->
+    <div class="insights-section">
+        <div class="left-column">
+            <div class="greeting-block">
+                <h1>{{ greeting }}</h1>
+                <div class="stats-block">{{ stats_msg }}</div>
             </div>
 
-            <div class="chart-container" id="aw">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 24px;">
-                    <div style="font-family: 'Lora', serif; font-size: 16px; color: var(--text);">Atmosphere Map</div>
-                    <div
-                        style="font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;">
-                        Recent Chronicle
+            <div class="insight-card">
+                <span class="insight-label">AI Sentiment Analysis</span>
+                <div class="trend-badge trend-{{ trend.status }}">Trending: {{ trend.status }}</div>
+                <p style="font-size: 12px; color: var(--muted); margin-top: 12px; line-height: 1.5;">
+                    {{ trend.msg }} Your mood history reflects a {{ trend.status|lower }} pattern.
+                </p>
+            </div>
+
+            <div class="blob-card"
+                style="--base: {{ companion.color }}; --light: {{ companion.light }}; --dark: {{ companion.dark }}; --speed: 3s;">
+                <div class="blob-stage">
+                    <div class="blob-main">
+                        <div class="blob-body"></div>
+                        <div class="blob-face">
+                            <div class="blob-eyes">
+                                <div class="blob-eye"></div>
+                                <div class="blob-eye"></div>
+                            </div>
+                            <svg width="20" height="8" viewBox="0 0 22 10" fill="none">
+                                <path d="{{ companion.mouth }}" stroke="rgba(0,0,0,0.4)" stroke-width="2.5"
+                                    stroke-linecap="round" fill="none" />
+                            </svg>
+                        </div>
                     </div>
                 </div>
-                <canvas id="atmosphereChart" class="aw-canvas" data-labels='{{ chart_labels | tojson }}'
-                    data-scores='{{ chart_scores | tojson }}' data-colors='{{ chart_colors | tojson }}'
-                    data-moods='{{ chart_moods | tojson }}'></canvas>
-
-                <div class="atip" id="atip">
-                    <div class="atip-s" id="atip-s">--</div>
-                    <div class="atip-l" id="atip-l">--</div>
+                <div>
+                    <div class="blob-score-num">{{ companion.score }}</div>
+                    <div class="blob-score-label">Energy Level · {{ companion.label }}</div>
                 </div>
             </div>
         </div>
 
-        <!-- SECTION 2: 3D FEATURED CAROUSEL -->
-        <section class="featured-archive">
-            <div class="archive-header" id="header">
-                <h1 class="archive-title" id="active-title">Loading...</h1>
-                <p class="archive-subtitle" id="active-pages">-- Pages</p>
+        <div class="chart-container" id="aw">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 24px;">
+                <div style="font-family: 'Lora', serif; font-size: 16px; color: var(--text);">Atmosphere Map</div>
+                <div style="font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;">
+                    Recent Chronicle </div>
             </div>
+            <canvas id="atmosphereChart" class="aw-canvas" data-labels="{{ chart_labels | tojson | safe }}"
+                data-scores="{{ chart_scores | tojson | safe }}" data-colors="{{ chart_colors | tojson | safe }}"
+                data-moods="{{ chart_moods | tojson | safe }}"></canvas>
 
-            <div class="journal-track" id="track">
-                {% for j in featured_journals %}
-                <div class="journal-item" data-id="{{ j.id }}" data-title="{{ j.title }}" data-pages="{{ j.pages }}"
-                    data-index="{{ loop.index0 }}">
-                    <div class="book-wrap">
-                        <div class="book-pages">
-                            <div
-                                style="padding: 24px; font-family: 'Lora', serif; font-size: 11px; color: var(--text); line-height: 1.8; opacity: 0.8;">
-                                {{ j.content_preview }}
-                            </div>
-                        </div>
-                        <div class="book-cover" id="cover-{{ j.id }}">
-                            <div class="cover-front" id="svg-container-{{ j.id }}"></div>
-                            <div class="cover-back">
-                                <span
-                                    style="font-family: 'Lora', serif; font-size: 10px; color: #B0A090; letter-spacing: 0.2em; text-transform: uppercase;">Ex
-                                    Libris</span>
-                                <div style="width: 30px; height: 1px; background: #C8C0B0; margin-top: 8px;"></div>
-                            </div>
-                            <div class="elastic-band" id="band-{{ j.id }}"></div>
+            <div class="atip" id="atip">
+                <div class="atip-s" id="atip-s">--</div>
+                <div class="atip-l" id="atip-l">--</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 2: 3D FEATURED CAROUSEL -->
+    <section class="featured-archive">
+        <div class="archive-header" id="header">
+            <h1 class="archive-title" id="active-title">Loading...</h1>
+            <p class="archive-subtitle" id="active-pages">-- Pages</p>
+        </div>
+
+        <div class="journal-track" id="track">
+            {% for j in featured_journals %}
+            <div class="journal-item" data-id="{{ j.id }}" data-title="{{ j.title }}" data-pages="{{ j.pages }}"
+                data-index="{{ loop.index0 }}">
+                <div class="book-wrap">
+                    <div class="book-pages">
+                        <div
+                            style="padding: 24px; font-family: 'Lora', serif; font-size: 11px; color: var(--text); line-height: 1.8; opacity: 0.8;">
+                            {{ j.content_preview }}
                         </div>
                     </div>
-                </div>
-                {% endfor %}
-            </div>
-
-            <div class="dot-nav">
-                {% for j in featured_journals %}
-                <div class="dot {% if loop.first %}active{% endif %}" data-index="{{ loop.index0 }}"></div>
-                {% endfor %}
-            </div>
-
-            <div class="action-bar">
-                <button class="action-btn" title="Delete"><i class="fa-solid fa-trash-can"></i></button>
-                <button class="action-btn" title="Share"><i class="fa-solid fa-arrow-up-from-bracket"></i></button>
-                <button class="action-btn" title="Add" style="background: var(--text); color: var(--bg);"><i
-                        class="fa-solid fa-plus"></i></button>
-            </div>
-
-            <p
-                style="margin-top: 24px; font-size: 9px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.6;">
-                Swipe to Browse · Tap Center to Open
-            </p>
-        </section>
-
-        <!-- SECTION 3: HISTORICAL SHELVES -->
-        <section class="historical-shelves">
-            {% for shelf in shelves %}
-            <div class="shelf-row">
-                <div class="shelf-header">
-                    <span class="shelf-label">{{ shelf.label }}</span>
-                    {% if shelf.archive_count > 0 %}
-                    <span class="shelf-count">+{{ shelf.archive_count }} entries</span>
-                    {% endif %}
-                </div>
-
-                <div class="shelf-books">
-                    {% for entry in shelf.featured %}
-                    <a href="{{ url_for('writing') }}" class="flat-journal">
-                        <div class="flat-cover {{ entry.color_class }}">
-                            <div class="flat-spine"></div>
-                            <div class="flat-dot"></div>
-                            <div class="flat-text">{{ entry.display_text }}</div>
+                    <div class="book-cover" id="cover-{{ j.id }}">
+                        <div class="cover-front" id="svg-container-{{ j.id }}"></div>
+                        <div class="cover-back">
+                            <span
+                                style="font-family: 'Lora', serif; font-size: 10px; color: #B0A090; letter-spacing: 0.2em; text-transform: uppercase;">Ex
+                                Libris</span>
+                            <div style="width: 30px; height: 1px; background: #C8C0B0; margin-top: 8px;"></div>
                         </div>
-                        <div class="flat-meta">
-                            <h3>{{ entry.formatted_date }}</h3>
-                            <p>Score: {{ entry.mood_score }}</p>
-                        </div>
-                    </a>
-                    {% endfor %}
+                        <div class="elastic-band" id="band-{{ j.id }}"></div>
+                    </div>
                 </div>
             </div>
             {% endfor %}
-        </section>
+        </div>
 
-    </main>
+        <div class="dot-nav">
+            {% for j in featured_journals %}
+            <div class="dot {% if loop.first %}active{% endif %}" data-index="{{ loop.index0 }}"></div>
+            {% endfor %}
+        </div>
 
-    <script>
-        // ── 3D SHELF LOGIC ───────────────────────────────────────
-        const FEATURED = JSON.parse('{{ featured_journals | tojson | safe }}');
-        const BW = 154, BH = 214, SW = 14;
+        <div class="action-bar">
+            <button class="action-btn" title="Delete"><i class="fa-solid fa-trash-can"></i></button>
+            <button class="action-btn" title="Share"><i class="fa-solid fa-arrow-up-from-bracket"></i></button>
+            <button class="action-btn" title="Add" style="background: var(--text); color: var(--bg);"><i
+                    class="fa-solid fa-plus"></i></button>
+        </div>
 
-        function darken(hex, n) {
-            const x = parseInt(hex.replace("#", ""), 16);
-            const r = Math.max(0, (x >> 16) - n);
-            const g = Math.max(0, ((x >> 8) & 0xff) - n);
-            const b = Math.max(0, (x & 0xff) - n);
-            return `rgb(${r},${g},${b})`;
+        <p
+            style="margin-top: 24px; font-size: 9px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.6;">
+            Swipe to Browse · Tap Center to Open
+        </p>
+    </section>
+
+    <!-- SECTION 3: HISTORICAL SHELVES -->
+    <section class="historical-shelves">
+        {% for shelf in shelves %}
+        <div class="shelf-row">
+            <div class="shelf-header">
+                <span class="shelf-label">{{ shelf.label }}</span>
+                {% if shelf.archive_count > 0 %}
+                <span class="shelf-count">+{{ shelf.archive_count }} entries</span>
+                {% endif %}
+            </div>
+
+            <div class="shelf-books">
+                {% for entry in shelf.featured %}
+                <a href="{{ url_for('writing') }}" class="flat-journal">
+                    <div class="flat-cover {{ entry.color_class }}">
+                        <div class="flat-spine"></div>
+                        <div class="flat-dot"></div>
+                        <div class="flat-text">{{ entry.display_text }}</div>
+                    </div>
+                    <div class="flat-meta">
+                        <h3>{{ entry.formatted_date }}</h3>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // ── 3D SHELF LOGIC ───────────────────────────────────────
+    const FEATURED = JSON.parse('{{ featured_journals | tojson | safe }}');
+    const BW = 154, BH = 214, SW = 14;
+
+    function darken(hex, n) {
+        const x = parseInt(hex.replace("#", ""), 16);
+        const r = Math.max(0, (x >> 16) - n);
+        const g = Math.max(0, ((x >> 8) & 0xff) - n);
+        const b = Math.max(0, (x & 0xff) - n);
+        return `rgb(${r},${g},${b})`;
+    }
+
+    function generateSVG(art, bg) {
+        const darkBg = darken(bg, 40);
+        const linenLines = Array.from({ length: 26 }, (_, i) => `<line x1="0" y1="${i * 8 + 6}" x2="${BW}" y2="${i * 8 + 6}" stroke="#D4CCBA" stroke-width="0.6" opacity="0.6" />`).join('');
+        const woodPaths = Array.from({ length: 14 }, (_, i) => {
+            const y = i * 16 + 8;
+            const w = Math.sin(i * 0.78) * 5;
+            return `<path d="M0,${y} C52,${y + w} 102,${y - w} ${BW},${y + w / 2}" stroke="#2C1C0A" stroke-width="2.5" fill="none" opacity="0.75" />`;
+        }).join('');
+
+        const switchCase = {
+            'botanical': `
+                <svg width="${BW}" height="${BH}" viewBox="0 0 ${BW} ${BH}" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="${BW}" height="${BH}" fill="${bg}" />
+                    <rect width="${SW}" height="${BH}" fill="${darkBg}" />
+                    <ellipse cx="44" cy="107" rx="26" ry="46" fill="#6A9040" transform="rotate(-18 44 107)" />
+                    <ellipse cx="77" cy="82" rx="20" ry="38" fill="#8AAA58" transform="rotate(12 77 82)" />
+                    <ellipse cx="112" cy="118" rx="23" ry="42" fill="#6A9040" transform="rotate(-8 112 118)" />
+                    <line x1="44" y1="140" x2="44" y2="190" stroke="#4A7028" stroke-width="1.8" />
+                    <line x1="77" y1="115" x2="77" y2="190" stroke="#4A7028" stroke-width="1.8" />
+                    <line x1="112" y1="152" x2="112" y2="190" stroke="#4A7028" stroke-width="1.8" />
+                </svg>`,
+            'linen': `
+                <svg width="${BW}" height="${BH}" viewBox="0 0 ${BW} ${BH}" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="${BW}" height="${BH}" fill="${bg}" />
+                    <rect width="${SW}" height="${BH}" fill="${darken(bg, 35)}" />
+                    ${linenLines}
+                </svg>`,
+            'face': `
+                <svg width="${BW}" height="${BH}" viewBox="0 0 ${BW} ${BH}" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="${BW}" height="${BH}" fill="${bg}" />
+                    <rect width="${SW}" height="${BH}" fill="${darkBg}" />
+                    <ellipse cx="77" cy="80" rx="34" ry="40" fill="#1E0E06" />
+                    <ellipse cx="77" cy="148" rx="28" ry="34" fill="#E07828" />
+                    <circle cx="64" cy="68" r="6" fill="#B84818" />
+                    <circle cx="90" cy="71" r="6" fill="#B84818" />
+                    <path d="M63 92 Q77 104 91 92" stroke="#3C1808" stroke-width="2.5" fill="none" stroke-linecap="round" />
+                </svg>`,
+            'wood': `
+                <svg width="${BW}" height="${BH}" viewBox="0 0 ${BW} ${BH}" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="${BW}" height="${BH}" fill="${bg}" />
+                    ${woodPaths}
+                </svg>`,
+            'clouds': `
+                <svg width="${BW}" height="${BH}" viewBox="0 0 ${BW} ${BH}" xmlns="http://www.w3.org/2000/svg">
+                    <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C8E4F8" /><stop offset="100%" stop-color="#88B8E0" /></linearGradient>
+                    <rect width="${BW}" height="${BH}" fill="url(#skyGrad)" />
+                    <rect width="${SW}" height="${BH}" fill="${darken(bg, 38)}" />
+                    <ellipse cx="52" cy="78" rx="36" ry="20" fill="white" opacity="0.72" />
+                    <ellipse cx="70" cy="68" rx="26" ry="18" fill="white" opacity="0.82" />
+                    <ellipse cx="112" cy="136" rx="32" ry="18" fill="white" opacity="0.65" />
+                </svg>`
+        };
+        return switchCase[art] || switchCase['linen'];
+    }
+
+    FEATURED.forEach(j => {
+        const container = document.getElementById(`svg-container-${j.id}`);
+        if (container) container.innerHTML = generateSVG(j.art, j.bg);
+        const band = document.getElementById(`band-${j.id}`);
+        if (band) band.style.backgroundColor = j.elastic;
+    });
+
+    const track = document.getElementById('track');
+    const items = document.querySelectorAll('.journal-item');
+    const dots = document.querySelectorAll('.dot');
+    const titleEl = document.getElementById('active-title');
+    const pagesEl = document.getElementById('active-pages');
+    const headerEl = document.getElementById('header');
+
+    let activeIndex = 0;
+
+    function updateActive(index) {
+        activeIndex = index;
+        const active = items[index];
+        const title = active.dataset.title;
+        const pages = active.dataset.pages;
+
+        headerEl.style.opacity = '0';
+        setTimeout(() => {
+            titleEl.textContent = title;
+            pagesEl.textContent = pages;
+            headerEl.style.opacity = '1';
+        }, 300);
+
+        dots.forEach((d, i) => d.classList.toggle('active', i === index));
+    }
+
+    // Swipe / Scroll Sync
+    track.addEventListener('scroll', () => {
+        const scrollLeft = track.scrollLeft;
+        const itemWidth = items[0].offsetWidth + 32;
+        const index = Math.round(scrollLeft / itemWidth);
+        if (index !== activeIndex && items[index]) {
+            updateActive(index);
         }
+    });
 
-        function generateSVG(art, bg) {
-            const darkBg = darken(bg, 40);
-            const linenLines = Array.from({ length: 26 }, (_, i) => `<line x1="0" y1="${i * 8 + 6}" x2="${BW}" y2="${i * 8 + 6}" stroke="#D4CCBA" stroke-width="0.6" opacity="0.6" />`).join('');
-            const woodPaths = Array.from({ length: 14 }, (_, i) => {
-                const y = i * 16 + 8;
-                const w = Math.sin(i * 0.78) * 5;
-                return `<path d="M0,${y} C52,${y + w} 102,${y - w} ${BW},${y + w / 2}" stroke="#2C1C0A" stroke-width="2.5" fill="none" opacity="0.75" />`;
-            }).join('');
-
-            const switchCase = {
-                'botanical': `
-                    <svg width="${BW}" height="${BH}" viewBox="0 0 ${BW} ${BH}" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="${BW}" height="${BH}" fill="${bg}" />
-                        <rect width="${SW}" height="${BH}" fill="${darkBg}" />
-                        <ellipse cx="44" cy="107" rx="26" ry="46" fill="#6A9040" transform="rotate(-18 44 107)" />
-                        <ellipse cx="77" cy="82" rx="20" ry="38" fill="#8AAA58" transform="rotate(12 77 82)" />
-                        <ellipse cx="112" cy="118" rx="23" ry="42" fill="#6A9040" transform="rotate(-8 112 118)" />
-                        <line x1="44" y1="140" x2="44" y2="190" stroke="#4A7028" stroke-width="1.8" />
-                        <line x1="77" y1="115" x2="77" y2="190" stroke="#4A7028" stroke-width="1.8" />
-                        <line x1="112" y1="152" x2="112" y2="190" stroke="#4A7028" stroke-width="1.8" />
-                    </svg>`,
-                'linen': `
-                    <svg width="${BW}" height="${BH}" viewBox="0 0 ${BW} ${BH}" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="${BW}" height="${BH}" fill="${bg}" />
-                        <rect width="${SW}" height="${BH}" fill="${darken(bg, 35)}" />
-                        ${linenLines}
-                    </svg>`,
-                'face': `
-                    <svg width="${BW}" height="${BH}" viewBox="0 0 ${BW} ${BH}" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="${BW}" height="${BH}" fill="${bg}" />
-                        <rect width="${SW}" height="${BH}" fill="${darkBg}" />
-                        <ellipse cx="77" cy="80" rx="34" ry="40" fill="#1E0E06" />
-                        <ellipse cx="77" cy="148" rx="28" ry="34" fill="#E07828" />
-                        <circle cx="64" cy="68" r="6" fill="#B84818" />
-                        <circle cx="90" cy="71" r="6" fill="#B84818" />
-                        <path d="M63 92 Q77 104 91 92" stroke="#3C1808" stroke-width="2.5" fill="none" stroke-linecap="round" />
-                    </svg>`,
-                'wood': `
-                    <svg width="${BW}" height="${BH}" viewBox="0 0 ${BW} ${BH}" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="${BW}" height="${BH}" fill="${bg}" />
-                        ${woodPaths}
-                    </svg>`,
-                'clouds': `
-                    <svg width="${BW}" height="${BH}" viewBox="0 0 ${BW} ${BH}" xmlns="http://www.w3.org/2000/svg">
-                        <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C8E4F8" /><stop offset="100%" stop-color="#88B8E0" /></linearGradient>
-                        <rect width="${BW}" height="${BH}" fill="url(#skyGrad)" />
-                        <rect width="${SW}" height="${BH}" fill="${darken(bg, 38)}" />
-                        <ellipse cx="52" cy="78" rx="36" ry="20" fill="white" opacity="0.72" />
-                        <ellipse cx="70" cy="68" rx="26" ry="18" fill="white" opacity="0.82" />
-                        <ellipse cx="112" cy="136" rx="32" ry="18" fill="white" opacity="0.65" />
-                    </svg>`
-            };
-            return switchCase[art] || switchCase['linen'];
-        }
-
-
-        FEATURED.forEach(j => {
-            const container = document.getElementById(`svg-container-${j.id}`);
-            if (container) container.innerHTML = generateSVG(j.art, j.bg);
-            const band = document.getElementById(`band-${j.id}`);
-            if (band) band.style.backgroundColor = j.elastic;
-        });
-
-        const track = document.getElementById('track');
-        const items = document.querySelectorAll('.journal-item');
-        const dots = document.querySelectorAll('.dot');
-        const titleEl = document.getElementById('active-title');
-        const pagesEl = document.getElementById('active-pages');
-        const headerEl = document.getElementById('header');
-
-        let activeIndex = 0; let openId = null;
-
-        function updateCarousel() {
-            const mid = track.scrollLeft + track.clientWidth / 2;
-            let best = 0, bestD = Infinity;
-            items.forEach((el, i) => {
-                const d = Math.abs(el.offsetLeft + el.offsetWidth / 2 - mid);
-                if (d < bestD) { bestD = d; best = i; }
-                const scale = Math.max(0.75, 1 - (d / track.clientWidth) * 0.8);
-                el.style.transform = `scale(${scale})`;
-                el.style.opacity = scale > 0.8 ? 1 : 0.6;
-            });
-            if (best !== activeIndex) {
-                activeIndex = best;
-                headerEl.style.opacity = 0;
-                setTimeout(() => {
-                    titleEl.textContent = items[best].dataset.title;
-                    pagesEl.textContent = items[best].dataset.pages;
-                    headerEl.style.opacity = 1;
-                    dots.forEach((d, i) => d.classList.toggle('active', i === activeIndex));
-                }, 150);
-
-                if (openId) {
-                    const oCover = document.getElementById(`cover-${openId}`);
-                    if (oCover) oCover.classList.remove('open');
-                    openId = null;
-                }
-            }
-        }
-
-        track.addEventListener('scroll', updateCarousel);
-        items.forEach((el, i) => {
-            el.addEventListener('click', () => {
-                if (i !== activeIndex) {
-                    const target = el.offsetLeft - track.clientWidth / 2 + el.offsetWidth / 2;
-                    track.scrollTo({ left: target, behavior: 'smooth' });
-                } else {
-                    const id = el.dataset.id;
-                    const cover = document.getElementById(`cover-${id}`);
-                    openId = (openId === id) ? null : id;
-                    document.querySelectorAll('.book-cover').forEach(c => {
-                        if (c.id !== `cover-${id}`) c.classList.remove('open');
-                    });
-                    cover.classList.toggle('open');
-                }
-            });
-        });
-
-        dots.forEach((dot, i) => {
-            dot.addEventListener('click', () => {
-                const target = items[i].offsetLeft - track.clientWidth / 2 + items[i].offsetWidth / 2;
-                track.scrollTo({ left: target, behavior: 'smooth' });
-            });
-        });
-
-        window.addEventListener('load', () => {
-            if (items.length > 0) {
-                const initial = items[0];
-                const target = initial.offsetLeft - track.clientWidth / 2 + initial.offsetWidth / 2;
-                track.scrollTo({ left: target });
-                updateCarousel();
+    // Opening Interaction
+    items.forEach((item, i) => {
+        item.addEventListener('click', () => {
+            if (i !== activeIndex) {
+                item.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            } else {
+                const cover = item.querySelector('.book-cover');
+                cover.classList.toggle('open');
             }
         });
+    });
 
-        // ── HALFTONE CHART LOGIC ──────────────────────────────────
-        (function () {
-            const C = document.getElementById('atmosphereChart'); if (!C) return;
-            const TIP = document.getElementById('atip'), TS = document.getElementById('atip-s'), TL = document.getElementById('atip-l');
-            const data = C.dataset;
-            const labels = JSON.parse(data.labels || '[]');
-            const scores = JSON.parse(data.scores || '[]');
-            const moods = JSON.parse(data.moods || '[]');
-            const colors = JSON.parse(data.colors || '[]');
+    dots.forEach(dot => {
+        dot.addEventListener('click', () => {
+            const idx = parseInt(dot.dataset.index);
+            items[idx].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        });
+    });
 
-            const D = labels.map((l, i) => ({ date: l, score: scores[i] * 20, lbl: moods[i], color: colors[i] }));
-            const DPR = Math.min(window.devicePixelRatio || 1, 2);
-            let W, H = 240, ctx, pts, CY;
+    updateActive(0);
 
-            function initChart() {
-                W = C.parentElement.clientWidth - 64;
-                C.width = W * DPR; C.height = H * DPR;
-                C.style.width = W + 'px'; C.style.height = H + 'px';
-                ctx = C.getContext('2d'); ctx.scale(DPR, DPR);
-                const P = { t: 40, r: 20, b: 20, l: 20 }, cW = W - P.l - P.r, cH = H - P.t - P.b;
-                pts = D.map((d, i) => ({ x: P.l + (i / (Math.max(1, D.length - 1))) * cW, y: P.t + cH * (1 - d.score / 100), ...d }));
+    // ── ATMOSPHERE MAP LOGIC ─────────────────────────────────
+    setTimeout(() => {
+        const ctx = document.getElementById('atmosphereChart').getContext('2d');
+        const labels = JSON.parse(document.getElementById('atmosphereChart').dataset.labels);
+        const scores = JSON.parse(document.getElementById('atmosphereChart').dataset.scores);
+        const colors = JSON.parse(document.getElementById('atmosphereChart').dataset.colors);
+        const moods = JSON.parse(document.getElementById('atmosphereChart').dataset.moods);
 
-                CY = new Float32Array(W).fill(H / 2);
-                for (let x = 0; x < W; x++) {
-                    const t = (x - P.l) / cW;
-                    if (t < 0 || t > 1) continue;
-                    const i = Math.floor(t * (pts.length - 1));
-                    const f = (t * (pts.length - 1)) - i;
-                    if (i < pts.length - 1) CY[x] = pts[i].y * (1 - f) + pts[i + 1].y * f;
-                }
-                drawChart(P, cW);
-            }
-
-            function drawChart(P, cW) {
-                ctx.clearRect(0, 0, W, H);
-                ctx.font = '10px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(0,0,0,0.2)';
-                pts.forEach(p => { ctx.fillText(p.date, p.x, H - 5); });
-
-                const STEP = 8;
-                for (let x = P.l; x < W - P.r; x += STEP) {
-                    const cy = CY[Math.round(x)];
-                    const t = (x - P.l) / cW;
-                    const idx = Math.min(Math.floor(t * (pts.length - 1)), pts.length - 2);
-                    const col = colors[idx];
-                    for (let y = P.t; y < H - P.b; y += STEP) {
-                        if (y < cy) continue;
-                        const r = Math.min(2.5, (y - cy) / 4);
-                        if (r < 0.5) continue;
-                        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
-                        ctx.fillStyle = col + '44'; ctx.fill();
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: scores,
+                    borderColor: '#2D332A',
+                    borderWidth: 2.5,
+                    pointBackgroundColor: colors,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    tension: 0.4,
+                    fill: false,
+                    showLine: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 10 }, color: '#7A8274' }
+                    },
+                    y: {
+                        min: 0, max: 6,
+                        ticks: { stepSize: 1, display: false },
+                        grid: { color: 'rgba(0,0,0,0.03)' }
+                    }
+                },
+                onHover: (e, elements) => {
+                    const tip = document.getElementById('atip');
+                    if (elements.length) {
+                        const idx = elements[0].index;
+                        document.getElementById('atip-s').textContent = scores[idx];
+                        document.getElementById('atip-l').textContent = moods[idx];
+                        tip.style.opacity = '1';
+                        tip.style.left = e.x + 15 + 'px';
+                        tip.style.top = e.y - 40 + 'px';
+                    } else {
+                        tip.style.opacity = '0';
                     }
                 }
             }
-
-            initChart(); window.addEventListener('resize', initChart);
-            C.addEventListener('mousemove', e => {
-                const rect = C.getBoundingClientRect();
-                const mx = (e.clientX - rect.left) * (W / rect.width);
-                let best = null, dist = 50;
-                pts.forEach(p => { const d = Math.abs(p.x - mx); if (d < dist) { dist = d; best = p; } });
-                if (best) {
-                    TS.textContent = best.score / 20; TS.style.color = best.color;
-                    TL.textContent = `${best.date} · ${best.lbl}`;
-                    TIP.style.opacity = 1; TIP.style.left = (best.x + rect.left - rect.left - 40) + 'px'; TIP.style.top = (best.y - 60) + 'px';
-                }
-            });
-            C.addEventListener('mouseleave', () => TIP.style.opacity = 0);
-        })();
-    </script>
-</body>
-
-</html>
+        });
+    }, 500);
+</script>
+{% endblock %}

@@ -2,7 +2,7 @@
     <div class="navbar-container">
         <a href="{{ url_for('index') }}" class="navbar-logo">
             &#10022; Folio
-            <span>/ {% if request.endpoint == 'sanctuary' %}sanctuary{% elif request.endpoint == 'archive' %}archive{% elif request.endpoint == 'writing' %}writing{% else %}bloom{% endif %}</span>
+            <span>/ {% if request.endpoint == 'sanctuary' %}sanctuary{% elif request.endpoint == 'archive' %}archive{% elif request.endpoint == 'writing' %}writing{% elif request.endpoint == 'profile' %}profile{% else %}bloom{% endif %}</span>
         </a>
         <div class="navbar-center">
             {% if session.get('user_id') %}

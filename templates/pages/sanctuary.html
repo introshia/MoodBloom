@@ -543,11 +543,9 @@
     // ── STATE ─────────────────────────────────────────────────────
     var lampOn = true, time = 0, hov = null;
     var mouseX = 0.5, mouseY = 0.5;
-    var vinylPlaying = false, vinylAngle = 0;
     var journalDays = 0; // replace with: Number("{{ streak_days|default(0) }}")
     var weatherType = 'clear';
     var raindrops = [], snowflakes = [];
-    var catBreath = 0, pageFlutter = 0;
     var musicOn = false, rainSoundOn = false;
 
     // Fireflies
@@ -582,7 +580,7 @@
     initWeather();
 
     function toggleLamp() { lampOn = !lampOn; document.getElementById('lamptgl').innerHTML = lampOn ? '&#9789; lamp' : '&#9788; lamp'; }
-    function toggleMusic() { musicOn = !musicOn; vinylPlaying = musicOn; document.getElementById('btn-music').classList.toggle('on', musicOn); }
+    function toggleMusic() { musicOn = !musicOn; document.getElementById('btn-music').classList.toggle('on', musicOn); }
     function toggleRain() { rainSoundOn = !rainSoundOn; document.getElementById('btn-rain').classList.toggle('on', rainSoundOn); }
     window.toggleLamp = toggleLamp; window.toggleMusic = toggleMusic; window.toggleRain = toggleRain;
 
@@ -591,11 +589,7 @@
       home: ['Your Room', 'Welcome home. Everything you have written lives here, waiting.'],
       write: ['Writing Desk', 'Open your journal and begin. A blank page is a kind of freedom.'],
       archive: ['Journal Archive', 'All your past entries, organised by season, mood and memory.'],
-      mood: ['Atmosphere', 'Your Atmosphere companion reflects how you have been feeling lately.'],
-      cat: ['Your Bunny', 'She is dozing softly. Bunnies sleep with their eyes half-closed — she feels safe here.'],
-      plant: ['The Plant', journalDays >= 5 ? 'Thriving. She can feel you have been writing regularly.' : 'She misses you. Come back and write — she will perk right up.'],
-      jar: ['Firefly Jar', 'Each light holds a word from your most uplifting entries. Small glowing thoughts.'],
-      vinyl: ['Record Player', 'A soft lo-fi track fills the room with warmth.']
+      jar: ['Firefly Jar', 'Each light holds a word from your most uplifting entries. Small glowing thoughts.']
     };
     function openM(key) {
       var d = MODALS[key] || [key, ''];
@@ -813,6 +807,21 @@
         ctx.save();
         ctx.beginPath(); ctx.rect(px(WX), py(WY), px(WW), py(WH)); ctx.clip();
         ctx.fillStyle = skyG; ctx.fillRect(px(WX), py(WY), px(WW), py(WH));
+
+        // ── WEATHER (Inside window clip) ──────────────────────────
+        if (weatherType === 'rain' && anyOpen) {
+          ctx.strokeStyle = 'rgba(180,215,255,.55)'; ctx.lineWidth = 1;
+          for (var ri = 0; ri < raindrops.length; ri++) {
+            var rd = raindrops[ri]; rd.y += rd.spd; if (rd.y > 0.7) rd.y = -0.1;
+            ctx.beginPath(); ctx.moveTo(px(rd.x), py(rd.y)); ctx.lineTo(px(rd.x - 0.002), py(rd.y + rd.len)); ctx.stroke();
+          }
+        }
+        if (weatherType === 'snow' && anyOpen) {
+          for (var sni = 0; sni < snowflakes.length; sni++) {
+            var sf = snowflakes[sni]; sf.y += sf.spd; sf.x += Math.sin(time * 0.02 + sf.drift) * 0.0003;
+            if (sf.y > 0.7) sf.y = -0.1; circ(sf.x, sf.y, sf.r, 'rgba(218,232,255,1)', sf.a);
+          }
+        }
         ctx.restore();
       })();
 
@@ -937,7 +946,7 @@
       var cFlutterL = anyOpen ? Math.sin(time * 0.07) * 0.012 : 0;
       var cFlutterR = anyOpen ? Math.sin(time * 0.07 + 0.8) * 0.012 : 0;
 
-      function drawWavyCurtain(x1, y1, width, ybase, flutter) {
+      function drawWavyCurtain(x1, y1, width, ybase, flutter, anchorRight) {
         ctx.save();
         var color = 'rgba(255, 140, 20, 0.22)', highlight = 'rgba(255, 200, 50, 0.35)', deep = 'rgba(180, 60, 0, 0.28)';
         ctx.beginPath(); ctx.moveTo(px(x1), py(y1)); ctx.lineTo(px(x1 + width), py(y1));
@@ -945,17 +954,18 @@
         for (var j = 1; j <= vSteps; j++) {
           var vt = j / vSteps;
           var wave = Math.sin(vt * Math.PI * 1.5 + time * 0.03) * 0.003;
-          var vbx = x1 + width + (vt * flutter) + wave;
+          var vbx = x1 + width + (anchorRight ? 0 : (vt * flutter)) + (anchorRight ? 0 : wave);
           ctx.lineTo(px(vbx), py(y1 + vt * (ybase - y1)));
         }
         for (var i = 32; i >= 0; i--) {
           var ht = i / 32;
-          ctx.lineTo(px(x1 + ht * width + (ht * flutter)), py(ybase + Math.sin(ht * Math.PI * 1.5 + time * 0.03) * 0.002));
+          var fOff = anchorRight ? ((1 - ht) * flutter) : (ht * flutter);
+          ctx.lineTo(px(x1 + ht * width + fOff), py(ybase + Math.sin(ht * Math.PI * 1.5 + time * 0.03) * 0.002));
         }
         for (var j = vSteps - 1; j >= 0; j--) {
           var vt = j / vSteps;
           var wave = Math.sin(vt * Math.PI * 1.5 + time * 0.03 + 0.8) * 0.003;
-          var vbx = x1 + wave;
+          var vbx = x1 + (anchorRight ? (vt * flutter) : 0) + (anchorRight ? wave : 0);
           ctx.lineTo(px(vbx), py(y1 + vt * (ybase - y1)));
         }
         ctx.closePath();
@@ -964,31 +974,9 @@
         ctx.fillStyle = g; ctx.fill();
         ctx.restore();
       }
-      drawWavyCurtain(WX - 0.06, WY - 0.02, 0.12, FY, cFlutterL);
-      drawWavyCurtain(WX + WW - 0.06, WY - 0.02, 0.12, FY, cFlutterR);
+      drawWavyCurtain(WX - 0.06, WY - 0.02, 0.12, FY, cFlutterL, false);
+      drawWavyCurtain(WX + WW - 0.06, WY - 0.02, 0.12, FY, cFlutterR, true);
       fr(WX - 0.08, WY - 0.030, WW + 0.16, 0.020, '#4A2210'); // rod
-
-      // ── 10. WEATHER ───────────────────────────────────────────────
-      if (weatherType === 'rain' && anyOpen) {
-        ctx.strokeStyle = 'rgba(180,215,255,.55)'; ctx.lineWidth = 1;
-        for (var ri = 0; ri < raindrops.length; ri++) {
-          var rd = raindrops[ri]; rd.y += rd.spd; if (rd.y > 0.7) rd.y = -0.1;
-          ctx.beginPath(); ctx.moveTo(px(rd.x), py(rd.y)); ctx.lineTo(px(rd.x - 0.002), py(rd.y + rd.len)); ctx.stroke();
-        }
-      }
-      if (weatherType === 'snow' && anyOpen) {
-        for (var sni = 0; sni < snowflakes.length; sni++) {
-          var sf = snowflakes[sni]; sf.y += sf.spd; sf.x += Math.sin(time * 0.02 + sf.drift) * 0.0003;
-          if (sf.y > 0.7) sf.y = -0.1; circ(sf.x, sf.y, sf.r, 'rgba(218,232,255,1)', sf.a);
-        }
-      }
-
-
-
-
-
-      // Baseboard
-      fr(SW, DESK_TOP_Y - 0.016, 1 - SW, 0.018, 'rgba(0,0,0,.15)');
 
       // ── 14. BOOKSHELF (Drawn here so it's in front of wall shadows/lines) ──
       drawFrontBookshelf();
@@ -1366,8 +1354,8 @@
 
       // Separator panel edge shadow (right side of shelf fades into wall)
       var sEdge = ctx.createLinearGradient(px(cabX + cabW), 0, px(cabX + cabW + 0.04), 0);
-      sEdge.addColorStop(0, 'rgba(0,0,0,.40)'); sEdge.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = sEdge; ctx.fillRect(px(cabX + cabW), py(cabY - 0.015), px(0.04), py(cabH + 0.04));
+      sEdge.addColorStop(0, 'rgba(0,0,0,.15)'); sEdge.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = sEdge; ctx.fillRect(px(cabX + cabW), py(cabY), px(0.04), py(cabH + 0.04));
 
       // Quest marker
       // Quest marker removed for minimalist look
@@ -1406,395 +1394,9 @@
         fr(bX, shTop - b.bh * 0.90, bwF * 0.12, b.bh * 0.90, 'rgba(0,0,0,.28)');
         fr(bX, shTop - b.bh * 0.90, bwF, 0.004, 'rgba(255,255,255,.08)');
       }
-      // Mood plant (top of shelf)
-      // drawPlant(cabX + 0.010, cabY + 0.018, journalDays);
-      // Quest marker
-      // Quest marker removed for minimalist look
-      // drawQuestMarker(cabX + cabW * 0.5, cabY + cabH * 0.3, 'Archive');
     }
 
     // ── OBJECT DRAWERS ────────────────────────────────────────────
-    function drawCat(x, y) {
-      // ── Sitting rabbit, side profile, upright posture ────────────
-      // Anchor (x,y) = bottom-center of rabbit (floor level)
-      // Positive y = DOWN, negative y = UP (canvas coords)
-      // Rabbit faces RIGHT. Total height ~0.110, width ~0.075
-      catBreath += 0.011;
-      var br = Math.sin(catBreath) * 0.0016;
-      ctx.save(); ctx.translate(px(x), py(y));
-
-      // Ground shadow
-      ctx.fillStyle = 'rgba(0,0,0,.13)';
-      ctx.beginPath(); ctx.ellipse(px(0.012), py(0.008), px(0.050), py(0.009), 0, 0, Math.PI * 2); ctx.fill();
-
-      // ── HIND LEGS / HAUNCHES at bottom (wide, flat, slightly behind) ──
-      var hleg = ctx.createLinearGradient(px(-0.025), py(0.005), px(0.010), py(0.005));
-      hleg.addColorStop(0, '#9A6838'); hleg.addColorStop(0.6, '#B88A55'); hleg.addColorStop(1, '#CCA870');
-      ctx.fillStyle = hleg;
-      ctx.beginPath(); ctx.ellipse(px(-0.008), py(0.002), px(0.036), py(0.014), 0.05, 0, Math.PI * 2); ctx.fill();
-
-      // Cotton tail
-      ctx.fillStyle = '#F0EAD8'; ctx.beginPath(); ctx.arc(px(-0.034), py(-0.004), px(0.011), 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.arc(px(-0.036), py(-0.006), px(0.007), 0, Math.PI * 2); ctx.fill();
-
-      // ── MAIN BODY — tall upright ellipse, the big shape ──────────
-      // Highlight at upper-back (left-top), gradient darkens toward front-bottom
-      var bodyG = ctx.createRadialGradient(
-        px(-0.016), py(-0.052), px(0.005),   // highlight: upper-back
-        px(0.002), py(-0.028), px(0.048)    // outer edge
-      );
-      bodyG.addColorStop(0, '#D4AA70');  // bright warm tan at top-back
-      bodyG.addColorStop(0.32, '#BA8C52');  // mid honey
-      bodyG.addColorStop(0.68, '#9A6838');  // shadow
-      bodyG.addColorStop(1, '#7A5028');  // dark rim
-      ctx.fillStyle = bodyG;
-      // TALL ellipse, slightly tilted — this is the upright sitting posture
-      ctx.beginPath(); ctx.ellipse(px(0.005), py(-0.032 + br * 0.5), px(0.038), py(0.046), -0.12, 0, Math.PI * 2); ctx.fill();
-
-      // ── CHEST / BELLY — cream patch on front (right side of body) ──
-      // In the reference this is the large off-white area on the right side
-      ctx.fillStyle = '#E8D4A8';
-      ctx.beginPath(); ctx.ellipse(px(0.022), py(-0.022 + br * 0.4), px(0.020), py(0.030), 0.18, 0, Math.PI * 2); ctx.fill();
-      // Soft feathered blend at edges
-      var bellyFade = ctx.createRadialGradient(px(0.022), py(-0.022), px(0.004), px(0.022), py(-0.022), px(0.023));
-      bellyFade.addColorStop(0.5, 'rgba(232,212,168,0)');
-      bellyFade.addColorStop(1, 'rgba(140,90,40,.16)');
-      ctx.fillStyle = bellyFade;
-      ctx.beginPath(); ctx.ellipse(px(0.022), py(-0.022), px(0.020), py(0.030), 0.18, 0, Math.PI * 2); ctx.fill();
-
-      // ── FRONT PAWS — small rounded ovals at bottom-right ─────────
-      var pawG = ctx.createLinearGradient(px(0.008), py(0.006), px(0.038), py(0.006));
-      pawG.addColorStop(0, '#9A6838'); pawG.addColorStop(1, '#CCA870');
-      ctx.fillStyle = pawG;
-      ctx.beginPath(); ctx.ellipse(px(0.014), py(0.006), px(0.011), py(0.007), 0, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#C09860';
-      ctx.beginPath(); ctx.ellipse(px(0.028), py(0.004), px(0.013), py(0.007), 0.1, 0, Math.PI * 2); ctx.fill();
-
-      // ── HEAD — round, upper-right area, connected to body top ────
-      var headG = ctx.createRadialGradient(
-        px(0.024), py(-0.074), px(0.003),
-        px(0.030), py(-0.062), px(0.026)
-      );
-      headG.addColorStop(0, '#D4AA70');
-      headG.addColorStop(0.40, '#BA8C52');
-      headG.addColorStop(0.80, '#9A6838');
-      headG.addColorStop(1, '#7A5028');
-      ctx.fillStyle = headG;
-      ctx.beginPath(); ctx.ellipse(px(0.030), py(-0.062 - br * 0.5), px(0.024), py(0.022), -0.06, 0, Math.PI * 2); ctx.fill();
-      // Warm lighter cheek area (front of face, reference shows cream/light patch)
-      ctx.fillStyle = 'rgba(220,188,135,.45)';
-      ctx.beginPath(); ctx.ellipse(px(0.042), py(-0.056), px(0.012), py(0.010), 0.25, 0, Math.PI * 2); ctx.fill();
-
-      // ── EARS — tall upright, above the head ──────────────────────
-      // Far ear (left, slightly behind, tilted left, no inner channel visible)
-      var earFarG = ctx.createRadialGradient(px(0.012), py(-0.098), px(0.002), px(0.016), py(-0.090), px(0.010));
-      earFarG.addColorStop(0, '#C4946A'); earFarG.addColorStop(1, '#9A6838');
-      ctx.fillStyle = earFarG;
-      ctx.beginPath(); ctx.ellipse(px(0.016), py(-0.090), px(0.008), py(0.025), -0.25, 0, Math.PI * 2); ctx.fill();
-      // Far ear inner (muted, barely visible)
-      ctx.fillStyle = 'rgba(175,110,80,.40)';
-      ctx.beginPath(); ctx.ellipse(px(0.016), py(-0.088), px(0.005), py(0.016), -0.25, 0, Math.PI * 2); ctx.fill();
-
-      // Near ear (right, more upright, fuller, warm)
-      var earNearG = ctx.createRadialGradient(px(0.025), py(-0.104), px(0.003), px(0.028), py(-0.094), px(0.012));
-      earNearG.addColorStop(0, '#D4AA70'); earNearG.addColorStop(0.5, '#BA8C52'); earNearG.addColorStop(1, '#9A6838');
-      ctx.fillStyle = earNearG;
-      ctx.beginPath(); ctx.ellipse(px(0.028), py(-0.094), px(0.010), py(0.028), 0.10, 0, Math.PI * 2); ctx.fill();
-      // Inner ear — warm salmon channel (clearly visible)
-      ctx.fillStyle = '#C08060';
-      ctx.beginPath(); ctx.ellipse(px(0.028), py(-0.092), px(0.006), py(0.019), 0.10, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = 'rgba(195,125,95,.38)';
-      ctx.beginPath(); ctx.ellipse(px(0.028), py(-0.091), px(0.003), py(0.012), 0.10, 0, Math.PI * 2); ctx.fill();
-
-      // ── EYE — small, warm dark brown, with catchlight ────────────
-      ctx.fillStyle = '#1E1008';
-      ctx.beginPath(); ctx.arc(px(0.044), py(-0.063), px(0.007), 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#FFFFFF';
-      ctx.beginPath(); ctx.arc(px(0.047), py(-0.067), px(0.003), 0, Math.PI * 2); ctx.fill();
-
-      // ── MUZZLE / NOSE ─────────────────────────────────────────────
-      ctx.fillStyle = '#E8D4A8';
-      ctx.beginPath(); ctx.ellipse(px(0.050), py(-0.054), px(0.009), py(0.007), 0.12, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#C07858';
-      ctx.beginPath(); ctx.ellipse(px(0.053), py(-0.054), px(0.004), py(0.003), 0, 0, Math.PI * 2); ctx.fill();
-
-      ctx.restore();
-    }
-
-
-    function drawPlant(x, y, streak) {
-      var health = Math.min(1, streak / 7);
-      var g1 = lerp(0x28, 0x38, health), g2 = lerp(0x48, 0x78, health);
-      var gc = 'rgb(' + Math.round(g1) + ',' + Math.round(g2 * 0.88) + ',' + Math.round(g1 * 0.48) + ')';
-      var gc2 = 'rgb(' + Math.round(g2) + ',' + Math.round(g2) + ',' + Math.round(g1) + ')';
-      fr(x + 0.006, y + 0.070, 0.026, 0.040, '#522C0E');
-      fr(x + 0.008, y + 0.070, 0.022, 0.006, '#7A4024', 0.7);
-      ctx.strokeStyle = gc; ctx.lineWidth = px(0.005); ctx.lineCap = 'round';
-      ctx.beginPath(); ctx.moveTo(px(x + 0.019), py(y + 0.070)); ctx.lineTo(px(x + 0.019), py(y + 0.044)); ctx.stroke();
-      if (health > 0.28) { ctx.beginPath(); ctx.moveTo(px(x + 0.019), py(y + 0.058)); ctx.lineTo(px(x + 0.005), py(y + 0.044)); ctx.stroke(); }
-      if (health > 0.58) { ctx.beginPath(); ctx.moveTo(px(x + 0.019), py(y + 0.053)); ctx.lineTo(px(x + 0.035), py(y + 0.040)); ctx.stroke(); }
-      function leaf(lx, ly, rot, size) {
-        ctx.save(); ctx.translate(px(lx), py(ly)); ctx.rotate(rot);
-        ctx.fillStyle = gc2; ctx.beginPath(); ctx.ellipse(0, 0, px(size), py(size * 0.48), 0, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = gc; ctx.lineWidth = 0.5; ctx.beginPath(); ctx.moveTo(-px(size), 0); ctx.lineTo(px(size), 0); ctx.stroke();
-        ctx.restore();
-      }
-      leaf(x + 0.019, y + 0.042, 0, 0.014);
-      if (health > 0.28) leaf(x + 0.005, y + 0.042, -0.68, 0.010 * health + 0.004);
-      if (health > 0.58) leaf(x + 0.035, y + 0.038, 0.58, 0.012 * health + 0.002);
-      if (health > 0.84) { circ(x + 0.019, y + 0.032, px(0.006), 'rgba(255,175,115,.82)'); circ(x + 0.019, y + 0.032, px(0.003), 'rgba(255,228,95,.9)'); }
-      if (health < 0.28) { ctx.strokeStyle = 'rgba(95,75,18,.45)'; ctx.lineWidth = px(0.004); ctx.beginPath(); ctx.moveTo(px(x + 0.019), py(y + 0.052)); ctx.quadraticCurveTo(px(x + 0.032), py(y + 0.058), px(x + 0.035), py(y + 0.068)); ctx.stroke(); }
-    }
-
-    function drawOpenBook(x, y) {
-      pageFlutter += 0.028;
-      var fl = Math.sin(pageFlutter) * 0.0028;
-      var bw = 0.130, bh = 0.086;
-      // Left page
-      fp([x, y + bh * 0.10, x + bw * 0.5, y, x + bw * 0.5, y + bh, x, y + bh], '#EEE5CD');
-      for (var li = 0; li < 6; li++) fr(x + 0.008, y + 0.016 + li * 0.010, bw * 0.44 - 0.008, 0.002, 'rgba(95,65,38,.10)');
-      // Right page (flutters slightly)
-      fp([x + bw * 0.5, y, x + bw + fl, y + bh * 0.11 + fl, x + bw + fl, y + bh - fl * 0.5, x + bw * 0.5, y + bh], '#E8DFCA');
-      for (var ri = 0; ri < 6; ri++) fr(x + bw * 0.52, y + 0.016 + ri * 0.010, bw * 0.44 - 0.008, 0.002, 'rgba(95,65,38,.09)');
-      // Spine
-      fp([x + bw * 0.5 - 0.004, y, x + bw * 0.5 + 0.004, y, x + bw * 0.5 + 0.004, y + bh, x + bw * 0.5 - 0.004, y + bh], '#521C0C');
-      // Shadow under
-      ctx.fillStyle = 'rgba(0,0,0,.16)'; ctx.beginPath(); ctx.ellipse(px(x + bw * 0.5), py(y + bh + 0.005), px(bw * 0.48), py(0.008), 0, 0, Math.PI * 2); ctx.fill();
-    }
-
-    function drawFireflyJar(x, y) {
-      // Jar body
-      fr(x, y + 0.015, 0.030, 0.050, 'rgba(175,208,198,.16)');
-      fr(x - 0.002, y + 0.012, 0.034, 0.006, 'rgba(148,178,168,.28)');
-      fr(x + 0.004, y + 0.065, 0.022, 0.006, 'rgba(148,178,168,.22)');
-      // Glass highlight
-      fr(x + 0.003, y + 0.017, 0.006, 0.040, 'rgba(255,255,255,.10)');
-      // Cork lid
-      fr(x - 0.002, y + 0.009, 0.034, 0.005, '#5A3018');
-      // Fireflies
-      for (var ffi = 0; ffi < fireflies.length; ffi++) {
-        var ff = fireflies[ffi];
-        var fa = (Math.sin(time * ff.spd + ff.phase) + 1) * 0.5;
-        if (fa < 0.07) continue;
-        var ffx = ff.ox + Math.sin(time * ff.spd * 0.68 + ff.phase) * 0.007;
-        var ffy = ff.oy + Math.cos(time * ff.spd * 0.48 + ff.phase * 1.28) * 0.013;
-        var ffg = ctx.createRadialGradient(px(ffx), py(ffy), 0, px(ffx), py(ffy), px(0.010));
-        ffg.addColorStop(0, 'rgba(' + ff.col + ',' + (fa * 0.90) + ')');
-        ffg.addColorStop(1, 'rgba(' + ff.col + ',0)');
-        ctx.fillStyle = ffg; ctx.fillRect(px(ffx) - px(0.010), py(ffy) - px(0.010), px(0.020), px(0.020));
-        circ(ffx, ffy, 1.1, 'rgba(' + ff.col + ',1)', fa * 0.92);
-      }
-    }
-
-    function drawVinyl(x, y) {
-      var vw = 0.050, vh = 0.034;
-      fr(x, y, vw, vh, '#261204');
-      fr(x, y, vw, 0.005, '#361A0A');
-      var rx = x + 0.012, ry = y + 0.006;
-      circ(rx + 0.010, ry + 0.010, px(0.013), '#180E06');
-      circ(rx + 0.010, ry + 0.010, px(0.009), '#201208');
-      circ(rx + 0.010, ry + 0.010, px(0.004), '#C02E1C');
-      circ(rx + 0.010, ry + 0.010, px(0.002), '#381406');
-      ctx.strokeStyle = 'rgba(255,255,255,.055)'; ctx.lineWidth = 0.5;
-      for (var gi = 7; gi <= 13; gi += 2) { ctx.beginPath(); ctx.arc(px(rx + 0.010), py(ry + 0.010), gi, 0, Math.PI * 2); ctx.stroke(); }
-      if (vinylPlaying) {
-        vinylAngle += 0.038;
-        var hx = rx + 0.010 + Math.cos(vinylAngle) * 0.009, hy = ry + 0.010 + Math.sin(vinylAngle) * 0.009;
-        circ(hx, hy, px(0.0022), 'rgba(255,195,95,.72)');
-      }
-      // Arm
-      ctx.save(); ctx.translate(px(x + 0.042), py(y + 0.005)); ctx.rotate(vinylPlaying ? 0.36 : 0.14);
-      ctx.strokeStyle = '#8A4E1E'; ctx.lineWidth = px(0.003); ctx.lineCap = 'round';
-      ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, py(0.026)); ctx.stroke();
-      ctx.restore();
-      // Playing LED
-      if (vinylPlaying) {
-        var li2 = (Math.sin(time * 0.05) + 1) * 0.5;
-        circ(x + 0.046, y + 0.028, px(0.003), 'rgba(75,255,135,1)', li2 * 0.82 + 0.18);
-      }
-    }
-
-    // ── PIXEL ART DESK ───────────────────────────────────────────
-    function drawPixelDesk(ox, oy) {
-      // ── SIMPLE DESK (matches the user's reference photo) ─────────
-      var dw = DW, dh = DH;
-      var floor = FY;
-
-      // ── FOUR THIN LEGS (slightly tapered) ───────────────────
-      function drawLeg(lx, ly, isBack) {
-        var col = isBack ? '#240E04' : '#3A1808';
-        var wth = isBack ? 0.010 : 0.018;
-        var grad = isBack ? col : linG(lx, ly, lx + wth, ly, [[0, '#5A2C10'], [0.5, '#3A1808'], [1, '#240E04']]);
-        ctx.fillStyle = grad;
-        ctx.fillRect(px(lx), py(ly), px(wth), py(floor - ly));
-        if (!isBack) fr(lx, ly, wth, 0.004, 'rgba(160,95,45,.40)');
-      }
-      // Rear legs
-      drawLeg(ox + 0.026, oy + 0.04, true);
-      drawLeg(ox + dw - 0.033, oy + 0.04, true);
-      // Front legs
-      drawLeg(ox + 0.018, oy + 0.04, false);
-      drawLeg(ox + dw - 0.030, oy + 0.04, false);
-
-      // ── MAIN DESK BODY ─────────────────────────────
-      // Desktop overhang - warm brown
-      ctx.fillStyle = linG(ox, oy, ox, oy + 0.012, [[0, '#8A4E28'], [0.5, '#6A3818'], [1, '#4A2210']]);
-      ctx.fillRect(px(ox), py(oy), px(dw), py(0.012));
-
-      // Main body housing (slightly inset)
-      ctx.fillStyle = linG(ox, oy + 0.012, ox, oy + 0.045, [[0, '#3E1C0A'], [1, '#2A1408']]);
-      ctx.fillRect(px(ox + 0.005), py(oy + 0.012), px(dw - 0.010), py(0.033));
-
-      // ── TWO DRAWERS ─────────────────────────────────
-      function drawDrawer(dx, dy, dwth) {
-        // Drawer front face
-        ctx.fillStyle = linG(dx, dy, dx, dy + 0.026, [[0, '#5A2C12'], [0.4, '#4A2210'], [1, '#321808']]);
-        ctx.fillRect(px(dx), py(dy), px(dwth), py(0.026));
-        // Subtle inset border
-        ctx.strokeStyle = 'rgba(0,0,0,.26)'; ctx.lineWidth = 0.5;
-        ctx.strokeRect(px(dx) + 1, py(dy) + 1, px(dwth) - 2, py(0.026) - 2);
-        // Dark handle / slot
-        fr(dx + dwth * 0.35, dy + 0.011, dwth * 0.30, 0.005, '#1A0804');
-        fr(dx + dwth * 0.35, dy + 0.011, dwth * 0.30, 0.002, 'rgba(255,160,80,.12)');
-      }
-      var drW = dw * 0.36;
-      drawDrawer(ox + 0.022, oy + 0.018, drW);
-      drawDrawer(ox + dw - 0.022 - drW, oy + 0.018, drW);
-
-      // ── SPARKLES (matches photo's magic vibe) ────────
-      ctx.save();
-      for (var si = 0; si < 3; si++) {
-        var sa = (Math.sin(time * 0.05 + si) + 1) * 0.5;
-        var sx = ox + 0.05 + Math.sin(time * 0.02 + si * 2) * (dw - 0.1);
-        var sy = oy + Math.cos(time * 0.03 + si) * 0.04;
-        ctx.fillStyle = 'rgba(255,230,120,' + sa * 0.6 + ')';
-        ctx.beginPath(); ctx.arc(px(sx), py(sy), px(0.003), 0, Math.PI * 2); ctx.fill();
-        // Crosshair glint
-        ctx.strokeStyle = 'rgba(255,245,180,' + sa * 0.4 + ')'; ctx.lineWidth = 0.5;
-        ctx.beginPath(); ctx.moveTo(px(sx - 0.008), py(sy)); ctx.lineTo(px(sx + 0.008), py(sy)); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(px(sx), py(sy - 0.008)); ctx.lineTo(px(sx), py(sy + 0.008)); ctx.stroke();
-      }
-      ctx.restore();
-
-      // Shadow under desk body
-      var ds = ctx.createRadialGradient(px(ox + dw * 0.5), py(floor), px(0.01), px(ox + dw * 0.5), py(floor), px(dw * 0.55));
-      ds.addColorStop(0, 'rgba(0,0,0,.18)'); ds.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = ds; ctx.fillRect(px(ox - 0.02), py(floor - 0.01), px(dw + 0.04), py(0.02));
-    }
-
-    // ── SMOOTH CHAIR (rear view, facing desk) ────────────────────
-    // We see the back of the chair: backrest facing viewer,
-    // seat and legs below. Chair is turned toward the desk.
-    function drawPixelChair(ox, oy) {
-      // 1 pixel unit  — scaled so chair width ≈ CWW
-      // ── Proportions ──────────────────────────────────────────────
-      var cw = CWW, ch = CHH;
-      var bkH = ch * 0.55;           // backrest height
-      var sY = oy + bkH;            // top of seat
-      var sH = 0.022;               // seat frame thickness
-      var legH = ch - bkH - sH;      // leg length below seat
-      var postW = 0.016;             // back-post width
-
-      // ── BACK LEGS (dark, behind seat) ────────────────────────────
-      fr(ox + 0.012, sY + sH * 0.5, postW, legH * 0.92, '#381208');
-      fr(ox + cw - 0.028, sY + sH * 0.5, postW, legH * 0.92, '#381208');
-
-      // ── BACK POSTS (two vertical uprights of backrest frame) ──────
-      // Left post
-      ctx.fillStyle = linG(ox, oy, ox + postW, oy, [[0, '#8A3820'], [1, '#5A2010']]);
-      ctx.fillRect(px(ox + 0.012), py(oy), px(postW), py(bkH + sH));
-      fr(ox + 0.012, oy, postW, 0.007, 'rgba(200,110,50,.50)'); // top cap
-      // Right post
-      ctx.fillStyle = linG(ox + cw - postW * 1.75, oy, ox + cw, oy, [[0, '#8A3820'], [1, '#5A2010']]);
-      ctx.fillRect(px(ox + cw - 0.028), py(oy), px(postW), py(bkH + sH));
-      fr(ox + cw - 0.028, oy, postW, 0.007, 'rgba(200,110,50,.50)');
-
-      // ── GREEN BACK CUSHION (between posts) ────────────────────────
-      var bcX = ox + 0.012 + postW + 0.003;
-      var bcW = (ox + cw - 0.028) - bcX - 0.003;
-      var bcH = bkH * 0.86;
-      ctx.fillStyle = linG(bcX, oy + 0.010, bcX, oy + 0.010 + bcH, [[0, '#7AAC30'], [0.45, '#5A8C1E'], [1, '#3E6412']]);
-      ctx.fillRect(px(bcX), py(oy + 0.010), px(bcW), py(bcH));
-      // Cushion highlight sheen
-      fr(bcX, oy + 0.010, bcW, 0.008, 'rgba(165,230,65,.50)');
-      fr(bcX, oy + 0.010, 0.007, bcH, 'rgba(165,230,65,.28)');
-      // Cushion bottom shadow
-      fr(bcX, oy + 0.010 + bcH - 0.006, bcW, 0.006, 'rgba(0,0,0,.18)');
-
-      // ── SEAT FRAME ────────────────────────────────────────────────
-      ctx.fillStyle = linG(ox, sY, ox, sY + sH, [[0, '#7A3018'], [1, '#4A1C0A']]);
-      ctx.fillRect(px(ox), py(sY), px(cw), py(sH));
-      fr(ox, sY, cw, 0.006, 'rgba(190,100,45,.45)'); // top rail highlight
-      fr(ox, sY + sH - 0.005, cw, 0.005, 'rgba(0,0,0,.25)'); // bottom shadow
-
-      // ── GREEN SEAT CUSHION (on top of seat) ───────────────────────
-      var scH = 0.024;
-      ctx.fillStyle = linG(ox, sY - scH, ox, sY, [[0, '#88C030'], [0.5, '#608C20'], [1, '#446012']]);
-      ctx.fillRect(px(ox + 0.005), py(sY - scH), px(cw - 0.010), py(scH));
-      fr(ox + 0.005, sY - scH, cw - 0.010, 0.007, 'rgba(175,240,70,.55)'); // top highlight
-      fr(ox + 0.005, sY - scH, 0.008, scH, 'rgba(175,240,70,.30)');         // left highlight
-      fr(ox + 0.005, sY - 0.005, cw - 0.010, 0.005, 'rgba(0,0,0,.14)');     // bottom edge
-
-      // ── FRONT LEGS (slightly lighter, closer to viewer) ───────────
-      fr(ox + 0.022, sY + sH, 0.015, legH * 0.88, '#6A2C10');
-      fr(ox + 0.022, sY + sH, 0.005, legH * 0.88, 'rgba(180,90,35,.30)'); // front highlight
-      fr(ox + cw - 0.037, sY + sH, 0.015, legH * 0.88, '#6A2C10');
-
-      // ── STRETCHER BAR (horizontal brace) ─────────────────────────
-      fr(ox + 0.026, sY + sH + legH * 0.52, cw - 0.052, 0.008, '#5A2010');
-      fr(ox + 0.026, sY + sH + legH * 0.52, cw - 0.052, 0.003, 'rgba(180,90,35,.22)');
-
-      // ── GROUND SHADOW ─────────────────────────────────────────────
-      var csh = ctx.createRadialGradient(
-        px(ox + cw * 0.5), py(oy + ch + 0.018), px(0.005),
-        px(ox + cw * 0.5), py(oy + ch + 0.018), px(cw * 0.65)
-      );
-      csh.addColorStop(0, 'rgba(0,0,0,.22)'); csh.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = csh;
-      ctx.fillRect(px(ox - 0.02), py(oy + ch), px(cw + 0.04), py(0.06));
-    }
-
-    function drawQuestMarker(x, y, label) {
-      var s = (Math.sin(time * 0.12) + 1) * 0.5;
-      var oy = Math.sin(time * 0.15) * 0.008;
-      ctx.fillStyle = 'rgba(255,195,50,' + (0.3 + s * 0.5) + ')';
-      ctx.beginPath(); ctx.arc(px(x), py(y + oy), px(0.004 + s * 0.002), 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = 'rgba(255,240,150,' + (0.2 + s * 0.4) + ')'; ctx.lineWidth = 0.5;
-      ctx.beginPath(); ctx.moveTo(px(x - 0.010), py(y + oy)); ctx.lineTo(px(x + 0.010), py(y + oy)); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(px(x), py(y + oy - 0.010)); ctx.lineTo(px(x), py(y + oy + 0.010)); ctx.stroke();
-    }
-
-    function drawVisionBoard(x, y, w, h) {
-      fr(x - 0.005, y - 0.005, w + 0.010, h + 0.010, '#3A1808');
-      ctx.fillStyle = linG(x, y, x, y + h, [[0, '#A47048'], [0.5, '#8C5832'], [1, '#744426']]);
-      ctx.fillRect(px(x), py(y), px(w), py(h));
-      function note(nx, ny, nw, nh, col, rot) {
-        ctx.save(); ctx.translate(px(nx + nw / 2), py(ny + nh / 2)); ctx.rotate(rot);
-        fr(-nw / 2, -nh / 2, nw, nh, col); fr(-nw / 2, -nh / 2, nw, 0.002, 'rgba(255,255,255,.15)');
-        ctx.restore();
-      }
-      note(x + 0.02, y + 0.03, 0.045, 0.055, '#F4F4F4', -0.05); note(x + 0.07, y + 0.04, 0.035, 0.035, '#FFF8A0', 0.08);
-      note(x + 0.04, y + 0.11, 0.055, 0.040, '#E8CFCF', -0.02); note(x + 0.12, y + 0.06, 0.040, 0.050, '#E0F0E0', 0.12);
-    }
-
-    function drawIvy() {
-      function droopingVine(x, y, len, seed) {
-        ctx.strokeStyle = '#1A2F10'; ctx.lineWidth = px(0.003); ctx.beginPath();
-        for (var i = 0; i < 10; i++) {
-          var step = i / 9; var ox = Math.sin(time * 0.04 + seed + i * 0.4) * 0.005;
-          ctx.lineTo(px(x + ox), py(y + step * len));
-        }
-        ctx.stroke();
-        for (var l = 0; l < 8; l++) {
-          var tp = l / 7; var lx = x + Math.sin(time * 0.04 + seed + tp * 10 * 0.4) * 0.005;
-          var ly = y + tp * len;
-          circ(lx, ly, px(0.004), '#2E4C1A', 0.85); circ(lx + 0.003, ly, px(0.0022), '#4A7C2A', 0.4);
-        }
-      }
-      droopingVine(0.05, 0.05, 0.18, 0.1); droopingVine(0.12, 0.05, 0.12, 0.5);
-      droopingVine(0.88, 0.05, 0.22, 1.2); droopingVine(0.94, 0.05, 0.14, 2.3);
-    }
-
     function drawUIHalo(zone) {
       if (!zone) return;
       var cx = zone.x + zone.w / 2, cy = zone.y + zone.h / 2;
@@ -1847,7 +1449,6 @@
           if (z.winLeft) { toggleLeftWindow(); return; }
           if (z.winRight) { toggleRightWindow(); return; }
           if (z.lamp) { toggleLamp(); return; }
-          if (z.vinyl) { toggleMusic(); return; }
           if (z.key === 'write') { openDeskView(); return; }
           if (z.key === 'archive') { location.href = '/dashboard'; return; }
           if (z.key) { openM(z.key); return; }

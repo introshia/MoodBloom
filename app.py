@@ -336,8 +336,8 @@ def archive():
     # 4. AI Mood Trend (Linear Regression)
     trend = calculate_mood_trend(all_entries)
     
-    # 5. Chart Data
-    chart_data_map = {}
+    # 5. Chart Data (Preserve multiple entries per day)
+    chart_points = []
     config_map = {
         5: {"c": "#5BB8F5", "label": "Radiant"},
         4: {"c": "#6DBF8A", "label": "Serene"},
@@ -345,19 +345,24 @@ def archive():
         2: {"c": "#E87FA0", "label": "Pensive"},
         1: {"c": "#A99BC4", "label": "Heavy"}
     }
-    for e in reversed(all_entries[:15]): 
+    
+    # We take the latest 15 entries and reverse them for chronological chart display
+    for i, e in enumerate(reversed(all_entries[:15])):
         d_str = e['entry_date'].strftime("%b %d")
         score = e['mood_score']
-        chart_data_map[d_str] = {
-            "val": score, 
+        # If there are multiple entries on the same day, clarify the label slightly
+        # We'll just use the date string, Chart.js handles duplicate labels in category axis by showing them sequentially
+        chart_points.append({
+            "label": d_str,
+            "val": score,
             "color": config_map.get(score, config_map[3])["c"],
-            "label": config_map.get(score, config_map[3])["label"]
-        }
+            "mood": config_map.get(score, config_map[3])["label"]
+        })
     
-    chart_labels = list(chart_data_map.keys())
-    chart_scores = [v["val"] for v in chart_data_map.values()]
-    chart_colors = [v["color"] for v in chart_data_map.values()]
-    chart_moods = [v["label"] for v in chart_data_map.values()]
+    chart_labels = [p["label"] for p in chart_points]
+    chart_scores = [p["val"] for p in chart_points]
+    chart_colors = [p["color"] for p in chart_points]
+    chart_moods = [p["mood"] for p in chart_points]
 
     # Greeting & Stats
     hour = now.hour
