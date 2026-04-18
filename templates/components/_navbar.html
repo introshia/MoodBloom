@@ -1,7 +1,7 @@
     <!-- NAVBAR -->
     <div class="navbar-container">
         <a href="{{ url_for('index') }}" class="navbar-logo">
-            &#10022; Folio
+            <span class="brand-sparkle">&#10022;</span> MoodBloom
             <span>/ {% if request.endpoint == 'sanctuary' %}sanctuary{% elif request.endpoint == 'archive' %}archive{% elif request.endpoint == 'writing' %}writing{% elif request.endpoint == 'profile' %}profile{% else %}bloom{% endif %}</span>
         </a>
         <div class="navbar-center">
@@ -10,6 +10,7 @@
             <a href="{{ url_for('archive') }}" class="navbar-link {% if request.endpoint == 'archive' %}active{% endif %}">Archive</a>
             <a href="{{ url_for('sanctuary') }}" class="navbar-link {% if request.endpoint == 'sanctuary' %}active{% endif %}">Sanctuary</a>
             <a href="{{ url_for('writing') }}" class="navbar-link {% if request.endpoint == 'writing' %}active{% endif %}">Writing</a>
+            <a href="{{ url_for('profile') }}" class="navbar-link {% if request.endpoint == 'profile' %}active{% endif %}">Profile</a>
             {% else %}
             <a href="{{ url_for('index') }}#features" class="navbar-link">Features</a>
             <a href="{{ url_for('index') }}#how-it-works" class="navbar-link">How it Works</a>
@@ -29,3 +30,4 @@
             {% endif %}
         </div>
     </div>
+

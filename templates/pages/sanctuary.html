@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Folio · Sanctuary</title>
+  <title>MoodBloom · Sanctuary</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400&display=swap"
     rel="stylesheet" />
@@ -564,7 +564,7 @@
   <canvas id="c"></canvas>
 
   <nav id="nav">
-    <div class="logo" id="logo-btn">&#10022; Folio <span>/ sanctuary</span></div>
+    <div class="logo" id="logo-btn">&#10022; MoodBloom <span>/ sanctuary</span></div>
   </nav>
 
   <!-- Bottom navigation dock (auto-hides, revealed on mouse-near-bottom) -->
@@ -1298,6 +1298,13 @@
         var pos = deskPos(0.15, 0.18); var sc = pos.scale;
         var lbX = pos.x, lbY = pos.y;
 
+        // Desk light pool - drawn BEFORE the lamp so the wood doesn't look washed out/transparent
+        if (lampOn) {
+          var dlg = ctx.createRadialGradient(px(lbX), py(lbY - 0.03 * sc), px(0.01), px(lbX), py(lbY - 0.03 * sc), px(0.55 * sc));
+          dlg.addColorStop(0, 'rgba(255,180,50,0.35)'); dlg.addColorStop(0.4, 'rgba(255,160,40,0.12)'); dlg.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = dlg; ctx.fillRect(0, 0, W, H);
+        }
+
         // 1. Base (Ornate Bronze/Wood Pedestal)
         ctx.fillStyle = linG(lbX - 0.04 * sc, lbY, lbX + 0.04 * sc, lbY, [[0, '#120804'], [0.4, '#3A1C10'], [0.6, '#3A1C10'], [1, '#120804']]);
         ctx.beginPath(); ctx.ellipse(px(lbX), py(lbY), px(0.045 * sc), py(0.015 * sc), 0, 0, Math.PI * 2); ctx.fill();
@@ -1307,7 +1314,7 @@
         var stY = lbY - 0.025 * sc;
         // Bottom bulb
         ctx.fillStyle = linG(lbX - 0.018 * sc, 0, lbX + 0.018 * sc, 0, [[0, '#1A0B05'], [0.5, '#4A2810'], [1, '#1A0B05']]);
-        ctx.beginPath(); ctx.ellipse(px(lbX), py(stY - 0.03 * sc), px(0.018 * sc), py(0.025 * sc), 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(px(lbX), py(stY - 0.02 * sc), px(0.018 * sc), py(0.025 * sc), 0, 0, Math.PI * 2); ctx.fill();
         // Middle spindle
         fr(lbX - 0.007 * sc, stY - 0.14 * sc, 0.014 * sc, 0.12 * sc, '#2E1208');
         // Top bulb
@@ -1335,20 +1342,13 @@
         ctx.lineTo(px(lbX - shW_B), py(shBotY));
         ctx.closePath(); ctx.fill();
 
-        // Highline on shade
-        ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.moveTo(px(lbX - shW_T * 0.4), py(shTopY + 0.005 * sc)); ctx.lineTo(px(lbX - shW_B * 0.4), py(shBotY - 0.005 * sc)); ctx.stroke();
+        // Highline on shade removed to eliminate the "obvious streak of light" feeling
 
         if (lampOn) {
           // Internal bulb glow (balanced)
           var ig = ctx.createRadialGradient(px(lbX), py(shBotY - 0.02 * sc), 0, px(lbX), py(shBotY - 0.02 * sc), px(0.08 * sc));
           ig.addColorStop(0, 'rgba(255,250,220,0.85)'); ig.addColorStop(0.5, 'rgba(255,210,120,0.4)'); ig.addColorStop(1, 'rgba(255,160,60,0)');
           ctx.fillStyle = ig; ctx.beginPath(); ctx.ellipse(px(lbX), py(shBotY), px(shW_B * 1.1), py(0.020 * sc), 0, 0, Math.PI * 2); ctx.fill();
-
-          // Desk light pool (wider, much softer transition)
-          var dlg = ctx.createRadialGradient(px(lbX), py(lbY - 0.03 * sc), px(0.01), px(lbX), py(lbY - 0.03 * sc), px(0.55 * sc));
-          dlg.addColorStop(0, 'rgba(255,180,50,0.35)'); dlg.addColorStop(0.4, 'rgba(255,160,40,0.12)'); dlg.addColorStop(1, 'rgba(0,0,0,0)');
-          ctx.fillStyle = dlg; ctx.fillRect(0, py(DESK_TOP_Y), W, py(1 - DESK_TOP_Y));
         }
       })();
 

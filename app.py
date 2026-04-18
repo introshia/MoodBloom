@@ -414,25 +414,43 @@ def install():
 def profile():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-        
+
     user_id = session['user_id']
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    
-    # 1. Fetch User Data
+
     cursor.execute("SELECT username, joined_at FROM users WHERE id = %s", (user_id,))
     user = cursor.fetchone()
-    
-    # 2. Fetch Stats
+
     cursor.execute("SELECT COUNT(*) as total FROM journal_entries WHERE user_id = %s", (user_id,))
-    stats = cursor.fetchone()
-    
+    total_entries = cursor.fetchone()['total']
+
+    cursor.execute("SELECT SUM(LENGTH(content) - LENGTH(REPLACE(content, ' ', '')) + 1) as words FROM journal_entries WHERE user_id = %s", (user_id,))
+    word_row = cursor.fetchone()
+    total_words = int(word_row['words']) if word_row and word_row['words'] else 0
+
+    # Top mood: map mood_score int to a label
+    cursor.execute("SELECT mood_score, COUNT(*) as cnt FROM journal_entries WHERE user_id = %s AND mood_score IS NOT NULL GROUP BY mood_score ORDER BY cnt DESC LIMIT 1", (user_id,))
+    mood_row = cursor.fetchone()
+    mood_labels = {1: 'Heavy', 2: 'Muted', 3: 'Steady', 4: 'Serene', 5: 'Vibrant'}
+    top_mood = mood_labels.get(mood_row['mood_score'], 'Steady') if mood_row else 'None yet'
+
+    cursor.execute("SELECT DISTINCT DATE(entry_date) as d FROM journal_entries WHERE user_id = %s ORDER BY d DESC", (user_id,))
+    days = [row['d'] for row in cursor.fetchall()]
+    streak = 0
+    if days:
+        from datetime import date, timedelta
+        check = date.today()
+        for d in days:
+            if d == check or d == check - timedelta(days=1):
+                streak += 1
+                check = d
+            else:
+                break
+
     conn.close()
-    
-    # Format 'Member Since'
     joined = user['joined_at'].strftime("%B %Y") if user.get('joined_at') else "April 2026"
-    
-    return render_template('pages/profile.html', user=user, stats=stats['total'], joined=joined)
+    return render_template('pages/profile.html', user=user, stats=total_entries, joined=joined, total_words=total_words, top_mood=top_mood, streak=streak)
 
 @app.route('/update_profile', methods=['POST'])
 def update_profile():

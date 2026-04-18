@@ -524,12 +524,17 @@
       document.getElementById('desk-overlay').classList.remove('show');
     }
 
-    // Auto-open logic
+    // Auto-open logic with URL cleanup
     window.addEventListener('load', function() {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('open') === 'journal') {
             document.getElementById('desk-overlay').classList.add('show');
             setTimeout(startOpenJournal, 500);
+            
+            // Clean the URL so reloading doesn't auto-open again
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState(null, '', window.location.pathname);
+            }
         }
     });
 </script>
