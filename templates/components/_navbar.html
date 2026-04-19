@@ -1,16 +1,49 @@
+<style>
+.nav-profile-widget {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px 6px 6px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--text-black);
+    font-weight: 500;
+    transition: background 0.2s;
+}
+.nav-profile-widget:hover {
+    background: rgba(0, 0, 0, 0.04);
+}
+.nav-profile-avatar {
+    width: 24px;
+    height: 24px;
+    background: #E4DFD6;
+    color: #554C42;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+.nav-profile-name {
+    font-size: 14.5px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    color: var(--text-black);
+}
+</style>
     <!-- NAVBAR -->
     <div class="navbar-container">
-        <a href="{{ url_for('index') }}" class="navbar-logo">
-            <span class="brand-sparkle">&#10022;</span> MoodBloom
-            <span>/ {% if request.endpoint == 'sanctuary' %}sanctuary{% elif request.endpoint == 'archive' %}archive{% elif request.endpoint == 'writing' %}writing{% elif request.endpoint == 'profile' %}profile{% else %}bloom{% endif %}</span>
+        <a href="{% if session.get('user_id') %}{{ url_for('archive') }}{% else %}{{ url_for('index') }}{% endif %}" class="navbar-logo">
+            MoodBloom
         </a>
         <div class="navbar-center">
             {% if session.get('user_id') %}
-            <a href="{{ url_for('index') }}" class="navbar-link">Home</a>
             <a href="{{ url_for('archive') }}" class="navbar-link {% if request.endpoint == 'archive' %}active{% endif %}">Archive</a>
             <a href="{{ url_for('sanctuary') }}" class="navbar-link {% if request.endpoint == 'sanctuary' %}active{% endif %}">Sanctuary</a>
             <a href="{{ url_for('writing') }}" class="navbar-link {% if request.endpoint == 'writing' %}active{% endif %}">Writing</a>
-            <a href="{{ url_for('profile') }}" class="navbar-link {% if request.endpoint == 'profile' %}active{% endif %}">Profile</a>
             {% else %}
             <a href="{{ url_for('index') }}#features" class="navbar-link">Features</a>
             <a href="{{ url_for('index') }}#how-it-works" class="navbar-link">How it Works</a>
@@ -23,7 +56,10 @@
                 <i class="fa-solid fa-moon"></i>
             </button>
             {% if session.get('user_id') %}
-            <a href="{{ url_for('logout') }}" class="navbar-contact">Log Out</a>
+            <a href="{{ url_for('profile') }}" class="nav-profile-widget">
+                <div class="nav-profile-avatar">{{ session.get('username', 'U')[0]|upper }}</div>
+                <div class="nav-profile-name">{{ session.get('username', 'Profile') }}</div>
+            </a>
             {% else %}
             <a href="{{ url_for('login') }}" class="navbar-contact">Log In</a>
             <a href="{{ url_for('install') }}" class="btn-collaborate">Install App</a>
