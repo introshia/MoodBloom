@@ -605,9 +605,11 @@
                 <div style="font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;">
                     Recent Chronicle </div>
             </div>
-            <canvas id="atmosphereChart" class="aw-canvas" data-labels="{{ chart_labels | tojson | safe }}"
-                data-scores="{{ chart_scores | tojson | safe }}" data-colors="{{ chart_colors | tojson | safe }}"
-                data-moods="{{ chart_moods | tojson | safe }}"></canvas>
+            <div style="position: relative; height: 240px; width: 100%;">
+                <canvas id="atmosphereChart" class="aw-canvas" data-labels="{{ chart_labels | tojson | safe }}"
+                    data-scores="{{ chart_scores | tojson | safe }}" data-colors="{{ chart_colors | tojson | safe }}"
+                    data-moods="{{ chart_moods | tojson | safe }}"></canvas>
+            </div>
 
             <div class="atip" id="atip">
                 <div class="atip-s" id="atip-s">--</div>

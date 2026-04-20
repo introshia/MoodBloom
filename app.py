@@ -367,7 +367,11 @@ def archive():
     # Greeting & Stats
     hour = now.hour
     greeting_prefix = "Good morning" if hour < 12 else "Good afternoon" if hour < 17 else "Good evening"
-    greeting = f"{greeting_prefix}, {session.get('username', 'Alex')}."
+    
+    # Format username cleanly by replacing underscores with spaces and capitalizing
+    raw_username = session.get('username', 'Alex')
+    clean_username = raw_username.replace('_', ' ').title()
+    greeting = f"{greeting_prefix}, {clean_username}."
     stats_msg = f"You've inscribed {len(all_entries)} memories in your Archive this year."
 
     # 6. Atmosphere Companion (Energy Widget)
@@ -392,18 +396,6 @@ def writing():
         return redirect(url_for('login'))
     return redirect(url_for('sanctuary', open='journal'))
 
-# --- LEGACY REDIRECTS ---
-@app.route('/dashboard')
-def legacy_dashboard():
-    return redirect(url_for('archive'))
-
-@app.route('/cozy-room')
-def legacy_cozy_room():
-    return redirect(url_for('sanctuary'))
-
-@app.route('/journal')
-def legacy_journal():
-    return redirect(url_for('writing'))
 
 
 @app.route('/install')
@@ -525,40 +517,6 @@ def save_entry():
     except Exception as e:
         return {'success': False, 'message': str(e)}, 500
 
-
-@app.route('/add', methods=['POST'])
-def add_entry():
-    # SECURITY
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-        
-    content = request.form.get('content')
-    mood_chip = request.form.get('mood') # Catches the selected chip from the new UI!
-    
-    if content:
-        ai_result = analyze_sentiment(content)
-        mood_score = ai_result['score']
-        quote = get_quote_for_entry(content)
-        user_id = session['user_id']
-        
-        # If they clicked a chip, save it as the theme. Otherwise, default to 'General'
-        theme_to_save = mood_chip if mood_chip else 'General'
-        
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        # Save the new entry WITH the user's ID attached
-        cursor.execute("INSERT INTO journal_entries (content, mood_score, theme, user_id) VALUES (%s, %s, %s, %s)", 
-                       (content, mood_score, theme_to_save, user_id))
-        conn.commit()
-        conn.close()
-        
-        # Safely redirect with the quote
-        if quote:
-            return redirect(url_for('journal', quote_text=quote.get('text'), quote_author=quote.get('author')))
-        else:
-            return redirect(url_for('journal'))
-            
-    return redirect(url_for('journal'))
 
 @app.route('/upload_media', methods=['POST'])
 def upload_media():
