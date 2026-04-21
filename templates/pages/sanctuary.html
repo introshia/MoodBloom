@@ -340,223 +340,6 @@
       pointer-events: none
     }
 
-    /* ═══════════════════════════════════════════
-       DESK OVERLAY
-    ═══════════════════════════════════════════ */
-    #desk-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 50;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.65s cubic-bezier(.4, 0, .2, 1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-
-    #desk-overlay.show {
-      opacity: 1;
-      pointer-events: all
-    }
-
-    .desk-surface {
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at 50% 35%, #8A5A30 0%, #6A3E1C 30%, #4A2810 65%, #2E1808 100%);
-    }
-
-    .desk-surface::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(87deg, transparent 0, transparent 38px, rgba(0, 0, 0, .05) 38px, rgba(0, 0, 0, .05) 40px);
-      pointer-events: none;
-    }
-
-    .desk-surface::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at 50% 0%, rgba(255, 180, 80, .08) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .btn-back-room {
-      position: absolute;
-      top: 20px;
-      left: 24px;
-      z-index: 200;
-      background: rgba(10, 4, 1, .7);
-      border: 1px solid rgba(180, 90, 25, .25);
-      border-radius: 20px;
-      padding: 8px 18px;
-      color: rgba(200, 130, 50, .6);
-      font-size: 11px;
-      cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      transition: all .2s;
-    }
-
-    .btn-back-room:hover {
-      color: rgba(255, 190, 90, .9);
-      border-color: rgba(200, 130, 50, .4)
-    }
-
-    /* ═══════════════════════════════════════════
-       CLOSED JOURNAL — portrait orientation
-    ═══════════════════════════════════════════ */
-    #j-closed {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -52%) perspective(1000px) rotateX(12deg) rotateZ(-2deg);
-      width: clamp(100px, 11vw, 150px);
-      height: clamp(145px, 17vw, 220px);
-      cursor: pointer;
-      transition: transform .35s cubic-bezier(.34, 1.56, .64, 1);
-    }
-
-    #j-closed:hover {
-      transform: translate(-50%, -55%) perspective(1000px) rotateX(10deg) rotateZ(-2deg) scale(1.05);
-    }
-
-    .j-cover-body {
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(160deg, #1E2B14 0%, #2A3A1C 45%, #1A2810 100%);
-      border-radius: 3px 4px 4px 3px;
-      position: relative;
-      box-shadow: 0 20px 55px rgba(0, 0, 0, .65), 0 6px 16px rgba(0, 0, 0, .4), inset 0 1px 0 rgba(255, 255, 255, .05);
-    }
-
-    .j-spine-edge {
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 12px;
-      background: linear-gradient(to right, #060A04, #0E1608, rgba(0, 0, 0, 0));
-      border-radius: 3px 0 0 3px;
-    }
-
-    /* Rings visible on spine of closed journal */
-    .j-rings-closed {
-      position: absolute;
-      left: -4px;
-      top: 0;
-      bottom: 0;
-      width: 10px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-around;
-      padding: 20% 0;
-      pointer-events: none;
-    }
-
-    .j-ring-dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, #E0B830, #8A6010);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, .5);
-    }
-
-    .j-page-edge {
-      position: absolute;
-      right: -4px;
-      top: 4px;
-      bottom: 4px;
-      width: 5px;
-      background: linear-gradient(to right, #D8C88A, #C4B070, #DDD0A0);
-      border-radius: 0 2px 2px 0;
-    }
-
-    .j-page-edge-btm {
-      position: absolute;
-      bottom: -4px;
-      left: 10px;
-      right: 4px;
-      height: 5px;
-      background: linear-gradient(to bottom, #D8C88A, #C4B070);
-      border-radius: 0 0 2px 2px;
-    }
-
-    .j-open-hint {
-      position: absolute;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: rgba(180, 160, 100, .6);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 9px;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      opacity: 0;
-      transition: opacity .3s;
-      white-space: nowrap;
-    }
-
-    #j-closed:hover .j-open-hint {
-      opacity: 1
-    }
-
-    /* ═══════════════════════════════════════════
-       COVER FLIP ANIMATION
-    ═══════════════════════════════════════════ */
-    #j-cover-flap {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform-origin: left center;
-      transform: translate(-50%, -52%) perspective(1000px);
-      width: clamp(50px, 5.5vw, 75px);
-      height: clamp(145px, 17vw, 220px);
-      background: linear-gradient(160deg, #1E2B14 0%, #2A3A1C 45%, #1A2810 100%);
-      border-radius: 0 4px 4px 0;
-      box-shadow: 0 20px 55px rgba(0, 0, 0, .65);
-      display: none;
-      z-index: 110;
-    }
-
-    #j-cover-flap.flipping {
-      display: block;
-      animation: cover-flip 0.85s cubic-bezier(.4, 0, .2, 1) forwards;
-    }
-
-    @keyframes cover-flip {
-      0% {
-        transform: translate(-50%, -52%) perspective(1200px) rotateY(0deg);
-      }
-
-      100% {
-        transform: translate(-140%, -52%) perspective(1200px) rotateY(-160deg);
-      }
-    }
-
-    /* ═══════════════════════════════════════════
-       OPEN JOURNAL — dark MoodBloom design
-    ═══════════════════════════════════════════ */
-    #j-open {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .5s ease;
-      gap: 14px;
-    }
-
-    #j-open.visible {
-      opacity: 1;
-      pointer-events: all
-    }
   </style>
 </head>
 
@@ -564,11 +347,10 @@
   <canvas id="c"></canvas>
 
   <nav id="nav">
-    <div class="logo" id="logo-btn">&#10022; MoodBloom <span>/ sanctuary</span></div>
+    <div class="logo" id="logo-btn">MoodBloom</div>
   </nav>
 
-  <!-- Bottom navigation dock (auto-hides, revealed on mouse-near-bottom) -->
-  <div id="bottom-dock">
+  <div id="bottom-dock" onclick="event.stopPropagation()">
     <a class="dock-link" href="/archive">
       <span class="dock-icon">&#128218;</span>
       <span class="dock-label">Archive</span>
@@ -576,10 +358,6 @@
     <a class="dock-link" href="/writing">
       <span class="dock-icon">&#9997;</span>
       <span class="dock-label">Journal</span>
-    </a>
-    <a class="dock-link" href="#" onclick="openM('mood');return false;">
-      <span class="dock-icon">&#127774;</span>
-      <span class="dock-label">Mood</span>
     </a>
     <a class="dock-link" href="/profile">
       <span class="dock-icon">&#9775;</span>
@@ -602,7 +380,7 @@
     </div>
   </div>
 
-  <button id="lamptgl" onclick="toggleLamp()">&#9789; lamp</button>
+  <button id="lamptgl" onclick="toggleLamp(); event.stopPropagation();">&#9789; lamp</button>
   <div id="sound-ctrl">
     <button class="s-btn" id="btn-music" onclick="toggleMusic()" title="Music">&#9835;</button>
     <button class="s-btn" id="btn-rain" onclick="toggleRain()" title="Rain">&#9748;</button>
@@ -727,18 +505,8 @@
     // ═══════════════════════════════════════════════════════════
     // DESK VIEW (Triggers the overlay)
     // ═══════════════════════════════════════════════════════════
-    function openDeskView() {
-      if (window.startOpenJournal) {
-        document.getElementById('desk-overlay').classList.add('show');
-        var tip = document.getElementById('tip');
-        if (tip) tip.style.opacity = '0';
-      }
-    }
 
-    window.openM = openM; window.closeM = closeM;
-    window.openDeskView = openDeskView;
-
-    document.getElementById('logo-btn').addEventListener('click', function () { location.href = '/dashboard'; });
+    document.getElementById('logo-btn').addEventListener('click', function () { location.href = '/archive'; });
 
     // ── CANVAS ────────────────────────────────────────────────────
     var canv = document.getElementById('c');
@@ -1546,11 +1314,11 @@
       { x: WX, y: WY, w: WW * 0.5, h: WH, title: 'Left Window', sub: leftOpen ? 'click to close' : 'click to open', winLeft: true },
       { x: WX + WW * 0.5, y: WY, w: WW * 0.5, h: WH, title: 'Right Window', sub: rightOpen ? 'click to close' : 'click to open', winRight: true },
       // Desk items (mapped to the 3D surface)
-      { x: 0.44, y: DESK_TOP_Y + 0.03, w: 0.12, h: 0.09, title: 'Writing Desk', sub: 'start a new entry', key: 'write' },
-      { x: 0.64, y: DESK_TOP_Y + 0.01, w: 0.07, h: 0.08, title: 'Firefly Jar', sub: 'glowing thoughts', key: 'jar' },
-      { x: 0.76, y: DESK_TOP_Y + 0.04, w: 0.07, h: 0.07, title: 'Morning Mug', sub: 'still warm', key: 'home' },
+      { x: 0.40, y: DESK_TOP_Y + 0.01, w: 0.20, h: 0.14, title: 'Writing Desk', sub: 'start a new entry', key: 'write' },
+      { x: 0.64, y: DESK_TOP_Y + 0.01, w: 0.08, h: 0.08, title: 'Firefly Jar', sub: 'glowing thoughts', key: 'jar' },
+      { x: 0.75, y: DESK_TOP_Y + 0.03, w: 0.08, h: 0.09, title: 'Morning Mug', sub: 'still warm', key: 'home' },
       // Lamp (moved to left and scaled up)
-      { x: 0.22, y: DESK_TOP_Y - 0.16, w: 0.14, h: 0.28, title: 'Desk Lamp', sub: 'click to toggle light', lamp: true },
+      { x: 0.20, y: DESK_TOP_Y - 0.22, w: 0.16, h: 0.32, title: 'Desk Lamp', sub: 'click to toggle light', lamp: true },
     ];
 
     // ── CLICK: WINDOW TOGGLES ─────────────────────────────────────
@@ -1603,8 +1371,8 @@
           if (z.winLeft) { toggleLeftWindow(); return; }
           if (z.winRight) { toggleRightWindow(); return; }
           if (z.lamp) { toggleLamp(); return; }
-          if (z.key === 'write') { openDeskView(); return; }
-          if (z.key === 'archive') { location.href = '/dashboard'; return; }
+          if (z.key === 'write') { startOpenJournal(); return; }
+          if (z.key === 'archive') { location.href = '/archive'; return; }
           if (z.key) { openM(z.key); return; }
         }
       }

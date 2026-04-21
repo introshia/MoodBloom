@@ -482,6 +482,7 @@
 
     function startOpenJournal() {
       if (journalIsOpen) return;
+      document.getElementById('desk-overlay').classList.add('show');
       var jClosed = document.getElementById('j-closed'), jFlap = document.getElementById('j-cover-flap'), jOpen = document.getElementById('j-open');
       jClosed.style.opacity = '0';
       jFlap.style.display = 'block'; jFlap.classList.add('flipping');
