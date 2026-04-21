@@ -21,7 +21,7 @@
     {% block head %}{% endblock %}
 </head>
 
-<body>
+<body id="{% block body_id %}{% endblock %}">
     {% block navbar %}
         {% include 'components/_navbar.html' %}
     {% endblock %}

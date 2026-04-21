@@ -229,6 +229,8 @@ def logout():
 
 @app.route('/')
 def index():
+    if 'user_id' in session:
+        return redirect(url_for('archive'))
     return render_template('pages/index.html')
 
 @app.route('/sanctuary')

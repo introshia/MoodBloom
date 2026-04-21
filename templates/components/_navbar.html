@@ -33,6 +33,73 @@
     font-weight: 500;
     color: var(--text-black);
 }
+
+/* Dropdown Menu Styles */
+.nav-profile-container {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(82, 44, 14, 0.08);
+    border-radius: 12px;
+    min-width: 180px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 2000;
+    padding: 8px;
+}
+
+.profile-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    color: var(--text-black);
+    text-decoration: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.dropdown-item:hover {
+    background: rgba(82, 44, 14, 0.04);
+}
+
+.dropdown-item i {
+    font-size: 14px;
+    opacity: 0.6;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: rgba(82, 44, 14, 0.06);
+    margin: 6px 0;
+}
+
+.dropdown-item.logout {
+    color: #C2410C;
+}
+
+.dropdown-item.logout:hover {
+    background: #FFF7ED;
+}
 </style>
     <!-- NAVBAR -->
     <div class="navbar-container">
@@ -56,10 +123,29 @@
                 <i class="fa-solid fa-moon"></i>
             </button>
             {% if session.get('user_id') %}
-            <a href="{{ url_for('profile') }}" class="nav-profile-widget">
-                <div class="nav-profile-avatar">{{ session.get('username', 'U')[0]|upper }}</div>
-                <div class="nav-profile-name">{{ session.get('username', 'Profile') }}</div>
-            </a>
+            <div class="nav-profile-container">
+                <a href="javascript:void(0)" class="nav-profile-widget" id="profile-trigger">
+                    <div class="nav-profile-avatar">{{ session.get('username', 'U')[0]|upper }}</div>
+                    <div class="nav-profile-name">{{ session.get('username', 'Profile') }}</div>
+                    <i class="fa-solid fa-chevron-down" style="font-size: 10px; opacity: 0.4; margin-left: 4px;"></i>
+                </a>
+                
+                <div class="profile-dropdown" id="profile-menu">
+                    <a href="{{ url_for('profile') }}" class="dropdown-item">
+                        <i class="fa-solid fa-user-gear"></i>
+                        Settings
+                    </a>
+                    <a href="{{ url_for('archive') }}" class="dropdown-item">
+                        <i class="fa-solid fa-book-bookmark"></i>
+                        My Archive
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{{ url_for('logout') }}" class="dropdown-item logout">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        Log Out
+                    </a>
+                </div>
+            </div>
             {% else %}
             <a href="{{ url_for('login') }}" class="navbar-contact">Log In</a>
             <a href="{{ url_for('install') }}" class="btn-collaborate">Install App</a>
@@ -67,3 +153,23 @@
         </div>
     </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const trigger = document.getElementById('profile-trigger');
+            const menu = document.getElementById('profile-menu');
+            
+            if (trigger && menu) {
+                trigger.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    menu.classList.toggle('show');
+                });
+                
+                document.addEventListener('click', function(e) {
+                    if (!menu.contains(e.target) && !trigger.contains(e.target)) {
+                        menu.classList.remove('show');
+                    }
+                });
+            }
+        });
+    </script>
