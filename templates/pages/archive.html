@@ -815,9 +815,9 @@
                     Recent Chronicle </div>
             </div>
             <div class="chart-area" id="chartArea" 
-                 data-labels="{{ chart_labels | tojson | safe }}"
-                 data-scores="{{ chart_scores | tojson | safe }}"
-                 data-moods="{{ chart_moods | tojson | safe }}">
+                 data-labels='{{ chart_labels | tojson | safe }}'
+                 data-scores='{{ chart_scores | tojson | safe }}'
+                 data-moods='{{ chart_moods | tojson | safe }}'>
                 <svg class="chart-svg" viewBox="0 0 314 130" preserveAspectRatio="none">
                     <defs>
                         <linearGradient id="fillGrad" x1="0" y1="0" x2="0" y2="1">
