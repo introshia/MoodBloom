@@ -814,10 +814,10 @@
                 <div style="font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;">
                     Recent Chronicle </div>
             </div>
-            <div class="chart-area" id="chartArea" 
-                 data-labels='{{ chart_labels | tojson | safe }}'
-                 data-scores='{{ chart_scores | tojson | safe }}'
-                 data-moods='{{ chart_moods | tojson | safe }}'>
+            <div class="chart-area" id="chartArea">
+                <script id="chart-labels" type="application/json">{{ chart_labels | tojson | safe }}</script>
+                <script id="chart-scores" type="application/json">{{ chart_scores | tojson | safe }}</script>
+                <script id="chart-moods" type="application/json">{{ chart_moods | tojson | safe }}</script>
                 <svg class="chart-svg" viewBox="0 0 314 130" preserveAspectRatio="none">
                     <defs>
                         <linearGradient id="fillGrad" x1="0" y1="0" x2="0" y2="1">
@@ -979,9 +979,13 @@
 {% endblock %}
 
 {% block scripts %}
+<script id="featured-data" type="application/json">{{ featured_journals | tojson | safe }}</script>
+<script id="entries-data" type="application/json">{{ all_entries_json | tojson | safe }}</script>
+<script id="collections-data" type="application/json">{{ user_collections_json | tojson | safe }}</script>
+
 <script>
     // ── 3D SHELF LOGIC ───────────────────────────────────────
-    const FEATURED = JSON.parse('{{ featured_journals | tojson | safe }}');
+    const FEATURED = JSON.parse(document.getElementById('featured-data').textContent);
     const BW = 170, BH = 240, SW = 18;
 
     function darken(hex, n) {
@@ -1143,9 +1147,9 @@
     setTimeout(() => {
         const area = document.getElementById('chartArea');
         if(!area) return;
-        const labels = JSON.parse(area.dataset.labels);
-        const scores = JSON.parse(area.dataset.scores);
-        const moods = JSON.parse(area.dataset.moods);
+        const labels = JSON.parse(document.getElementById('chart-labels').textContent);
+        const scores = JSON.parse(document.getElementById('chart-scores').textContent);
+        const moods = JSON.parse(document.getElementById('chart-moods').textContent);
         
         const SVG_W = 314, SVG_H = 130;
         
@@ -1235,8 +1239,9 @@
     }, 100);
 
     // \u2500\u2500 VIEW SWITCHER \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-    let ENTRIES = {{ all_entries_json | tojson | safe }};
-    let COLLECTIONS = {{ user_collections_json | tojson | safe }};
+    // ── VIEW SWITCHER ───────────────────────────────────────────────────
+    let ENTRIES = JSON.parse(document.getElementById('entries-data').textContent);
+    let COLLECTIONS = JSON.parse(document.getElementById('collections-data').textContent);
     const libGrid = document.getElementById('library-grid');
     const btnNewVol = document.getElementById('btn-new-vol');
 
