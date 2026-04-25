@@ -168,17 +168,30 @@
         border: 1px solid var(--rule);
         border-radius: 22px;
         padding: 32px;
-        min-height: 340px;
+        min-height: 290px;
         box-shadow: 0 12px 40px rgba(45, 51, 42, 0.04);
+        display: flex;
+        flex-direction: column;
     }
 
-    .aw-canvas {
-        display: block;
-        width: 100%;
-        height: 240px;
-        cursor: crosshair;
+    .chart-area { position: relative; height: 170px; margin: 0 -4px; flex-grow: 1; }
+    svg.chart-svg { width: 100%; height: 100%; overflow: visible; }
+    .mood-face {
+        position: absolute;
+        width: 42px; height: 42px;
+        transform: translate(-50%, -50%);
+        animation: floatBob var(--spd) ease-in-out infinite;
+        animation-delay: var(--dly);
+        cursor: pointer;
     }
-
+    .mood-face:hover svg { transform: scale(1.08); transition: transform 0.15s; }
+    @keyframes floatBob {
+        0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+        50%       { transform: translate(-50%, -50%) translateY(-5px); }
+    }
+    .day-labels { display: flex; justify-content: space-between; padding: 10px 4px 0; }
+    .day-label { font-size: 10px; font-weight: 600; color: #b8a892; text-align: center; width: 40px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .day-label.today { color: #2d2016; }
     .atip {
         position: absolute;
         background: #fff;
@@ -801,12 +814,34 @@
                 <div style="font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;">
                     Recent Chronicle </div>
             </div>
-            <div style="position: relative; height: 240px; width: 100%;">
-                <canvas id="atmosphereChart" class="aw-canvas" data-labels="{{ chart_labels | tojson | safe }}"
-                    data-scores="{{ chart_scores | tojson | safe }}" data-colors="{{ chart_colors | tojson | safe }}"
-                    data-moods="{{ chart_moods | tojson | safe }}"></canvas>
+            <div class="chart-area" id="chartArea" 
+                 data-labels="{{ chart_labels | tojson | safe }}"
+                 data-scores="{{ chart_scores | tojson | safe }}"
+                 data-moods="{{ chart_moods | tojson | safe }}">
+                <svg class="chart-svg" viewBox="0 0 314 130" preserveAspectRatio="none">
+                    <defs>
+                        <linearGradient id="fillGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#c9b99a" stop-opacity="0.2"/>
+                            <stop offset="100%" stop-color="#c9b99a" stop-opacity="0"/>
+                        </linearGradient>
+                        <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%"   stop-color="#c9a030"/>
+                            <stop offset="28%"  stop-color="#6a9e38"/>
+                            <stop offset="52%"  stop-color="#5a80b8"/>
+                            <stop offset="72%"  stop-color="#48a0a0"/>
+                            <stop offset="100%" stop-color="#4e9052"/>
+                        </linearGradient>
+                        <clipPath id="fillClip"><rect x="0" y="0" width="314" height="130"/></clipPath>
+                    </defs>
+                    <line x1="0" y1="28"  x2="314" y2="28"  stroke="#ede8de" stroke-width="1"/>
+                    <line x1="0" y1="65"  x2="314" y2="65"  stroke="#ede8de" stroke-width="1"/>
+                    <line x1="0" y1="102" x2="314" y2="102" stroke="#ede8de" stroke-width="1"/>
+                    <path id="chartFill" fill="url(#fillGrad)" clip-path="url(#fillClip)"/>
+                    <path id="chartLine" fill="none" stroke="url(#lineGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div id="facesContainer"></div>
             </div>
-
+            <div class="day-labels" id="dayLabels"></div>
             <div class="atip" id="atip">
                 <div class="atip-s" id="atip-s">--</div>
                 <div class="atip-l" id="atip-l">--</div>
@@ -1104,63 +1139,100 @@
 
     updateActive(0);
 
-    // ── ATMOSPHERE MAP LOGIC ─────────────────────────────────
+    // ── ATMOSPHERE MAP LOGIC (CUSTOM SVG) ─────────────────────────────────
     setTimeout(() => {
-        const ctx = document.getElementById('atmosphereChart').getContext('2d');
-        const labels = JSON.parse(document.getElementById('atmosphereChart').dataset.labels);
-        const scores = JSON.parse(document.getElementById('atmosphereChart').dataset.scores);
-        const colors = JSON.parse(document.getElementById('atmosphereChart').dataset.colors);
-        const moods = JSON.parse(document.getElementById('atmosphereChart').dataset.moods);
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: scores,
-                    borderColor: '#2D332A',
-                    borderWidth: 2.5,
-                    pointBackgroundColor: colors,
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 6,
-                    pointHoverRadius: 8,
-                    tension: 0.4,
-                    fill: false,
-                    showLine: true
-                }]
+        const area = document.getElementById('chartArea');
+        if(!area) return;
+        const labels = JSON.parse(area.dataset.labels);
+        const scores = JSON.parse(area.dataset.scores);
+        const moods = JSON.parse(area.dataset.moods);
+        
+        const SVG_W = 314, SVG_H = 130;
+        
+        // Define face SVGs based on scores
+        const faceDefs = {
+            1: { // Heavy / Sad
+                svg: `<svg width="42" height="42" viewBox="0 0 42 42" fill="none"><circle cx="21" cy="21" r="21" fill="#7098cc"/><circle cx="15" cy="18" r="1.6" fill="#1a2e5a"/><circle cx="27" cy="18" r="1.6" fill="#1a2e5a"/><path d="M27 22 Q25.8 26 27 28 Q28.2 26 27 22" fill="#cce0f8"/><path d="M14 29 Q21 24 28 29" stroke="#1a2e5a" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>`
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: {
-                        grid: { display: false },
-                        ticks: { font: { size: 10 }, color: '#7A8274' }
-                    },
-                    y: {
-                        min: 0, max: 6,
-                        ticks: { stepSize: 1, display: false },
-                        grid: { color: 'rgba(0,0,0,0.03)' }
-                    }
-                },
-                onHover: (e, elements) => {
-                    const tip = document.getElementById('atip');
-                    if (elements.length) {
-                        const idx = elements[0].index;
-                        document.getElementById('atip-s').textContent = scores[idx];
-                        document.getElementById('atip-l').textContent = moods[idx];
-                        tip.style.opacity = '1';
-                        tip.style.left = e.x + 15 + 'px';
-                        tip.style.top = e.y - 40 + 'px';
-                    } else {
-                        tip.style.opacity = '0';
-                    }
+            2: { // Pensive / Worried
+                svg: `<svg width="42" height="42" viewBox="0 0 42 42" fill="none"><circle cx="21" cy="21" r="21" fill="#5ab8b4"/><line x1="12" y1="14" x2="17" y2="16.5" stroke="#083030" stroke-width="1.6" stroke-linecap="round"/><line x1="25" y1="16.5" x2="30" y2="14" stroke="#083030" stroke-width="1.6" stroke-linecap="round"/><circle cx="15" cy="21" r="1.6" fill="#083030"/><circle cx="27" cy="21" r="1.6" fill="#083030"/><path d="M15 29 Q21 25 27 29" stroke="#083030" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>`
+            },
+            3: { // Steady / Neutral
+                svg: `<svg width="42" height="42" viewBox="0 0 42 42" fill="none"><circle cx="21" cy="21" r="21" fill="#ddb94a"/><circle cx="15" cy="19" r="1.6" fill="#4a3300"/><circle cx="27" cy="19" r="1.6" fill="#4a3300"/><line x1="15" y1="27" x2="27" y2="27" stroke="#4a3300" stroke-width="1.8" stroke-linecap="round"/></svg>`
+            },
+            4: { // Serene / Happy
+                svg: `<svg width="42" height="42" viewBox="0 0 42 42" fill="none"><circle cx="21" cy="21" r="21" fill="#7bbf52"/><circle cx="15" cy="18" r="1.6" fill="#1e4a0a"/><circle cx="27" cy="18" r="1.6" fill="#1e4a0a"/><circle cx="12" cy="24" r="2.2" fill="#c8401a" opacity="0.25"/><circle cx="30" cy="24" r="2.2" fill="#c8401a" opacity="0.25"/><path d="M14 25 Q21 31 28 25" stroke="#1e4a0a" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>`
+            },
+            5: { // Radiant / Joyful
+                svg: `<svg width="42" height="42" viewBox="0 0 42 42" fill="none"><circle cx="21" cy="21" r="21" fill="#5aaa5e"/><circle cx="15" cy="17" r="1.6" fill="#133016"/><circle cx="27" cy="17" r="1.6" fill="#133016"/><circle cx="11" cy="23" r="2.5" fill="#c8401a" opacity="0.22"/><circle cx="31" cy="23" r="2.5" fill="#c8401a" opacity="0.22"/><path d="M13 25 Q21 34 29 25" stroke="#133016" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>`
+            }
+        };
+
+        if (scores.length > 0) {
+            const marginX = 22;
+            const points = scores.map((score, i) => {
+                const x = scores.length === 1 ? SVG_W / 2 : marginX + (SVG_W - 2 * marginX) * (i / (scores.length - 1));
+                const y = 114 - ((score - 1) * 22.5); // 1->114, 5->24
+                return { x, y, score, label: labels[i] };
+            });
+
+            // Generate Path Data
+            let pathD = `M${points[0].x},${points[0].y}`;
+            if (points.length > 1) {
+                // Smooth Catmull-Rom to Bezier mapping for SVG
+                for (let i = 0; i < points.length - 1; i++) {
+                    const p0 = i === 0 ? points[0] : points[i - 1];
+                    const p1 = points[i];
+                    const p2 = points[i + 1];
+                    const p3 = i + 2 < points.length ? points[i + 2] : p2;
+                    const cp1x = p1.x + (p2.x - p0.x) / 6;
+                    const cp1y = p1.y + (p2.y - p0.y) / 6;
+                    const cp2x = p2.x - (p3.x - p1.x) / 6;
+                    const cp2y = p2.y - (p3.y - p1.y) / 6;
+                    pathD += ` C${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`;
                 }
             }
-        });
-    }, 500);
+            
+            document.getElementById('chartLine').setAttribute('d', pathD);
+            document.getElementById('chartFill').setAttribute('d', `${pathD} L${points[points.length-1].x},${SVG_H} L${points[0].x},${SVG_H} Z`);
+
+            const facesContainer = document.getElementById('facesContainer');
+            const dayLabelsContainer = document.getElementById('dayLabels');
+            
+            points.forEach((p, i) => {
+                // Add Face
+                const el = document.createElement('div');
+                el.className = 'mood-face';
+                el.style.left = (p.x / SVG_W * 100) + '%';
+                el.style.top  = (p.y / SVG_H * 100) + '%';
+                el.style.setProperty('--spd', (2.5 + Math.random()*2) + 's');
+                el.style.setProperty('--dly', (-Math.random()*2) + 's');
+                el.innerHTML = faceDefs[p.score] ? faceDefs[p.score].svg : faceDefs[3].svg;
+                
+                // Tooltip interaction
+                el.addEventListener('mouseenter', (e) => {
+                    const tip = document.getElementById('atip');
+                    document.getElementById('atip-s').textContent = p.label;
+                    document.getElementById('atip-l').textContent = moods[i];
+                    tip.style.opacity = '1';
+                    tip.style.left = (e.pageX - 10) + 'px';
+                    tip.style.top = (e.pageY - 40) + 'px';
+                });
+                el.addEventListener('mouseleave', () => {
+                    document.getElementById('atip').style.opacity = '0';
+                });
+                
+                facesContainer.appendChild(el);
+
+                // Add Label
+                const lbl = document.createElement('span');
+                lbl.className = 'day-label';
+                if (i === points.length - 1) lbl.classList.add('today');
+                lbl.textContent = p.label;
+                dayLabelsContainer.appendChild(lbl);
+            });
+        }
+    }, 100);
 
     // \u2500\u2500 VIEW SWITCHER \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
     let ENTRIES = {{ all_entries_json | tojson | safe }};

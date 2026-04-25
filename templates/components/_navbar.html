@@ -104,7 +104,7 @@
     <!-- NAVBAR -->
     <div class="navbar-container">
         <a href="{% if session.get('user_id') %}{{ url_for('archive') }}{% else %}{{ url_for('index') }}{% endif %}" class="navbar-logo">
-            MoodBloom
+            Bloom
         </a>
         <div class="navbar-center">
             {% if session.get('user_id') %}
