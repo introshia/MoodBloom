@@ -203,70 +203,32 @@
         text-transform: uppercase;
     }
 
-    /* ── 3D CAROUSEL SECTION ─────────────────── */
-    .featured-archive {
-        padding: 40px 0 60px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+    /* ── PREMIUM 3D BOOK SYSTEM ─────────────────── */
+    :root {
+        --bw: 170px; /* Base Width */
+        --bh: 240px; /* Base Height */
+        --sw: 18px;  /* Base Spine */
     }
 
-    .featured-header {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-
-    .featured-label {
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.15em;
-        color: var(--muted);
-        margin-bottom: 8px;
-    }
-
-    .featured-title {
-        font-family: 'Lora', serif;
-        font-size: 24px;
-        color: var(--text);
-    }
-
-    .journal-track {
-        display: flex;
-        gap: 32px;
-        overflow-x: auto;
-        scroll-snap-type: x mandatory;
-        padding: 40px 0;
-        width: 100%;
-        scrollbar-width: none;
-        padding-left: calc(50% - (var(--bw) / 2));
-        padding-right: calc(50% - (var(--bw) / 2));
-    }
-
-    .journal-track::-webkit-scrollbar {
-        display: none;
-    }
-
-    .journal-item {
-        scroll-snap-align: center;
-        flex-shrink: 0;
-        cursor: pointer;
-        transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-        transform-origin: center bottom;
-    }
-
-    .book-wrap {
-        width: var(--bw);
-        height: var(--bh);
+    .premium-book {
+        --scale: 1;
+        width: calc(var(--bw) * var(--scale));
+        height: calc(var(--bh) * var(--scale));
         perspective: 1000px;
         position: relative;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .premium-book:hover {
+        transform: translateY(-8px);
     }
 
     .book-pages {
         position: absolute;
         top: 2px;
-        left: calc(var(--sw) + 2px);
-        width: calc(var(--bw) - var(--sw) - 4px);
-        height: calc(var(--bh) - 4px);
+        left: calc((var(--sw) + 2px) * var(--scale));
+        width: calc((var(--bw) - var(--sw) - 4px) * var(--scale));
+        height: calc((var(--bh) - 4px) * var(--scale));
         background: #F8F4EE;
         border-radius: 0 3px 3px 0;
         z-index: 1;
@@ -285,13 +247,9 @@
         position: absolute;
         inset: 0;
         transform-style: preserve-3d;
-        transform-origin: var(--sw) 50%;
+        transform-origin: calc(var(--sw) * var(--scale)) 50%;
         transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 2;
-    }
-
-    .book-cover.open {
-        transform: rotateY(-165deg);
     }
 
     .cover-front,
@@ -307,16 +265,27 @@
         box-shadow: 4px 10px 25px rgba(0, 0, 0, 0.12);
     }
 
+    .cover-front svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+
     .cover-back {
         transform: rotateY(180deg);
         background: #ECE5D8;
         border: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
     }
 
     .elastic-band {
         position: absolute;
         top: 50%;
-        left: var(--sw);
+        left: calc(var(--sw) * var(--scale));
         right: 0;
         height: 4px;
         transform: translateY(-50%);
@@ -326,8 +295,31 @@
         transition: opacity 0.3s;
     }
 
-    .book-cover.open .elastic-band {
-        opacity: 0;
+    /* ── CAROUSEL SPECIFIC ─────────────────────── */
+    .featured-archive {
+        padding: 40px 0 60px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .journal-track {
+        display: flex;
+        gap: 32px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        padding: 40px 0;
+        width: 100%;
+        scrollbar-width: none;
+        padding-left: calc(50% - (var(--bw) / 2));
+        padding-right: calc(50% - (var(--bw) / 2));
+    }
+    .journal-track::-webkit-scrollbar { display: none; }
+    .journal-item {
+        scroll-snap-align: center;
+        flex-shrink: 0;
+        cursor: pointer;
+        transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: center bottom;
     }
 
     /* ── UI ELEMENTS ────────────────────────── */
@@ -409,88 +401,29 @@
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
     }
 
-    /* ── TRADITIONAL SHELVES SECTION ──────────────────── */
-    .historical-shelves {
-        padding: 0 52px 60px;
-    }
-
-    .shelf-row {
-        margin-bottom: 64px;
-    }
-
-    .shelf-header {
-        display: flex;
-        align-items: baseline;
-        gap: 16px;
-        border-bottom: 1px solid var(--rule);
-        padding-bottom: 12px;
-        margin-bottom: 36px;
-    }
-
-    .shelf-label {
-        font-size: 11.5px;
-        text-transform: uppercase;
-        letter-spacing: 0.14em;
-        color: var(--muted);
-    }
-
-    .shelf-count {
-        font-size: 11.5px;
-        color: rgba(45, 51, 42, 0.2);
-    }
-
+    /* ── LIBRARY GRID ────────────────────────── */
     .shelf-books {
         display: flex;
         flex-wrap: wrap;
-        gap: 24px;
+        gap: 32px;
         justify-content: center;
+        padding: 10px 0;
     }
 
-    .flat-journal {
-        width: 120px;
+    .lib-journal-item {
         text-decoration: none;
         display: flex;
         flex-direction: column;
-        gap: 10px;
-        transition: transform 0.25s;
+        gap: 14px;
+        align-items: center;
     }
 
-    .flat-journal:hover {
-        transform: translateY(-6px);
+    .lib-journal-item .premium-book {
+        --scale: 0.65; /* Scale down for grid */
     }
 
-    .flat-cover {
-        width: 120px;
-        height: 174px;
-        border-radius: 4px 8px 8px 4px;
-        position: relative;
-        overflow: hidden;
-        filter: drop-shadow(3px 8px 16px rgba(0, 0, 0, 0.12));
-    }
-
-    .flat-spine {
-        position: absolute;
-        left: 0; top: 0; bottom: 0;
-        width: 10px;
-        background: rgba(0, 0, 0, 0.12);
-    }
-
-    .flat-dot {
-        position: absolute;
-        top: 14px;
-        left: 20px;
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.55);
-    }
-
-    .flat-meta h3 {
-        font-size: 11px;
-        font-weight: 400;
-        color: var(--muted);
-        letter-spacing: 0.04em;
-        margin: 0;
+    .lib-journal-item .flat-meta {
+        text-align: center;
     }
 
     .flat-meta p {
@@ -1228,11 +1161,28 @@
     const libGrid = document.getElementById('library-grid');
     const btnNewVol = document.getElementById('btn-new-vol');
 
-    function cardHTML(e) {
-        return `<a href="/writing" class="flat-journal">
-            <div class="flat-cover ${e.color_class}">
-                <div class="flat-spine"></div>
-                <div class="flat-dot"></div>
+    // Use the 3D book markup instead of the flat cards
+    function cardHTML(e, idx) {
+        // Find style variants based on index to ensure variety
+        const arts = ['botanical', 'linen', 'face', 'wood', 'clouds'];
+        const bgs = ["#C8D898", "#EDE4D2", "#A8C4E4", "#DDBEAA", "#F0EAD6"];
+        const elastics = ["#1a2810", "#222222", "#283858", "#604818", "#1A1A1A"];
+        
+        const art = arts[idx % arts.length];
+        const bg = bgs[idx % bgs.length];
+        const elastic = elastics[idx % elastics.length];
+
+        return `
+        <a href="/writing" class="lib-journal-item" data-id="${e.id}">
+            <div class="premium-book" id="lib-book-${e.id}">
+                <div class="book-pages"></div>
+                <div class="book-cover">
+                    <div class="cover-front">${generateSVG(art, bg)}</div>
+                    <div class="cover-back">
+                        <span style="font-family:'Lora',serif; font-size:10px; color:#B0A090; letter-spacing:0.2em; text-transform:uppercase;">Ex Libris</span>
+                    </div>
+                    <div class="elastic-band" style="background-color: ${elastic}"></div>
+                </div>
             </div>
             <div class="flat-meta"><h3>${e.formatted_date}</h3></div>
         </a>`;
@@ -1245,7 +1195,7 @@
                 <span class="shelf-label">${label}</span>
                 <span class="shelf-count">${entries.length} ${entries.length === 1 ? 'entry' : 'entries'}</span>
             </div>
-            <div class="shelf-books">${entries.map(cardHTML).join('')}</div>
+            <div class="shelf-books">${entries.map((e, idx) => cardHTML(e, idx)).join('')}</div>
         </div>`;
     }
 
@@ -1272,7 +1222,7 @@
         let html = '';
 
         if (mode === 'all') {
-            const cards = ENTRIES.map(cardHTML).join('');
+            const cards = ENTRIES.map((e, idx) => cardHTML(e, idx)).join('');
             html = ENTRIES.length
                 ? `<div class="shelf-books" style="margin-top:0">${cards}</div>`
                 : `<div class="lib-empty">No entries yet — start writing in the Sanctuary.</div>`;
@@ -1281,20 +1231,38 @@
             // ONE book per month, not one card per entry
             const groups = {};
             ENTRIES.forEach(e => { (groups[e.month_label] = groups[e.month_label] || []).push(e); });
-            const monthCards = Object.keys(groups).map(month => {
+            const monthCards = Object.keys(groups).map((month, idx) => {
                 const entries = groups[month];
-                const cls = dominantClass(entries);
+                // Reuse 3D book style for the month book too
+                const arts = ['linen', 'wood', 'botanical', 'face', 'clouds'];
+                const bgs = ["#C8D898", "#EDE4D2", "#A8C4E4", "#DDBEAA", "#F0EAD6"];
+                const elastics = ["#1a2810", "#222222", "#283858", "#604818", "#1A1A1A"];
+                
+                const art = arts[idx % arts.length];
+                const bg = bgs[idx % bgs.length];
+                const elastic = elastics[idx % elastics.length];
+
                 const [mon, yr] = month.split(' ');
-                return `<div class="month-book" onclick="renderMonthDrilldown('${month}')">
-                    <div class="month-cover ${cls}">
-                        <div class="month-spine"></div>
-                        <div class="month-dot"></div>
-                        <span class="month-name-text">${mon}</span>
-                        <span class="month-year-text">${yr}</span>
+                
+                return `
+                <div class="lib-journal-item" onclick="renderMonthDrilldown('${month}')">
+                    <div class="premium-book">
+                        <div class="book-pages"></div>
+                        <div class="book-cover">
+                            <div class="cover-front">
+                                ${generateSVG(art, bg)}
+                                <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none;">
+                                    <span style="font-family:'Lora',serif; font-size:18px; color:rgba(255,255,255,0.9);">${mon}</span>
+                                    <span style="font-size:9px; color:rgba(255,255,255,0.6); letter-spacing:0.1em; margin-top:4px;">${yr}</span>
+                                </div>
+                            </div>
+                            <div class="cover-back"></div>
+                            <div class="elastic-band" style="background-color: ${elastic}"></div>
+                        </div>
                     </div>
-                    <div class="month-meta">
+                    <div class="flat-meta">
                         <h3>${month}</h3>
-                        <p>${entries.length} ${entries.length === 1 ? 'entry' : 'entries'}</p>
+                        <p style="font-size:10px; color:var(--muted); margin-top:2px;">${entries.length} memories</p>
                     </div>
                 </div>`;
             }).join('');
@@ -1315,7 +1283,15 @@
             } else {
                 COLLECTIONS.forEach(col => {
                     const entries = ENTRIES.filter(e => e.collection_id === col.id);
-                    if (entries.length) html += groupHTML(col.name, entries);
+                    if (entries.length) {
+                        html += `<div class="shelf-row">
+                            <div class="shelf-header">
+                                <span class="shelf-label">${col.name}</span>
+                                <span class="shelf-count">${entries.length} ${entries.length === 1 ? 'entry' : 'entries'}</span>
+                            </div>
+                            <div class="shelf-books">${entries.map((e, idx) => cardHTML(e, idx)).join('')}</div>
+                        </div>`;
+                    }
                 });
                 const uncollected = ENTRIES.filter(e => !e.collection_id);
                 if (uncollected.length) html += groupHTML('Uncollected', uncollected);
