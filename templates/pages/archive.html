@@ -409,13 +409,13 @@
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
     }
 
-    /* ── TRADITIONAL SHELVES SECTION ─────────── */
+    /* ── TRADITIONAL SHELVES SECTION ──────────────────── */
     .historical-shelves {
-        padding: 40px 52px;
+        padding: 0 52px 60px;
     }
 
     .shelf-row {
-        margin-bottom: 60px;
+        margin-bottom: 64px;
     }
 
     .shelf-header {
@@ -424,7 +424,7 @@
         gap: 16px;
         border-bottom: 1px solid var(--rule);
         padding-bottom: 12px;
-        margin-bottom: 40px;
+        margin-bottom: 36px;
     }
 
     .shelf-label {
@@ -442,65 +442,55 @@
     .shelf-books {
         display: flex;
         flex-wrap: wrap;
-        gap: 32px;
+        gap: 24px;
         justify-content: center;
     }
 
     .flat-journal {
-        width: 140px;
+        width: 120px;
         text-decoration: none;
         display: flex;
         flex-direction: column;
-        gap: 12px;
-        transition: transform 0.2s;
+        gap: 10px;
+        transition: transform 0.25s;
     }
 
     .flat-journal:hover {
-        transform: translateY(-4px);
+        transform: translateY(-6px);
     }
 
     .flat-cover {
-        width: 140px;
-        height: 204px;
-        border-radius: 3px 6px 6px 3px;
+        width: 120px;
+        height: 174px;
+        border-radius: 4px 8px 8px 4px;
         position: relative;
         overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 18px 16px;
-        filter: drop-shadow(4px 8px 12px rgba(0, 0, 0, 0.08));
+        filter: drop-shadow(3px 8px 16px rgba(0, 0, 0, 0.12));
     }
 
     .flat-spine {
         position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        width: 11px;
-        background: rgba(0, 0, 0, 0.1);
+        left: 0; top: 0; bottom: 0;
+        width: 10px;
+        background: rgba(0, 0, 0, 0.12);
     }
 
     .flat-dot {
+        position: absolute;
+        top: 14px;
+        left: 20px;
         width: 7px;
         height: 7px;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.6);
-    }
-
-    .flat-text {
-        font-family: 'Lora', serif;
-        font-size: 11px;
-        color: white;
-        line-height: 1.4;
-        opacity: 0.9;
+        background: rgba(255, 255, 255, 0.55);
     }
 
     .flat-meta h3 {
-        font-size: 12px;
-        font-weight: 500;
-        color: var(--text);
-        margin-bottom: 2px;
+        font-size: 11px;
+        font-weight: 400;
+        color: var(--muted);
+        letter-spacing: 0.04em;
+        margin: 0;
     }
 
     .flat-meta p {
@@ -620,85 +610,90 @@
 
     /* ── COLLECTIONS SECTION ─────────────────────── */
     .collections-section {
-        max-width: 960px;
-        margin: 0 auto 48px;
-        padding: 0 24px;
+        padding: 0 52px 16px;
     }
     .collections-header {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 24px;
+        align-items: baseline;
+        gap: 16px;
+        border-bottom: 1px solid var(--rule);
+        padding-bottom: 12px;
+        margin-bottom: 36px;
     }
     .collections-title {
-        font-family: 'Lora', serif;
-        font-size: 13px;
-        color: var(--text);
-        letter-spacing: 0.06em;
+        font-size: 11.5px;
         text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--muted);
     }
     .btn-new-vol {
+        margin-left: auto;
         display: flex; align-items: center; gap: 7px;
-        padding: 8px 16px;
+        padding: 6px 14px;
         background: var(--text); color: var(--bg);
         border: none; border-radius: 20px;
-        font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+        font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
         cursor: pointer; transition: opacity 0.2s;
         font-family: inherit;
     }
-    .btn-new-vol:hover { opacity: 0.8; }
+    .btn-new-vol:hover { opacity: 0.75; }
 
     .collection-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+        justify-content: center;
     }
     .vol-card {
-        background: var(--card);
-        border-radius: 12px;
-        padding: 20px 16px 16px;
+        width: 120px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
         cursor: pointer;
-        transition: transform 0.25s, box-shadow 0.25s;
+        transition: transform 0.25s;
+    }
+    .vol-card:hover { transform: translateY(-6px); }
+    .vol-book {
+        width: 120px;
+        height: 174px;
+        border-radius: 4px 8px 8px 4px;
         position: relative;
         overflow: hidden;
-    }
-    .vol-card::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; right: 0;
-        height: 4px;
         background: var(--vol-color, #C8D898);
-        border-radius: 12px 12px 0 0;
+        filter: drop-shadow(3px 8px 16px rgba(0, 0, 0, 0.12));
     }
-    .vol-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+    .vol-book-spine {
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 10px;
+        background: rgba(0,0,0,0.14);
     }
-    .vol-card-name {
-        font-family: 'Lora', serif;
-        font-size: 14px;
-        color: var(--text);
-        margin-bottom: 8px;
-        font-weight: 400;
+    .vol-book-dot {
+        position: absolute;
+        top: 14px;
+        left: 20px;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.55);
     }
-    .vol-card-meta {
-        font-size: 10px;
-        color: var(--muted);
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-    }
-    .vol-card-delete {
-        position: absolute; top: 10px; right: 10px;
-        width: 22px; height: 22px; border-radius: 50%;
-        background: rgba(0,0,0,0.06); border: none;
-        color: var(--muted); font-size: 12px;
+    .vol-book-delete {
+        position: absolute; top: 8px; right: 8px;
+        width: 20px; height: 20px; border-radius: 50%;
+        background: rgba(0,0,0,0.18); border: none;
+        color: white; font-size: 13px;
         display: none; align-items: center; justify-content: center;
-        cursor: pointer; transition: background 0.2s;
+        cursor: pointer; line-height: 1;
     }
-    .vol-card:hover .vol-card-delete { display: flex; }
-    .vol-card-delete:hover { background: rgba(200,80,80,0.15); color: #c85050; }
+    .vol-card:hover .vol-book-delete { display: flex; }
+    .vol-book-delete:hover { background: rgba(180,50,50,0.5); }
+    .vol-card-name {
+        font-size: 11px;
+        font-weight: 400;
+        color: var(--muted);
+        letter-spacing: 0.04em;
+    }
     .col-empty-state {
-        grid-column: 1 / -1;
         text-align: center;
         padding: 32px;
         color: var(--muted);
@@ -706,7 +701,10 @@
         letter-spacing: 0.04em;
         border: 1px dashed rgba(0,0,0,0.1);
         border-radius: 12px;
+        width: 100%;
     }
+    /* Old vol-card-delete kept for JS compat */
+    .vol-card-delete { display: none; }
 
     /* Modal */
     .col-modal-bg {
@@ -909,9 +907,12 @@
             {% if user_collections %}
                 {% for col in user_collections %}
                 <div class="vol-card" data-id="{{ col.id }}" style="--vol-color: {{ col.cover_color }};">
-                    <button class="vol-card-delete" data-id="{{ col.id }}" title="Delete Volume">&times;</button>
+                    <div class="vol-book">
+                        <div class="vol-book-spine"></div>
+                        <div class="vol-book-dot"></div>
+                        <button class="vol-book-delete" data-id="{{ col.id }}" title="Delete Volume">&times;</button>
+                    </div>
                     <div class="vol-card-name">{{ col.name }}</div>
-                    <div class="vol-card-meta">{{ col.entry_count }} {{ 'entry' if col.entry_count == 1 else 'entries' }}</div>
                 </div>
                 {% endfor %}
             {% else %}
@@ -939,7 +940,6 @@
                     <div class="flat-cover {{ entry.color_class }}">
                         <div class="flat-spine"></div>
                         <div class="flat-dot"></div>
-                        <div class="flat-text">{{ entry.display_text }}</div>
                     </div>
                     <div class="flat-meta">
                         <h3>{{ entry.formatted_date }}</h3>
@@ -1277,11 +1277,14 @@
             card.dataset.id = data.id;
             card.style.setProperty('--vol-color', data.cover_color);
             card.innerHTML = `
-                <button class="vol-card-delete" data-id="${data.id}" title="Delete Volume">&times;</button>
+                <div class="vol-book">
+                    <div class="vol-book-spine"></div>
+                    <div class="vol-book-dot"></div>
+                    <button class="vol-book-delete" data-id="${data.id}" title="Delete Volume">&times;</button>
+                </div>
                 <div class="vol-card-name">${data.name}</div>
-                <div class="vol-card-meta">0 entries</div>
             `;
-            attachDeleteHandler(card.querySelector('.vol-card-delete'));
+            attachDeleteHandler(card.querySelector('.vol-book-delete'));
             colGrid.prepend(card);
         }
     });
@@ -1303,6 +1306,6 @@
             }
         });
     }
-    document.querySelectorAll('.vol-card-delete').forEach(attachDeleteHandler);
+    document.querySelectorAll('.vol-book-delete').forEach(attachDeleteHandler);
 </script>
 {% endblock %}
