@@ -267,20 +267,19 @@ def archive():
     # 1. Fetch ALL entries for shelves
     cursor.execute("SELECT * FROM journal_entries WHERE user_id = %s ORDER BY entry_date DESC", (user_id,))
     all_entries = cursor.fetchall()
+
+    # 1b. Fetch user's custom collections
+    cursor.execute("SELECT * FROM collections WHERE user_id = %s ORDER BY created_at DESC", (user_id,))
+    user_collections = cursor.fetchall()
     conn.close()
 
-    # 2. Process for traditional monthly shelves
+    # 2. Process entries
     now = datetime.now()
     current_month_str = now.strftime("%B %Y")
-    shelves_data = {} 
+    shelves_data = {}
 
     color_map = {
         5: 'c-sage', 4: 'c-slate', 3: 'c-ochre', 2: 'c-terr', 1: 'c-rose', 'default': 'c-dust'
-    }
-
-    # Mood-to-Art mapping for the 3D Shelf
-    art_map = {
-        5: 'botanical', 4: 'clouds', 3: 'linen', 2: 'face', 1: 'wood', 'default': 'linen'
     }
 
     arts = ['botanical', 'linen', 'face', 'wood', 'clouds']
@@ -288,17 +287,21 @@ def archive():
     elastics = ["#1a2810", "#222222", "#283858", "#604818", "#1A1A1A"]
     featured_journals = []
 
+    # Map collection_id -> collection name for quick lookup
+    collection_map = {c['id']: c for c in user_collections}
 
     for i, entry in enumerate(all_entries):
-        month_year = entry['entry_date'].strftime("%B %Y")
-        if month_year not in shelves_data: shelves_data[month_year] = []
-        
         display_text = get_preview_text(entry['content'])
         entry['display_text'] = (display_text[:60] + '...') if len(display_text) > 60 else display_text
         entry['color_class'] = color_map.get(entry['mood_score'], color_map['default'])
         entry['formatted_date'] = entry['entry_date'].strftime("%b %d")
-        
-        shelves_data[month_year].append(entry)
+
+        # Only put uncollected entries on the monthly shelves
+        if not entry.get('collection_id'):
+            month_year = entry['entry_date'].strftime("%B %Y")
+            if month_year not in shelves_data:
+                shelves_data[month_year] = []
+            shelves_data[month_year].append(entry)
 
         # Prepare first 5 for the 3D Featured Shelf with variety
         if i < 5:
@@ -312,8 +315,7 @@ def archive():
                 "content_preview": entry['display_text']
             })
 
-
-    # 3. Organize Monthly Shelves
+    # 3. Organize Monthly Shelves (uncollected entries only)
     ordered_shelves = []
     if current_month_str in shelves_data:
         entries = shelves_data[current_month_str]
@@ -335,10 +337,14 @@ def archive():
             "archive_count": max(0, len(entries) - 3)
         })
 
-    # 4. AI Mood Trend (Linear Regression)
+    # 4. Enrich collections with their entry count
+    for col in user_collections:
+        col['entry_count'] = sum(1 for e in all_entries if e.get('collection_id') == col['id'])
+
+    # 5. AI Mood Trend (Linear Regression)
     trend = calculate_mood_trend(all_entries)
     
-    # 5. Chart Data (Preserve multiple entries per day)
+    # 6. Chart Data
     chart_points = []
     config_map = {
         5: {"c": "#5BB8F5", "label": "Radiant"},
@@ -347,13 +353,9 @@ def archive():
         2: {"c": "#E87FA0", "label": "Pensive"},
         1: {"c": "#A99BC4", "label": "Heavy"}
     }
-    
-    # We take the latest 15 entries and reverse them for chronological chart display
     for i, e in enumerate(reversed(all_entries[:15])):
         d_str = e['entry_date'].strftime("%b %d")
         score = e['mood_score']
-        # If there are multiple entries on the same day, clarify the label slightly
-        # We'll just use the date string, Chart.js handles duplicate labels in category axis by showing them sequentially
         chart_points.append({
             "label": d_str,
             "val": score,
@@ -369,19 +371,18 @@ def archive():
     # Greeting & Stats
     hour = now.hour
     greeting_prefix = "Good morning" if hour < 12 else "Good afternoon" if hour < 17 else "Good evening"
-    
-    # Format username cleanly by replacing underscores with spaces and capitalizing
     raw_username = session.get('username', 'Alex')
     clean_username = raw_username.replace('_', ' ').title()
     greeting = f"{greeting_prefix}, {clean_username}."
     stats_msg = f"You've inscribed {len(all_entries)} memories in your Archive this year."
 
-    # 6. Atmosphere Companion (Energy Widget)
+    # 7. Atmosphere Companion (Energy Widget)
     latest_text = get_preview_text(all_entries[0]['content']) if all_entries else ""
     companion_data = calculate_energy_data(latest_text)
 
     return render_template('pages/archive.html', 
-                          shelves=ordered_shelves, 
+                          shelves=ordered_shelves,
+                          user_collections=user_collections,
                           featured_journals=featured_journals,
                           greeting=greeting, 
                           stats_msg=stats_msg,
@@ -391,6 +392,95 @@ def archive():
                           chart_colors=chart_colors,
                           chart_moods=chart_moods,
                           companion=companion_data)
+
+
+# ── COLLECTION API ROUTES ──────────────────────────────────────────────────────
+
+@app.route('/collections', methods=['GET'])
+def list_collections():
+    if 'user_id' not in session:
+        return {'success': False, 'message': 'Unauthorized'}, 401
+    user_id = session['user_id']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM collections WHERE user_id = %s ORDER BY created_at DESC", (user_id,))
+    collections = cursor.fetchall()
+    conn.close()
+    # Convert datetimes to strings for JSON
+    for c in collections:
+        if c.get('created_at'):
+            c['created_at'] = c['created_at'].isoformat()
+    return {'success': True, 'collections': collections}, 200
+
+
+@app.route('/collections', methods=['POST'])
+def create_collection():
+    if 'user_id' not in session:
+        return {'success': False, 'message': 'Unauthorized'}, 401
+    try:
+        data = request.get_json()
+        name = data.get('name', '').strip()
+        cover_color = data.get('cover_color', '#C8D898')
+        art_style = data.get('art_style', 'linen')
+        if not name:
+            return {'success': False, 'message': 'A collection needs a name.'}, 400
+        user_id = session['user_id']
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO collections (user_id, name, cover_color, art_style) VALUES (%s, %s, %s, %s)",
+            (user_id, name, cover_color, art_style)
+        )
+        new_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
+        return {'success': True, 'id': new_id, 'name': name, 'cover_color': cover_color, 'art_style': art_style}, 201
+    except Exception as e:
+        return {'success': False, 'message': str(e)}, 500
+
+
+@app.route('/collections/<int:collection_id>', methods=['DELETE'])
+def delete_collection(collection_id):
+    if 'user_id' not in session:
+        return {'success': False, 'message': 'Unauthorized'}, 401
+    user_id = session['user_id']
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    # Verify ownership before deleting
+    cursor.execute("SELECT id FROM collections WHERE id = %s AND user_id = %s", (collection_id, user_id))
+    if not cursor.fetchone():
+        conn.close()
+        return {'success': False, 'message': 'Not found or unauthorized'}, 404
+    # Un-assign entries (ON DELETE SET NULL handles this, but be explicit)
+    cursor.execute("UPDATE journal_entries SET collection_id = NULL WHERE collection_id = %s", (collection_id,))
+    cursor.execute("DELETE FROM collections WHERE id = %s", (collection_id,))
+    conn.commit()
+    conn.close()
+    return {'success': True}, 200
+
+
+@app.route('/collections/<int:collection_id>/assign', methods=['POST'])
+def assign_entry_to_collection(collection_id):
+    """Assign or re-assign an existing entry to a collection."""
+    if 'user_id' not in session:
+        return {'success': False, 'message': 'Unauthorized'}, 401
+    try:
+        data = request.get_json()
+        entry_id = data.get('entry_id')
+        user_id = session['user_id']
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        # Verify entry ownership
+        cursor.execute("SELECT id FROM journal_entries WHERE id = %s AND user_id = %s", (entry_id, user_id))
+        if not cursor.fetchone():
+            conn.close()
+            return {'success': False, 'message': 'Entry not found'}, 404
+        cursor.execute("UPDATE journal_entries SET collection_id = %s WHERE id = %s", (collection_id, entry_id))
+        conn.commit()
+        conn.close()
+        return {'success': True}, 200
+    except Exception as e:
+        return {'success': False, 'message': str(e)}, 500
 
 @app.route('/writing')
 def writing():
@@ -499,12 +589,15 @@ def save_entry():
         # Get a relevant quote (legacy support)
         quote = get_quote_for_entry(content)
         
+        # Optional: assign to a collection on save
+        collection_id = data.get('collection_id', None)
+
         # Save to database
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO journal_entries (content, mood_score, theme, user_id) VALUES (%s, %s, %s, %s)",
-            (content, mood_score, 'Default', user_id)
+            "INSERT INTO journal_entries (content, mood_score, theme, user_id, collection_id) VALUES (%s, %s, %s, %s, %s)",
+            (content, mood_score, 'Default', user_id, collection_id)
         )
         conn.commit()
         conn.close()

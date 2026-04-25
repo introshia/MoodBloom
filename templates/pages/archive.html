@@ -617,6 +617,169 @@
 
     .obo-fanned { position: relative; flex-shrink: 0; width: 42px; height: 310px; align-self: stretch; }
     .fpage { position: absolute; top: 0; height: 310px; border-radius: 0 3px 3px 0; }
+
+    /* ── COLLECTIONS SECTION ─────────────────────── */
+    .collections-section {
+        max-width: 960px;
+        margin: 0 auto 48px;
+        padding: 0 24px;
+    }
+    .collections-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+    }
+    .collections-title {
+        font-family: 'Lora', serif;
+        font-size: 13px;
+        color: var(--text);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+    .btn-new-vol {
+        display: flex; align-items: center; gap: 7px;
+        padding: 8px 16px;
+        background: var(--text); color: var(--bg);
+        border: none; border-radius: 20px;
+        font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+        cursor: pointer; transition: opacity 0.2s;
+        font-family: inherit;
+    }
+    .btn-new-vol:hover { opacity: 0.8; }
+
+    .collection-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 20px;
+    }
+    .vol-card {
+        background: var(--card);
+        border-radius: 12px;
+        padding: 20px 16px 16px;
+        cursor: pointer;
+        transition: transform 0.25s, box-shadow 0.25s;
+        position: relative;
+        overflow: hidden;
+    }
+    .vol-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 4px;
+        background: var(--vol-color, #C8D898);
+        border-radius: 12px 12px 0 0;
+    }
+    .vol-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+    }
+    .vol-card-name {
+        font-family: 'Lora', serif;
+        font-size: 14px;
+        color: var(--text);
+        margin-bottom: 8px;
+        font-weight: 400;
+    }
+    .vol-card-meta {
+        font-size: 10px;
+        color: var(--muted);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+    .vol-card-delete {
+        position: absolute; top: 10px; right: 10px;
+        width: 22px; height: 22px; border-radius: 50%;
+        background: rgba(0,0,0,0.06); border: none;
+        color: var(--muted); font-size: 12px;
+        display: none; align-items: center; justify-content: center;
+        cursor: pointer; transition: background 0.2s;
+    }
+    .vol-card:hover .vol-card-delete { display: flex; }
+    .vol-card-delete:hover { background: rgba(200,80,80,0.15); color: #c85050; }
+    .col-empty-state {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 32px;
+        color: var(--muted);
+        font-size: 12px;
+        letter-spacing: 0.04em;
+        border: 1px dashed rgba(0,0,0,0.1);
+        border-radius: 12px;
+    }
+
+    /* Modal */
+    .col-modal-bg {
+        position: fixed; inset: 0; z-index: 1100;
+        background: rgba(0,0,0,0.25);
+        display: flex; align-items: center; justify-content: center;
+        opacity: 0; pointer-events: none;
+        transition: opacity 0.25s;
+    }
+    .col-modal-bg.visible {
+        opacity: 1; pointer-events: all;
+    }
+    .col-modal {
+        background: var(--card);
+        border-radius: 20px;
+        padding: 36px;
+        width: min(440px, 92vw);
+        transform: scale(0.9) translateY(16px);
+        transition: transform 0.3s cubic-bezier(0.34, 1.08, 0.64, 1);
+        position: relative;
+    }
+    .col-modal-bg.visible .col-modal {
+        transform: scale(1) translateY(0);
+    }
+    .col-modal h3 {
+        font-family: 'Lora', serif;
+        font-weight: 400; font-size: 20px;
+        color: var(--text); margin: 0 0 6px;
+    }
+    .col-modal p {
+        font-size: 12px; color: var(--muted); margin: 0 0 28px;
+    }
+    .col-field-label {
+        font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+        color: var(--muted); margin-bottom: 8px;
+    }
+    .col-field-input {
+        width: 100%; padding: 12px 16px;
+        background: var(--bg); border: 1px solid rgba(0,0,0,0.08);
+        border-radius: 10px; font-size: 14px; font-family: inherit;
+        color: var(--text); outline: none;
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+    }
+    .col-field-input:focus { border-color: var(--text); }
+    .col-colors {
+        display: flex; gap: 10px; flex-wrap: wrap;
+        margin: 12px 0 24px;
+    }
+    .col-swatch {
+        width: 28px; height: 28px; border-radius: 50%;
+        border: 3px solid transparent;
+        cursor: pointer; transition: transform 0.15s, border-color 0.15s;
+    }
+    .col-swatch:hover { transform: scale(1.15); }
+    .col-swatch.active { border-color: var(--text); }
+    .col-modal-actions {
+        display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px;
+    }
+    .btn-cancel {
+        padding: 10px 20px;
+        background: transparent; border: 1px solid rgba(0,0,0,0.12);
+        border-radius: 10px; font-size: 12px; font-family: inherit;
+        color: var(--muted); cursor: pointer;
+    }
+    .btn-create {
+        padding: 10px 24px;
+        background: var(--text); color: var(--bg);
+        border: none; border-radius: 10px;
+        font-size: 12px; font-family: inherit; cursor: pointer;
+        transition: opacity 0.2s;
+    }
+    .btn-create:hover { opacity: 0.8; }
 </style>
 {% endblock %}
 
@@ -733,6 +896,32 @@
         </p>
     </section>
 
+    <!-- SECTION 2b: MY VOLUMES (Custom Collections) -->
+    <section class="collections-section">
+        <div class="collections-header">
+            <span class="collections-title">My Volumes</span>
+            <button class="btn-new-vol" id="btn-new-vol">
+                <i class="fa-solid fa-plus" style="font-size:10px"></i>
+                New Volume
+            </button>
+        </div>
+        <div class="collection-grid" id="collection-grid">
+            {% if user_collections %}
+                {% for col in user_collections %}
+                <div class="vol-card" data-id="{{ col.id }}" style="--vol-color: {{ col.cover_color }};">
+                    <button class="vol-card-delete" data-id="{{ col.id }}" title="Delete Volume">&times;</button>
+                    <div class="vol-card-name">{{ col.name }}</div>
+                    <div class="vol-card-meta">{{ col.entry_count }} {{ 'entry' if col.entry_count == 1 else 'entries' }}</div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-empty-state" id="col-empty">
+                    No volumes yet &mdash; create your first one to organize your memories.
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
     <!-- SECTION 3: HISTORICAL SHELVES -->
     <section class="historical-shelves">
         {% for shelf in shelves %}
@@ -796,6 +985,31 @@
         </div>
     </div>
 </main>
+
+<!-- COLLECTION CREATOR MODAL -->
+<div class="col-modal-bg" id="col-modal-bg">
+    <div class="col-modal">
+        <h3>New Volume</h3>
+        <p>Give your journal a name and a cover colour.</p>
+        <div class="col-field-label">Volume name</div>
+        <input class="col-field-input" id="col-name-input" type="text" placeholder="e.g. Travel Log, Dear Future Me…" maxlength="60">
+        <div class="col-field-label" style="margin-top: 20px;">Cover colour</div>
+        <div class="col-colors" id="col-swatches">
+            <div class="col-swatch active" data-color="#C8D898" style="background:#C8D898;"></div>
+            <div class="col-swatch" data-color="#A8C4E4" style="background:#A8C4E4;"></div>
+            <div class="col-swatch" data-color="#F0D6A8" style="background:#F0D6A8;"></div>
+            <div class="col-swatch" data-color="#DDBEAA" style="background:#DDBEAA;"></div>
+            <div class="col-swatch" data-color="#C4B8E0" style="background:#C4B8E0;"></div>
+            <div class="col-swatch" data-color="#F0A8A8" style="background:#F0A8A8;"></div>
+            <div class="col-swatch" data-color="#A8D8C8" style="background:#A8D8C8;"></div>
+            <div class="col-swatch" data-color="#2C2820" style="background:#2C2820;"></div>
+        </div>
+        <div class="col-modal-actions">
+            <button class="btn-cancel" id="col-cancel-btn">Cancel</button>
+            <button class="btn-create" id="col-create-btn">Create Volume</button>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -1016,5 +1230,79 @@
             }
         });
     }, 500);
+
+    // ── COLLECTION MANAGER ────────────────────────────────────────────────
+    const colModalBg = document.getElementById('col-modal-bg');
+    const colNameInput = document.getElementById('col-name-input');
+    const colGrid = document.getElementById('collection-grid');
+    let selectedColor = '#C8D898';
+
+    // Open/close modal
+    document.getElementById('btn-new-vol').addEventListener('click', () => {
+        colNameInput.value = '';
+        colModalBg.classList.add('visible');
+        setTimeout(() => colNameInput.focus(), 300);
+    });
+    document.getElementById('col-cancel-btn').addEventListener('click', () => colModalBg.classList.remove('visible'));
+    colModalBg.addEventListener('click', (e) => { if (e.target === colModalBg) colModalBg.classList.remove('visible'); });
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape') colModalBg.classList.remove('visible'); });
+
+    // Colour swatches
+    document.querySelectorAll('.col-swatch').forEach(sw => {
+        sw.addEventListener('click', () => {
+            document.querySelectorAll('.col-swatch').forEach(s => s.classList.remove('active'));
+            sw.classList.add('active');
+            selectedColor = sw.dataset.color;
+        });
+    });
+
+    // Create collection
+    document.getElementById('col-create-btn').addEventListener('click', async () => {
+        const name = colNameInput.value.trim();
+        if (!name) { colNameInput.focus(); return; }
+        const res = await fetch('/collections', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, cover_color: selectedColor, art_style: 'linen' })
+        });
+        const data = await res.json();
+        if (data.success) {
+            colModalBg.classList.remove('visible');
+            // Remove empty state if present
+            const empty = document.getElementById('col-empty');
+            if (empty) empty.remove();
+            // Append new card to grid
+            const card = document.createElement('div');
+            card.className = 'vol-card';
+            card.dataset.id = data.id;
+            card.style.setProperty('--vol-color', data.cover_color);
+            card.innerHTML = `
+                <button class="vol-card-delete" data-id="${data.id}" title="Delete Volume">&times;</button>
+                <div class="vol-card-name">${data.name}</div>
+                <div class="vol-card-meta">0 entries</div>
+            `;
+            attachDeleteHandler(card.querySelector('.vol-card-delete'));
+            colGrid.prepend(card);
+        }
+    });
+
+    // Delete handler
+    function attachDeleteHandler(btn) {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const id = btn.dataset.id;
+            if (!confirm('Remove this volume? Entries will stay but become uncollected.')) return;
+            const res = await fetch(`/collections/${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                const card = colGrid.querySelector(`.vol-card[data-id="${id}"]`);
+                card.style.transition = 'opacity 0.3s, transform 0.3s';
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.9)';
+                setTimeout(() => card.remove(), 300);
+            }
+        });
+    }
+    document.querySelectorAll('.vol-card-delete').forEach(attachDeleteHandler);
 </script>
 {% endblock %}
