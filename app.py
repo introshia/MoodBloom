@@ -290,15 +290,19 @@ def archive():
     # Map collection_id -> collection name for quick lookup
     collection_map = {c['id']: c for c in user_collections}
 
+    mood_label_map = {5: 'Vibrant', 4: 'Serene', 3: 'Steady', 2: 'Muted', 1: 'Heavy'}
+
     for i, entry in enumerate(all_entries):
         display_text = get_preview_text(entry['content'])
         entry['display_text'] = (display_text[:60] + '...') if len(display_text) > 60 else display_text
         entry['color_class'] = color_map.get(entry['mood_score'], color_map['default'])
         entry['formatted_date'] = entry['entry_date'].strftime("%b %d")
+        entry['mood_label'] = mood_label_map.get(entry['mood_score'], 'Steady')
+        entry['month_label'] = entry['entry_date'].strftime("%B %Y")
 
-        # Only put uncollected entries on the monthly shelves
+        # Monthly shelves fallback (for Jinja no-JS)
         if not entry.get('collection_id'):
-            month_year = entry['entry_date'].strftime("%B %Y")
+            month_year = entry['month_label']
             if month_year not in shelves_data:
                 shelves_data[month_year] = []
             shelves_data[month_year].append(entry)
@@ -314,6 +318,22 @@ def archive():
                 "art": arts[i % len(arts)],
                 "content_preview": entry['display_text']
             })
+
+    # Build JSON-serialisable snapshots for the client-side view switcher
+    all_entries_json = [{
+        'id': e['id'],
+        'color_class': e['color_class'],
+        'formatted_date': e['formatted_date'],
+        'mood_score': e['mood_score'],
+        'mood_label': e['mood_label'],
+        'month_label': e['month_label'],
+        'collection_id': e.get('collection_id'),
+    } for e in all_entries]
+
+    user_collections_json = [
+        {'id': c['id'], 'name': c['name'], 'cover_color': c['cover_color']}
+        for c in user_collections
+    ]
 
     # 3. Organize Monthly Shelves (uncollected entries only)
     ordered_shelves = []
@@ -380,11 +400,13 @@ def archive():
     latest_text = get_preview_text(all_entries[0]['content']) if all_entries else ""
     companion_data = calculate_energy_data(latest_text)
 
-    return render_template('pages/archive.html', 
+    return render_template('pages/archive.html',
                           shelves=ordered_shelves,
                           user_collections=user_collections,
+                          all_entries_json=all_entries_json,
+                          user_collections_json=user_collections_json,
                           featured_journals=featured_journals,
-                          greeting=greeting, 
+                          greeting=greeting,
                           stats_msg=stats_msg,
                           trend=trend,
                           chart_labels=chart_labels,

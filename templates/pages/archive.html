@@ -608,27 +608,44 @@
     .obo-fanned { position: relative; flex-shrink: 0; width: 42px; height: 310px; align-self: stretch; }
     .fpage { position: absolute; top: 0; height: 310px; border-radius: 0 3px 3px 0; }
 
-    /* ── COLLECTIONS SECTION ─────────────────────── */
-    .collections-section {
-        padding: 0 52px 16px;
+    /* ── LIBRARY SECTION (View Switcher) ───────────── */
+    .library-section {
+        padding: 0 52px 60px;
     }
-    .collections-header {
+    .library-nav {
         display: flex;
-        align-items: baseline;
-        gap: 16px;
+        align-items: center;
         border-bottom: 1px solid var(--rule);
-        padding-bottom: 12px;
         margin-bottom: 36px;
     }
-    .collections-title {
-        font-size: 11.5px;
+    .view-tabs {
+        display: flex;
+        gap: 0;
+    }
+    .view-tab {
+        padding: 12px 18px;
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        font-size: 10.5px;
+        letter-spacing: 0.12em;
         text-transform: uppercase;
-        letter-spacing: 0.14em;
         color: var(--muted);
+        cursor: pointer;
+        font-family: inherit;
+        transition: color 0.2s, border-color 0.2s;
+        margin-bottom: -1px;
+    }
+    .view-tab:hover { color: var(--text); }
+    .view-tab.active {
+        color: var(--text);
+        border-bottom-color: var(--text);
     }
     .btn-new-vol {
         margin-left: auto;
-        display: flex; align-items: center; gap: 7px;
+        display: none;
+        align-items: center;
+        gap: 7px;
         padding: 6px 14px;
         background: var(--text); color: var(--bg);
         border: none; border-radius: 20px;
@@ -636,75 +653,18 @@
         cursor: pointer; transition: opacity 0.2s;
         font-family: inherit;
     }
+    .btn-new-vol.visible { display: flex; }
     .btn-new-vol:hover { opacity: 0.75; }
-
-    .collection-grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 24px;
-        justify-content: center;
-    }
-    .vol-card {
-        width: 120px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        cursor: pointer;
-        transition: transform 0.25s;
-    }
-    .vol-card:hover { transform: translateY(-6px); }
-    .vol-book {
-        width: 120px;
-        height: 174px;
-        border-radius: 4px 8px 8px 4px;
-        position: relative;
-        overflow: hidden;
-        background: var(--vol-color, #C8D898);
-        filter: drop-shadow(3px 8px 16px rgba(0, 0, 0, 0.12));
-    }
-    .vol-book-spine {
-        position: absolute;
-        left: 0; top: 0; bottom: 0;
-        width: 10px;
-        background: rgba(0,0,0,0.14);
-    }
-    .vol-book-dot {
-        position: absolute;
-        top: 14px;
-        left: 20px;
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.55);
-    }
-    .vol-book-delete {
-        position: absolute; top: 8px; right: 8px;
-        width: 20px; height: 20px; border-radius: 50%;
-        background: rgba(0,0,0,0.18); border: none;
-        color: white; font-size: 13px;
-        display: none; align-items: center; justify-content: center;
-        cursor: pointer; line-height: 1;
-    }
-    .vol-card:hover .vol-book-delete { display: flex; }
-    .vol-book-delete:hover { background: rgba(180,50,50,0.5); }
-    .vol-card-name {
-        font-size: 11px;
-        font-weight: 400;
-        color: var(--muted);
-        letter-spacing: 0.04em;
-    }
-    .col-empty-state {
+    .lib-empty {
         text-align: center;
-        padding: 32px;
+        padding: 48px 32px;
         color: var(--muted);
         font-size: 12px;
         letter-spacing: 0.04em;
-        border: 1px dashed rgba(0,0,0,0.1);
+        border: 1px dashed rgba(0,0,0,0.08);
         border-radius: 12px;
-        width: 100%;
     }
-    /* Old vol-card-delete kept for JS compat */
-    .vol-card-delete { display: none; }
+    .lib-empty a { color: var(--text); cursor: pointer; text-decoration: underline; }
 
     /* Modal */
     .col-modal-bg {
@@ -894,61 +854,21 @@
         </p>
     </section>
 
-    <!-- SECTION 2b: MY VOLUMES (Custom Collections) -->
-    <section class="collections-section">
-        <div class="collections-header">
-            <span class="collections-title">My Volumes</span>
+    <!-- SECTION 3: LIBRARY -->
+    <section class="library-section">
+        <div class="library-nav">
+            <div class="view-tabs">
+                <button class="view-tab active" data-view="monthly">Monthly</button>
+                <button class="view-tab" data-view="mood">By Mood</button>
+                <button class="view-tab" data-view="volumes">Volumes</button>
+                <button class="view-tab" data-view="all">All Entries</button>
+            </div>
             <button class="btn-new-vol" id="btn-new-vol">
                 <i class="fa-solid fa-plus" style="font-size:10px"></i>
                 New Volume
             </button>
         </div>
-        <div class="collection-grid" id="collection-grid">
-            {% if user_collections %}
-                {% for col in user_collections %}
-                <div class="vol-card" data-id="{{ col.id }}" style="--vol-color: {{ col.cover_color }};">
-                    <div class="vol-book">
-                        <div class="vol-book-spine"></div>
-                        <div class="vol-book-dot"></div>
-                        <button class="vol-book-delete" data-id="{{ col.id }}" title="Delete Volume">&times;</button>
-                    </div>
-                    <div class="vol-card-name">{{ col.name }}</div>
-                </div>
-                {% endfor %}
-            {% else %}
-                <div class="col-empty-state" id="col-empty">
-                    No volumes yet &mdash; create your first one to organize your memories.
-                </div>
-            {% endif %}
-        </div>
-    </section>
-
-    <!-- SECTION 3: HISTORICAL SHELVES -->
-    <section class="historical-shelves">
-        {% for shelf in shelves %}
-        <div class="shelf-row">
-            <div class="shelf-header">
-                <span class="shelf-label">{{ shelf.label }}</span>
-                {% if shelf.archive_count > 0 %}
-                <span class="shelf-count">+{{ shelf.archive_count }} entries</span>
-                {% endif %}
-            </div>
-
-            <div class="shelf-books">
-                {% for entry in shelf.featured %}
-                <a href="{{ url_for('writing') }}" class="flat-journal">
-                    <div class="flat-cover {{ entry.color_class }}">
-                        <div class="flat-spine"></div>
-                        <div class="flat-dot"></div>
-                    </div>
-                    <div class="flat-meta">
-                        <h3>{{ entry.formatted_date }}</h3>
-                    </div>
-                </a>
-                {% endfor %}
-            </div>
-        </div>
-        {% endfor %}
+        <div id="library-grid"></div>
     </section>
 
     <!-- OPEN BOOK OVERLAY -->
@@ -1231,23 +1151,97 @@
         });
     }, 500);
 
-    // ── COLLECTION MANAGER ────────────────────────────────────────────────
+    // \u2500\u2500 VIEW SWITCHER \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+    let ENTRIES = {{ all_entries_json | tojson | safe }};
+    let COLLECTIONS = {{ user_collections_json | tojson | safe }};
+    const libGrid = document.getElementById('library-grid');
+    const btnNewVol = document.getElementById('btn-new-vol');
+
+    function cardHTML(e) {
+        return `<a href="/writing" class="flat-journal">
+            <div class="flat-cover ${e.color_class}">
+                <div class="flat-spine"></div>
+                <div class="flat-dot"></div>
+            </div>
+            <div class="flat-meta"><h3>${e.formatted_date}</h3></div>
+        </a>`;
+    }
+
+    function groupHTML(label, entries) {
+        if (!entries.length) return '';
+        return `<div class="shelf-row">
+            <div class="shelf-header">
+                <span class="shelf-label">${label}</span>
+                <span class="shelf-count">${entries.length} ${entries.length === 1 ? 'entry' : 'entries'}</span>
+            </div>
+            <div class="shelf-books">${entries.map(cardHTML).join('')}</div>
+        </div>`;
+    }
+
+    function renderView(mode) {
+        btnNewVol.classList.toggle('visible', mode === 'volumes');
+        let html = '';
+
+        if (mode === 'all') {
+            const cards = ENTRIES.map(cardHTML).join('');
+            html = ENTRIES.length
+                ? `<div class="shelf-books" style="margin-top:0">${cards}</div>`
+                : `<div class="lib-empty">No entries yet \u2014 start writing in the Sanctuary.</div>`;
+
+        } else if (mode === 'monthly') {
+            const groups = {};
+            ENTRIES.forEach(e => { (groups[e.month_label] = groups[e.month_label] || []).push(e); });
+            html = Object.keys(groups).map(m => groupHTML(m, groups[m])).join('') ||
+                `<div class="lib-empty">No entries yet.</div>`;
+
+        } else if (mode === 'mood') {
+            const ORDER = ['Vibrant', 'Serene', 'Steady', 'Muted', 'Heavy'];
+            const groups = {};
+            ENTRIES.forEach(e => { (groups[e.mood_label] = groups[e.mood_label] || []).push(e); });
+            html = ORDER.filter(o => groups[o]).map(o => groupHTML(o, groups[o])).join('') ||
+                `<div class="lib-empty">No entries yet.</div>`;
+
+        } else if (mode === 'volumes') {
+            if (!COLLECTIONS.length) {
+                html = `<div class="lib-empty">No volumes yet \u2014 <a onclick="document.getElementById('btn-new-vol').click()">create your first one</a>.</div>`;
+            } else {
+                COLLECTIONS.forEach(col => {
+                    const entries = ENTRIES.filter(e => e.collection_id === col.id);
+                    if (entries.length) html += groupHTML(col.name, entries);
+                });
+                const uncollected = ENTRIES.filter(e => !e.collection_id);
+                if (uncollected.length) html += groupHTML('Uncollected', uncollected);
+                if (!html) html = `<div class="lib-empty">Assign entries to a volume to see them here.</div>`;
+            }
+        }
+        libGrid.innerHTML = html;
+    }
+
+    let activeView = 'monthly';
+    document.querySelectorAll('.view-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            activeView = tab.dataset.view;
+            renderView(activeView);
+        });
+    });
+    renderView('monthly');
+
+    // \u2500\u2500 COLLECTION MODAL \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
     const colModalBg = document.getElementById('col-modal-bg');
     const colNameInput = document.getElementById('col-name-input');
-    const colGrid = document.getElementById('collection-grid');
     let selectedColor = '#C8D898';
 
-    // Open/close modal
-    document.getElementById('btn-new-vol').addEventListener('click', () => {
+    btnNewVol.addEventListener('click', () => {
         colNameInput.value = '';
         colModalBg.classList.add('visible');
         setTimeout(() => colNameInput.focus(), 300);
     });
     document.getElementById('col-cancel-btn').addEventListener('click', () => colModalBg.classList.remove('visible'));
-    colModalBg.addEventListener('click', (e) => { if (e.target === colModalBg) colModalBg.classList.remove('visible'); });
-    window.addEventListener('keydown', (e) => { if (e.key === 'Escape') colModalBg.classList.remove('visible'); });
+    colModalBg.addEventListener('click', e => { if (e.target === colModalBg) colModalBg.classList.remove('visible'); });
+    window.addEventListener('keydown', e => { if (e.key === 'Escape') colModalBg.classList.remove('visible'); });
 
-    // Colour swatches
     document.querySelectorAll('.col-swatch').forEach(sw => {
         sw.addEventListener('click', () => {
             document.querySelectorAll('.col-swatch').forEach(s => s.classList.remove('active'));
@@ -1256,7 +1250,6 @@
         });
     });
 
-    // Create collection
     document.getElementById('col-create-btn').addEventListener('click', async () => {
         const name = colNameInput.value.trim();
         if (!name) { colNameInput.focus(); return; }
@@ -1268,44 +1261,9 @@
         const data = await res.json();
         if (data.success) {
             colModalBg.classList.remove('visible');
-            // Remove empty state if present
-            const empty = document.getElementById('col-empty');
-            if (empty) empty.remove();
-            // Append new card to grid
-            const card = document.createElement('div');
-            card.className = 'vol-card';
-            card.dataset.id = data.id;
-            card.style.setProperty('--vol-color', data.cover_color);
-            card.innerHTML = `
-                <div class="vol-book">
-                    <div class="vol-book-spine"></div>
-                    <div class="vol-book-dot"></div>
-                    <button class="vol-book-delete" data-id="${data.id}" title="Delete Volume">&times;</button>
-                </div>
-                <div class="vol-card-name">${data.name}</div>
-            `;
-            attachDeleteHandler(card.querySelector('.vol-book-delete'));
-            colGrid.prepend(card);
+            COLLECTIONS.unshift({ id: data.id, name: data.name, cover_color: data.cover_color });
+            if (activeView === 'volumes') renderView('volumes');
         }
     });
-
-    // Delete handler
-    function attachDeleteHandler(btn) {
-        btn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const id = btn.dataset.id;
-            if (!confirm('Remove this volume? Entries will stay but become uncollected.')) return;
-            const res = await fetch(`/collections/${id}`, { method: 'DELETE' });
-            const data = await res.json();
-            if (data.success) {
-                const card = colGrid.querySelector(`.vol-card[data-id="${id}"]`);
-                card.style.transition = 'opacity 0.3s, transform 0.3s';
-                card.style.opacity = '0';
-                card.style.transform = 'scale(0.9)';
-                setTimeout(() => card.remove(), 300);
-            }
-        });
-    }
-    document.querySelectorAll('.vol-book-delete').forEach(attachDeleteHandler);
 </script>
 {% endblock %}
