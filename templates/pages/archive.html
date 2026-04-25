@@ -252,6 +252,10 @@
         z-index: 2;
     }
 
+    .book-cover.open {
+        transform: rotateY(-165deg);
+    }
+
     .cover-front,
     .cover-back {
         position: absolute;
@@ -293,6 +297,10 @@
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         opacity: 1;
         transition: opacity 0.3s;
+    }
+
+    .book-cover.open .elastic-band {
+        opacity: 0;
     }
 
     /* ── CAROUSEL SPECIFIC ─────────────────────── */
@@ -817,7 +825,7 @@
             {% for j in featured_journals %}
             <div class="journal-item" data-id="{{ j.id }}" data-title="{{ j.title }}" data-pages="{{ j.pages }}"
                 data-index="{{ loop.index0 }}">
-                <div class="book-wrap">
+                <div class="premium-book">
                     <div class="book-pages">
                         <div
                             style="padding: 24px; font-family: 'Lora', serif; font-size: 11px; color: var(--text); line-height: 1.8; opacity: 0.8;">
