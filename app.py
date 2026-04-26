@@ -12,8 +12,11 @@ import numpy as np
 from datetime import datetime, timedelta
 import io
 from sklearn.linear_model import LinearRegression
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 app = Flask(__name__)
+# Initialize VADER sentiment analyzer globally
+analyzer = SentimentIntensityAnalyzer()
 app.debug = True
 
 # This keeps the user's login session secure!
@@ -33,73 +36,32 @@ def get_db_connection():
 # --- AI & ANALYTICS LOGIC ---
 def analyze_sentiment(content):
     """
-    An upgraded weighted sentiment engine that handles negations 
-    and context to provide a more accurate mood score.
+    Uses the VADER (Valence Aware Dictionary and sEntiment Reasoner) library
+    to analyze the entire entry for context, intensity, and negations.
     """
+    if not content:
+        return {"score": 3, "pillar": "peace", "reflection": "What is one truth you've been avoiding today?"}
+
+    # Get sentiment scores from VADER
+    vs = analyzer.polarity_scores(content)
+    compound = vs['compound'] # Ranges from -1.0 to 1.0
+    
+    # Map compound score to 1-5 scale
+    if compound >= 0.6: final_score = 5       # Happy
+    elif compound >= 0.1: final_score = 4     # Calm
+    elif compound > -0.1: final_score = 3     # Neutral
+    elif compound > -0.6: final_score = 2     # Sad
+    else: final_score = 1                     # Stressed
+
+    # Pillar Detection (keywords are still good for categorizing 'topics')
     text = content.lower()
-    # Simple tokenization by splitting and stripping punctuation
-    import re
-    tokens = re.findall(r'\b\w+\b', text)
-    
-    # 1. Emotional Lexicon with weights
-    weights = {
-        # Positive (Points towards 5)
-        'happy': 1.5, 'great': 2, 'amazing': 2.5, 'excited': 2, 'good': 1, 
-        'blessed': 1.5, 'proud': 1.5, 'wonderful': 2, 'joy': 2, 'love': 2,
-        'peace': 1.5, 'calm': 1.5, 'serene': 2, 'steady': 1, 'relaxed': 1.5,
-        
-        # Stressed/Anxious (Points towards 2)
-        'stress': -1, 'hard': -1, 'tired': -1, 'exam': -1.5, 'busy': -0.5,
-        'pressure': -1, 'anxious': -1.5, 'overwhelmed': -2, 'worried': -1,
-        
-        # Negative/Sad (Points towards 1)
-        'sad': -1.5, 'bad': -1.5, 'hurt': -2, 'lonely': -2, 'terrible': -2.5,
-        'depressed': -3, 'grief': -3, 'heavy': -1.5, 'miserable': -3, 'cry': -1
-    }
-    
-    # 2. Negation Detection
-    negators = {'not', 'no', 'never', 'dont', 'doesnt', 'wasnt', 'neither', 'barely'}
-    
-    sentiment_score = 0
-    negate_next = False
-    found_sentiment = False
-    
-    for word in tokens:
-        if word in negators:
-            negate_next = True
-            continue
-            
-        if word in weights:
-            val = weights[word]
-            if negate_next:
-                val = -val # Flip sentiment if preceded by 'not'
-                negate_next = False
-            
-            sentiment_score += val
-            found_sentiment = True
-        else:
-            negate_next = False # Reset if no word immediately follows negator
-
-    # 3. Map Sentiment Score to 1-5 scale
-    # Baseline is 3. 
-    # Positive scores move towards 5, negative towards 1.
-    if not found_sentiment:
-        final_score = 3
-    else:
-        if sentiment_score > 3: final_score = 5
-        elif sentiment_score > 0.5: final_score = 4
-        elif sentiment_score < -3: final_score = 1
-        elif sentiment_score < -0.5: final_score = 2
-        else: final_score = 3
-
-    # 4. Pillar Detection (remains for context)
     pillar = "Peace"
     if any(w in text for w in ['work', 'time', 'manage', 'schedule', 'todo', 'busy', 'deadline']): pillar = "Balance"
     elif any(w in text for w in ['learn', 'new', 'goal', 'better', 'future', 'skill', 'try', 'growth']): pillar = "Growth"
     elif any(w in text for w in ['health', 'body', 'eat', 'sleep', 'energy', 'feeling', 'wellness']): pillar = "Wellness"
     elif any(w in text for w in ['quiet', 'still', 'calm', 'nature', 'breathe', 'meditate', 'peace']): pillar = "Peace"
 
-    # 5. Dynamic Reflection Logic
+    # Dynamic Reflection Logic
     questions = {
         "Balance": "Is it the quantity of tasks—or the weight of expectations—that truly feels out of balance today?",
         "Growth": "What part of this 'new' self are you most afraid to leave behind as you grow?",
