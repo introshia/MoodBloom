@@ -32,26 +32,74 @@ def get_db_connection():
 
 # --- AI & ANALYTICS LOGIC ---
 def analyze_sentiment(content):
-    c = content.lower()
+    """
+    An upgraded weighted sentiment engine that handles negations 
+    and context to provide a more accurate mood score.
+    """
+    text = content.lower()
+    # Simple tokenization by splitting and stripping punctuation
+    import re
+    tokens = re.findall(r'\b\w+\b', text)
     
-    # Mood Mapping
-    positive = ['happy', 'great', 'love', 'amazing', 'excited', 'good', 'blessed', 'proud', 'wonderful', 'joy']
-    negative = ['sad', 'bad', 'cry', 'hurt', 'lonely', 'terrible', 'depressed', 'grief', 'heavy', 'miserable']
-    stressed = ['stress', 'hard', 'tired', 'exam', 'deadline', 'busy', 'pressure', 'overwhelmed', 'anxious']
+    # 1. Emotional Lexicon with weights
+    weights = {
+        # Positive (Points towards 5)
+        'happy': 1.5, 'great': 2, 'amazing': 2.5, 'excited': 2, 'good': 1, 
+        'blessed': 1.5, 'proud': 1.5, 'wonderful': 2, 'joy': 2, 'love': 2,
+        'peace': 1.5, 'calm': 1.5, 'serene': 2, 'steady': 1, 'relaxed': 1.5,
+        
+        # Stressed/Anxious (Points towards 2)
+        'stress': -1, 'hard': -1, 'tired': -1, 'exam': -1.5, 'busy': -0.5,
+        'pressure': -1, 'anxious': -1.5, 'overwhelmed': -2, 'worried': -1,
+        
+        # Negative/Sad (Points towards 1)
+        'sad': -1.5, 'bad': -1.5, 'hurt': -2, 'lonely': -2, 'terrible': -2.5,
+        'depressed': -3, 'grief': -3, 'heavy': -1.5, 'miserable': -3, 'cry': -1
+    }
     
-    score = 3
-    if any(w in c for w in positive): score = 5
-    elif any(w in c for w in negative): score = 1
-    elif any(w in c for w in stressed): score = 2
+    # 2. Negation Detection
+    negators = {'not', 'no', 'never', 'dont', 'doesnt', 'wasnt', 'neither', 'barely'}
     
-    # Pillar Detection
-    pillar = "Peace" # Default
-    if any(w in c for w in ['work', 'time', 'manage', 'schedule', 'todo', 'busy', 'juggling', 'deadline']): pillar = "Balance"
-    elif any(w in c for w in ['learn', 'new', 'goal', 'better', 'future', 'skill', 'try', 'growth', 'evolve']): pillar = "Growth"
-    elif any(w in c for w in ['health', 'body', 'eat', 'sleep', 'energy', 'feeling', 'wellness', 'yoga', 'medicine']): pillar = "Wellness"
-    elif any(w in c for w in ['quiet', 'still', 'calm', 'nature', 'breathe', 'meditate', 'peace', 'serene']): pillar = "Peace"
+    sentiment_score = 0
+    negate_next = False
+    found_sentiment = False
+    
+    for word in tokens:
+        if word in negators:
+            negate_next = True
+            continue
+            
+        if word in weights:
+            val = weights[word]
+            if negate_next:
+                val = -val # Flip sentiment if preceded by 'not'
+                negate_next = False
+            
+            sentiment_score += val
+            found_sentiment = True
+        else:
+            negate_next = False # Reset if no word immediately follows negator
 
-    # Reflective Question Generator
+    # 3. Map Sentiment Score to 1-5 scale
+    # Baseline is 3. 
+    # Positive scores move towards 5, negative towards 1.
+    if not found_sentiment:
+        final_score = 3
+    else:
+        if sentiment_score > 3: final_score = 5
+        elif sentiment_score > 0.5: final_score = 4
+        elif sentiment_score < -3: final_score = 1
+        elif sentiment_score < -0.5: final_score = 2
+        else: final_score = 3
+
+    # 4. Pillar Detection (remains for context)
+    pillar = "Peace"
+    if any(w in text for w in ['work', 'time', 'manage', 'schedule', 'todo', 'busy', 'deadline']): pillar = "Balance"
+    elif any(w in text for w in ['learn', 'new', 'goal', 'better', 'future', 'skill', 'try', 'growth']): pillar = "Growth"
+    elif any(w in text for w in ['health', 'body', 'eat', 'sleep', 'energy', 'feeling', 'wellness']): pillar = "Wellness"
+    elif any(w in text for w in ['quiet', 'still', 'calm', 'nature', 'breathe', 'meditate', 'peace']): pillar = "Peace"
+
+    # 5. Dynamic Reflection Logic
     questions = {
         "Balance": "Is it the quantity of tasks—or the weight of expectations—that truly feels out of balance today?",
         "Growth": "What part of this 'new' self are you most afraid to leave behind as you grow?",
@@ -59,13 +107,12 @@ def analyze_sentiment(content):
         "Peace": "In the middle of this quiet moment, what's the one noise you're still trying to ignore?"
     }
     
-    # Dynamic nuance for reflection
-    reflection = questions.get(pillar, "What is one truth you've been avoiding that this entry is trying to tell you?")
-    if score >= 4: reflection = f"This vibrancy feels real—how can you preserve a piece of this light for a darker day?"
-    elif score <= 2: reflection = f"When the weight feels this heavy, what is the smallest possible kindness you can show yourself?"
+    reflection = questions.get(pillar, "What is one truth you've been avoiding today?")
+    if final_score >= 4: reflection = "This vibrancy feels real—how can you preserve a piece of this light for a darker day?"
+    elif final_score <= 2: reflection = "When the weight feels this heavy, what is the smallest possible kindness you can show yourself?"
 
     return {
-        "score": score,
+        "score": final_score,
         "pillar": pillar.lower(),
         "reflection": reflection
     }
@@ -112,16 +159,16 @@ def calculate_energy_data(content):
     if len(c) > 200: score += 10 # Long reflections = higher energy
     score = max(0, min(100, score))
     
-    if score >= 80: 
-        return {"score": score, "mood": "energized", "label": "Vibrant", "color": "#5BB8F5", "light": "#8DD4FF", "dark": "#2E7FC4", "mouth": "M2 7 Q11 1 20 7"}
-    elif score >= 60: 
-        return {"score": score, "mood": "balanced", "label": "Serene", "color": "#6DBF8A", "light": "#9DDBB0", "dark": "#3A8A56", "mouth": "M3 6 Q11 2 19 6"}
-    elif score >= 40: 
-        return {"score": score, "mood": "neutral", "label": "Steady", "color": "#F5C842", "light": "#FFE07A", "dark": "#C49010", "mouth": "M4 5 Q11 5 18 5"}
-    elif score >= 20: 
-        return {"score": score, "mood": "low", "label": "Muted", "color": "#E87FA0", "light": "#FFAAC4", "dark": "#B54A6E", "mouth": "M3 3 Q11 9 19 3"}
-    else: 
-        return {"score": score, "mood": "drained", "label": "Heavy", "color": "#A99BC4", "light": "#C4B5E8", "dark": "#7E6BA9", "mouth": "M5 3 Q11 3 17 3"}
+    if score >= 80:
+        return {"score": score, "mood": "high", "label": "Happy", "color": "#5BB8F5", "light": "#98D3F5", "dark": "#2A88BF", "mouth": "M3 3 Q11 12 19 3"}
+    elif score >= 60:
+        return {"score": score, "mood": "balanced", "label": "Calm", "color": "#6DBF8A", "light": "#9DDBB0", "dark": "#3A8A56", "mouth": "M3 6 Q11 2 19 6"}
+    elif score >= 40:
+        return {"score": score, "mood": "neutral", "label": "Neutral", "color": "#F5C842", "light": "#FAE092", "dark": "#BF9210", "mouth": "M4 5 L18 5"}
+    elif score >= 20:
+        return {"score": score, "mood": "low", "label": "Sad", "color": "#E87FA0", "light": "#FFAAC4", "dark": "#B54A6E", "mouth": "M3 3 Q11 9 19 3"}
+    else:
+        return {"score": score, "mood": "drained", "label": "Stressed", "color": "#A99BC4", "light": "#C4B5E8", "dark": "#7E6BA9", "mouth": "M5 3 Q11 3 17 3"}
 
 def calculate_streak(user_id):
     conn = get_db_connection()
@@ -290,7 +337,7 @@ def archive():
     # Map collection_id -> collection name for quick lookup
     collection_map = {c['id']: c for c in user_collections}
 
-    mood_label_map = {5: 'Vibrant', 4: 'Serene', 3: 'Steady', 2: 'Muted', 1: 'Heavy'}
+    mood_label_map = {5: 'Happy', 4: 'Calm', 3: 'Neutral', 2: 'Sad', 1: 'Stressed'}
 
     for i, entry in enumerate(all_entries):
         display_text = get_preview_text(entry['content'])
@@ -367,11 +414,11 @@ def archive():
     # 6. Chart Data
     chart_points = []
     config_map = {
-        5: {"c": "#5BB8F5", "label": "Radiant"},
-        4: {"c": "#6DBF8A", "label": "Serene"},
-        3: {"c": "#F5C842", "label": "Muted"},
-        2: {"c": "#E87FA0", "label": "Pensive"},
-        1: {"c": "#A99BC4", "label": "Heavy"}
+        5: {"c": "#5BB8F5", "label": "Happy"},
+        4: {"c": "#6DBF8A", "label": "Calm"},
+        3: {"c": "#F5C842", "label": "Neutral"},
+        2: {"c": "#E87FA0", "label": "Sad"},
+        1: {"c": "#A99BC4", "label": "Stressed"}
     }
     for i, e in enumerate(reversed(all_entries[:15])):
         d_str = e['entry_date'].strftime("%b %d")
@@ -538,7 +585,7 @@ def profile():
     # Top mood: map mood_score int to a label
     cursor.execute("SELECT mood_score, COUNT(*) as cnt FROM journal_entries WHERE user_id = %s AND mood_score IS NOT NULL GROUP BY mood_score ORDER BY cnt DESC LIMIT 1", (user_id,))
     mood_row = cursor.fetchone()
-    mood_labels = {1: 'Heavy', 2: 'Muted', 3: 'Steady', 4: 'Serene', 5: 'Vibrant'}
+    mood_labels = {1: 'Stressed', 2: 'Sad', 3: 'Neutral', 4: 'Calm', 5: 'Happy'}
     top_mood = mood_labels.get(mood_row['mood_score'], 'Steady') if mood_row else 'None yet'
 
     cursor.execute("SELECT DISTINCT DATE(entry_date) as d FROM journal_entries WHERE user_id = %s ORDER BY d DESC", (user_id,))

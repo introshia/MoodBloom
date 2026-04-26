@@ -1154,19 +1154,19 @@
         
         // Define face SVGs based on scores
         const faceDefs = {
-            1: { // Heavy / Sad
+            1: { // Stressed
                 svg: `<svg width="42" height="42" viewBox="0 0 42 42" fill="none"><circle cx="21" cy="21" r="21" fill="#7098cc"/><circle cx="15" cy="18" r="1.6" fill="#1a2e5a"/><circle cx="27" cy="18" r="1.6" fill="#1a2e5a"/><path d="M27 22 Q25.8 26 27 28 Q28.2 26 27 22" fill="#cce0f8"/><path d="M14 29 Q21 24 28 29" stroke="#1a2e5a" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>`
             },
-            2: { // Pensive / Worried
+            2: { // Sad
                 svg: `<svg width="42" height="42" viewBox="0 0 42 42" fill="none"><circle cx="21" cy="21" r="21" fill="#5ab8b4"/><line x1="12" y1="14" x2="17" y2="16.5" stroke="#083030" stroke-width="1.6" stroke-linecap="round"/><line x1="25" y1="16.5" x2="30" y2="14" stroke="#083030" stroke-width="1.6" stroke-linecap="round"/><circle cx="15" cy="21" r="1.6" fill="#083030"/><circle cx="27" cy="21" r="1.6" fill="#083030"/><path d="M15 29 Q21 25 27 29" stroke="#083030" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>`
             },
-            3: { // Steady / Neutral
+            3: { // Neutral
                 svg: `<svg width="42" height="42" viewBox="0 0 42 42" fill="none"><circle cx="21" cy="21" r="21" fill="#ddb94a"/><circle cx="15" cy="19" r="1.6" fill="#4a3300"/><circle cx="27" cy="19" r="1.6" fill="#4a3300"/><line x1="15" y1="27" x2="27" y2="27" stroke="#4a3300" stroke-width="1.8" stroke-linecap="round"/></svg>`
             },
-            4: { // Serene / Happy
+            4: { // Calm
                 svg: `<svg width="42" height="42" viewBox="0 0 42 42" fill="none"><circle cx="21" cy="21" r="21" fill="#7bbf52"/><circle cx="15" cy="18" r="1.6" fill="#1e4a0a"/><circle cx="27" cy="18" r="1.6" fill="#1e4a0a"/><circle cx="12" cy="24" r="2.2" fill="#c8401a" opacity="0.25"/><circle cx="30" cy="24" r="2.2" fill="#c8401a" opacity="0.25"/><path d="M14 25 Q21 31 28 25" stroke="#1e4a0a" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>`
             },
-            5: { // Radiant / Joyful
+            5: { // Happy
                 svg: `<svg width="42" height="42" viewBox="0 0 42 42" fill="none"><circle cx="21" cy="21" r="21" fill="#5aaa5e"/><circle cx="15" cy="17" r="1.6" fill="#133016"/><circle cx="27" cy="17" r="1.6" fill="#133016"/><circle cx="11" cy="23" r="2.5" fill="#c8401a" opacity="0.22"/><circle cx="31" cy="23" r="2.5" fill="#c8401a" opacity="0.22"/><path d="M13 25 Q21 34 29 25" stroke="#133016" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>`
             }
         };
@@ -1354,7 +1354,7 @@
                 : `<div class="lib-empty">No entries yet.</div>`;
 
         } else if (mode === 'mood') {
-            const ORDER = ['Vibrant', 'Serene', 'Steady', 'Muted', 'Heavy'];
+            const ORDER = ['Happy', 'Calm', 'Neutral', 'Sad', 'Stressed'];
             const groups = {};
             ENTRIES.forEach(e => { (groups[e.mood_label] = groups[e.mood_label] || []).push(e); });
             html = ORDER.filter(o => groups[o]).map(o => groupHTML(o, groups[o])).join('') ||
