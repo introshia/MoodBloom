@@ -46,12 +46,15 @@ def analyze_sentiment(content):
     vs = analyzer.polarity_scores(content)
     compound = vs['compound'] # Ranges from -1.0 to 1.0
     
-    # Map compound score to 1-5 scale
-    if compound >= 0.6: final_score = 5       # Happy
-    elif compound >= 0.1: final_score = 4     # Calm
-    elif compound > -0.1: final_score = 3     # Neutral
-    elif compound > -0.6: final_score = 2     # Sad
-    else: final_score = 1                     # Stressed
+    # Map compound score to 1-9 scale (to support the 12 nuanced faces)
+    if compound >= 0.8: final_score = 9       # Excited / Happy
+    elif compound >= 0.5: final_score = 8     # Grateful
+    elif compound >= 0.2: final_score = 7     # Hopeful / Calm
+    elif compound > -0.1: final_score = 5     # Neutral
+    elif compound > -0.3: final_score = 4     # Confused
+    elif compound > -0.5: final_score = 3     # Tired / Anxious
+    elif compound > -0.8: final_score = 2     # Sad / Lonely
+    else: final_score = 1                     # Angry
 
     # Pillar Detection (keywords are still good for categorizing 'topics')
     text = content.lower()
@@ -299,7 +302,7 @@ def archive():
     # Map collection_id -> collection name for quick lookup
     collection_map = {c['id']: c for c in user_collections}
 
-    mood_label_map = {5: 'Happy', 4: 'Calm', 3: 'Neutral', 2: 'Sad', 1: 'Stressed'}
+    mood_label_map = {1: 'Angry', 2: 'Sad', 3: 'Anxious', 4: 'Confused', 5: 'Neutral', 6: 'Calm', 7: 'Hopeful', 8: 'Grateful', 9: 'Excited'}
 
     for i, entry in enumerate(all_entries):
         display_text = get_preview_text(entry['content'])
@@ -375,12 +378,17 @@ def archive():
     
     # 6. Chart Data
     chart_points = []
+    # Map 1-9 score to the 12 specific faces based on subtle randomization or exact mapping
     config_map = {
-        5: {"c": "#5BB8F5", "label": "Happy"},
-        4: {"c": "#6DBF8A", "label": "Calm"},
-        3: {"c": "#F5C842", "label": "Neutral"},
-        2: {"c": "#E87FA0", "label": "Sad"},
-        1: {"c": "#A99BC4", "label": "Stressed"}
+        9: {"c": "#9abf58", "label": "excited"},
+        8: {"c": "#c8906a", "label": "grateful"},
+        7: {"c": "#6abca0", "label": "hopeful"},
+        6: {"c": "#5aa090", "label": "calm"},
+        5: {"c": "#b0a07a", "label": "neutral"},
+        4: {"c": "#b08898", "label": "confused"},
+        3: {"c": "#9880b8", "label": "anxious"},
+        2: {"c": "#8aaab8", "label": "sad"},
+        1: {"c": "#c07068", "label": "angry"}
     }
     for i, e in enumerate(reversed(all_entries[:15])):
         d_str = e['entry_date'].strftime("%b %d")
@@ -547,8 +555,8 @@ def profile():
     # Top mood: map mood_score int to a label
     cursor.execute("SELECT mood_score, COUNT(*) as cnt FROM journal_entries WHERE user_id = %s AND mood_score IS NOT NULL GROUP BY mood_score ORDER BY cnt DESC LIMIT 1", (user_id,))
     mood_row = cursor.fetchone()
-    mood_labels = {1: 'Stressed', 2: 'Sad', 3: 'Neutral', 4: 'Calm', 5: 'Happy'}
-    top_mood = mood_labels.get(mood_row['mood_score'], 'Steady') if mood_row else 'None yet'
+    mood_labels = {1: 'Angry', 2: 'Sad', 3: 'Anxious', 4: 'Confused', 5: 'Neutral', 6: 'Calm', 7: 'Hopeful', 8: 'Grateful', 9: 'Excited'}
+    top_mood = mood_labels.get(mood_row['mood_score'], 'Neutral') if mood_row else 'None yet'
 
     cursor.execute("SELECT DISTINCT DATE(entry_date) as d FROM journal_entries WHERE user_id = %s ORDER BY d DESC", (user_id,))
     days = [row['d'] for row in cursor.fetchall()]
