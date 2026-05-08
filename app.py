@@ -336,6 +336,7 @@ def archive():
         'id': e['id'],
         'color_class': e['color_class'],
         'formatted_date': e['formatted_date'],
+        'iso_date': e['entry_date'].strftime("%Y-%m-%d"),
         'mood_score': e['mood_score'],
         'mood_label': e['mood_label'],
         'month_label': e['month_label'],
