@@ -56,9 +56,21 @@
     .insight-card {
         background: var(--surface);
         border: 1px solid var(--rule);
-        border-radius: 8px;
+        border-radius: 16px;
         padding: 24px;
         position: relative;
+        overflow: hidden;
+    }
+
+    .insight-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #C8A2C8, #A8DADC, #F2DD66);
+        border-radius: 16px 16px 0 0;
     }
 
     .insight-label {
@@ -162,15 +174,107 @@
 
     /* Chart */
     .chart-container {
-        background: var(--bg);
+        background: var(--surface);
         border-radius: 22px;
         border: 1px solid var(--rule);
-        padding: 24px 32px;
+        padding: 0;
         position: relative;
         min-height: 290px;
         box-shadow: 0 12px 40px rgba(45, 51, 42, 0.04);
         display: flex;
         flex-direction: column;
+        overflow: hidden;
+    }
+
+    .mood-map-header {
+        background: linear-gradient(135deg, #E8D5E8 0%, #D5E5EE 40%, #F4E6A6 100%);
+        padding: 28px 28px 20px;
+        position: relative;
+    }
+
+    .mood-map-header .mm-title {
+        font-family: 'Lora', serif;
+        font-size: 28px;
+        font-weight: 400;
+        color: var(--text);
+        margin: 0;
+        line-height: 1.1;
+    }
+
+    .mood-map-header .mm-subtitle {
+        font-size: 11px;
+        letter-spacing: .08em;
+        color: var(--muted);
+        text-transform: uppercase;
+        margin-top: 4px;
+    }
+
+    .mood-map-body {
+        padding: 20px 28px 28px;
+    }
+
+    .cal-day {
+        aspect-ratio: 1;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 500;
+        position: relative;
+        transition: transform 0.15s ease;
+    }
+
+    .cal-day:hover {
+        transform: scale(1.12);
+    }
+
+    .cal-day--empty {
+        background: rgba(0,0,0,0.03);
+        color: var(--muted);
+        cursor: default;
+    }
+
+    .cal-day--mood {
+        cursor: pointer;
+        color: #fff;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    }
+
+    .cal-day--today {
+        box-shadow: 0 0 0 2.5px var(--text), 0 0 0 4.5px rgba(75,46,31,0.12);
+    }
+
+    .cal-day--today-empty {
+        background: rgba(75,46,31,0.06);
+        color: var(--text);
+        font-weight: 600;
+    }
+
+    .write-today-cta {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 16px;
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #E8D5E8, #D5E5EE);
+        border: none;
+        border-radius: 50px;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--text);
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .write-today-cta:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
 
     .mbw{font-family:inherit;width: 100%;}
@@ -775,27 +879,26 @@
         </div>
 
         <div class="chart-container" id="aw">
-            <div class="mbw">
-              <button id="emotion-set-toggle" onclick="document.getElementById('emotion-set-container').style.display='block'; this.style.display='none';" style="background:var(--color-background-primary); border:0.5px solid var(--color-border-tertiary); border-radius:20px; padding:6px 16px; font-size:11px; color:var(--text); cursor:pointer; margin-bottom:14px; display:inline-flex; align-items:center; gap:6px;"><i class="fas fa-smile"></i> View Emotion Legend</button>
+              <button id="emotion-set-toggle" onclick="document.getElementById('emotion-set-container').style.display='block'; this.style.display='none';" style="background:var(--surface); border:0.5px solid var(--rule); border-radius:20px; padding:6px 16px; font-size:11px; color:var(--text); cursor:pointer; margin:16px 28px 0; display:inline-flex; align-items:center; gap:6px; width:fit-content;"><i class="fas fa-smile"></i> View Emotion Legend</button>
               
-              <div class="mbc" id="emotion-set-container" style="display:none;">
+              <div class="mbc" id="emotion-set-container" style="display:none; margin:16px 28px 0; border-radius:12px;">
                 <div class="mbr" style="margin-bottom:12px;">
                   <span class="mbs" style="margin:0;">AI-detected emotion set</span>
                   <button onclick="document.getElementById('emotion-set-container').style.display='none'; document.getElementById('emotion-set-toggle').style.display='inline-flex';" style="background:none; border:none; cursor:pointer; font-size:12px; color:var(--muted);"><i class="fas fa-times"></i></button>
                 </div>
                 <div class="fg" id="fg"></div>
               </div>
-              <div class="mbc">
-                <div class="mbr">
-                  <span class="mbt">Mood map</span>
-                  <span style="font-size:10px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase">Recent chronicle</span>
-                </div>
+
+              <div class="mood-map-header">
+                <p class="mm-title" id="mm-month-title">Mood Map</p>
+                <p class="mm-subtitle">Your emotional chronicle</p>
+              </div>
+              <div class="mood-map-body">
                 <script id="chart-labels" type="application/json">{{ chart_labels | tojson | safe }}</script>
                 <script id="chart-scores" type="application/json">{{ chart_scores | tojson | safe }}</script>
                 <script id="chart-moods" type="application/json">{{ chart_moods | tojson | safe }}</script>
                 <div id="mood-calendar"></div>
               </div>
-            </div>
         </div>
     </div>
 
@@ -1151,55 +1254,68 @@
 
         const calContainer = document.getElementById('mood-calendar');
         if (calContainer) {
-            // Check if we have entries to determine the month to show, or just default to current month
             let displayDate = new Date();
             if (ENTRIES_DATA.length > 0 && ENTRIES_DATA[0].iso_date) {
-                // Use the month of the most recent entry
                 displayDate = new Date(ENTRIES_DATA[0].iso_date);
             }
             
             const year = displayDate.getFullYear();
             const month = displayDate.getMonth();
+            const today = new Date();
+            const isCurrentMonth = (today.getFullYear() === year && today.getMonth() === month);
+            const todayDate = today.getDate();
             
-            const firstDay = new Date(year, month, 1).getDay(); // 0 (Sun)
+            const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             
             const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             
-            let html = `<div style="max-width: 380px; margin: 0 auto;">`;
-            html += `<div style="text-align:center; font-weight:500; font-size:14px; color:var(--text); margin-bottom: 16px;">${monthNames[month]} ${year}</div>`;
-            html += `<div style="display:grid; grid-template-columns:repeat(7, 1fr); text-align:center; font-size:10px; color:var(--muted); text-transform:uppercase; margin-bottom:8px;">
+            // Update the header with the month name
+            const headerTitle = document.getElementById('mm-month-title');
+            if (headerTitle) headerTitle.textContent = monthNames[month] + ' ' + year;
+            
+            let html = `<div style="max-width: 340px; margin: 0 auto;">`;
+            html += `<div style="display:grid; grid-template-columns:repeat(7, 1fr); text-align:center; font-size:10px; color:var(--muted); text-transform:uppercase; margin-bottom:10px; letter-spacing:0.05em;">
                 <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
             </div>`;
             
-            html += `<div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:8px;">`;
+            html += `<div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:6px;">`;
             
             for (let i = 0; i < firstDay; i++) {
                 html += `<div></div>`;
             }
             
+            let hasToday = false;
             for (let d = 1; d <= daysInMonth; d++) {
                 const dateStr = `${year}-${String(month+1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                 const entry = entriesByDate[dateStr];
+                const isTodayCell = isCurrentMonth && d === todayDate;
+                const todayCls = isTodayCell ? ' cal-day--today' : '';
                 
                 if (entry) {
                     const eLower = entry.mood_label.toLowerCase();
                     const fD = FACES.find(f => f.e === eLower) || FACES[5];
-                    html += `
-                    <div style="aspect-ratio:1; position:relative; cursor:pointer;" title="${entry.mood_label}: ${entry.formatted_date}">
-                        <svg viewBox="0 0 100 100" style="width:100%; height:100%; display:block;">
-                            <circle cx="50" cy="50" r="50" fill="${fD.c}"/>
-                            <g transform="translate(0, 5) scale(1)">
-                                ${FEATS[fD.e]}
-                            </g>
-                        </svg>
+                    html += `<div class="cal-day cal-day--mood${todayCls}" style="background:${fD.c};" title="${entry.mood_label} · ${entry.formatted_date}">
+                        ${d}
                     </div>`;
                 } else {
-                    html += `<div style="aspect-ratio:1; border-radius:50%; background:rgba(0,0,0,0.03); display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--muted); font-weight:500;">${d}</div>`;
+                    if (isTodayCell) {
+                        hasToday = true;
+                        html += `<div class="cal-day cal-day--today-empty cal-day--today">${d}</div>`;
+                    } else {
+                        html += `<div class="cal-day cal-day--empty">${d}</div>`;
+                    }
                 }
             }
             
-            html += `</div></div>`;
+            html += `</div>`;
+            
+            // Add "Write Today" CTA if today has no entry
+            if (isCurrentMonth && hasToday) {
+                html += `<a href="/writing" class="write-today-cta"><i class="fas fa-feather-alt"></i> Write today's entry</a>`;
+            }
+            
+            html += `</div>`;
             calContainer.innerHTML = html;
         }
     }, 100);
