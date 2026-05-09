@@ -162,25 +162,26 @@
 
     /* Chart */
     .chart-container {
-        background: var(--surface);
-        border-radius: 16px;
-        border: 1px solid var(--rule);
+        background: transparent;
+        border-radius: 0;
+        border: none;
         padding: 0;
         position: relative;
-        box-shadow: 0 4px 20px rgba(45, 51, 42, 0.04);
+        box-shadow: none;
         display: flex;
         flex-direction: column;
-        overflow: hidden;
     }
 
     .mood-map-header {
-        padding: 22px 28px 14px;
-        border-bottom: 1px solid var(--rule);
+        padding: 0 0 16px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
     }
 
     .mood-map-header .mm-title {
         font-family: 'Lora', serif;
-        font-size: 22px;
+        font-size: 20px;
         font-weight: 400;
         color: var(--text);
         margin: 0;
@@ -196,7 +197,24 @@
     }
 
     .mood-map-body {
-        padding: 20px 28px 24px;
+        padding: 0;
+    }
+
+    .cal-weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        text-align: center;
+        font-size: 10px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 8px;
+    }
+
+    .cal-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
     }
 
     .cal-day {
@@ -208,23 +226,64 @@
         font-size: 11px;
         font-weight: 500;
         position: relative;
-        transition: transform 0.15s ease;
-    }
-
-    .cal-day:hover {
-        transform: scale(1.1);
+        transition: transform 0.15s ease, background 0.15s ease;
     }
 
     .cal-day--empty {
         background: transparent;
-        color: var(--muted);
+        color: rgba(75, 46, 31, 0.3);
+        border: 1.5px dashed rgba(75, 46, 31, 0.1);
         cursor: default;
+    }
+
+    .cal-day--empty:hover {
+        background: rgba(75, 46, 31, 0.03);
     }
 
     .cal-day--mood {
         cursor: pointer;
         color: #fff;
         text-shadow: 0 1px 2px rgba(0,0,0,0.12);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .cal-day--mood:hover {
+        transform: scale(1.15);
+        box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+        z-index: 2;
+    }
+
+    .cal-day--mood:hover .cal-tooltip {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    .cal-tooltip {
+        position: absolute;
+        bottom: calc(100% + 6px);
+        left: 50%;
+        transform: translateX(-50%) translateY(4px);
+        background: var(--text);
+        color: var(--bg);
+        font-size: 9px;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        padding: 3px 8px;
+        border-radius: 4px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.15s, transform 0.15s;
+    }
+
+    .cal-tooltip::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 4px solid transparent;
+        border-top-color: var(--text);
     }
 
     .cal-day--today {
@@ -235,6 +294,7 @@
         background: var(--butter);
         color: var(--text);
         font-weight: 600;
+        border: none;
     }
 
     .write-today-cta {
@@ -865,16 +925,16 @@
         </div>
 
         <div class="chart-container" id="aw">
-              <div class="mood-map-header" style="display:flex; align-items:center; justify-content:space-between;">
+              <div class="mood-map-header">
                 <div>
                   <p class="mm-title" id="mm-month-title">Mood Map</p>
                   <p class="mm-subtitle">Your emotional chronicle</p>
                 </div>
-                <button id="emotion-set-toggle" onclick="document.getElementById('emotion-set-container').style.display='block'; this.style.display='none';" style="background:var(--bg); border:1px solid var(--rule); border-radius:20px; padding:5px 14px; font-size:10px; color:var(--muted); cursor:pointer; display:inline-flex; align-items:center; gap:5px; white-space:nowrap;"><i class="fas fa-smile"></i> Legend</button>
+                <button id="emotion-set-toggle" onclick="document.getElementById('emotion-set-container').style.display='block'; this.style.display='none';" style="background:var(--surface); border:1px solid var(--rule); border-radius:20px; padding:5px 14px; font-size:10px; color:var(--muted); cursor:pointer; display:inline-flex; align-items:center; gap:5px; white-space:nowrap;"><i class="fas fa-smile"></i> Legend</button>
               </div>
 
-              <div id="emotion-set-container" style="display:none; padding:0 28px;">
-                <div style="background:var(--bg); border-radius:10px; padding:16px; margin-bottom:4px;">
+              <div id="emotion-set-container" style="display:none; margin-bottom:16px;">
+                <div style="background:var(--surface); border:1px solid var(--rule); border-radius:10px; padding:16px;">
                   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <span class="mbs" style="margin:0;">AI-detected emotion set</span>
                     <button onclick="document.getElementById('emotion-set-container').style.display='none'; document.getElementById('emotion-set-toggle').style.display='inline-flex';" style="background:none; border:none; cursor:pointer; font-size:11px; color:var(--muted);">✕</button>
@@ -1264,12 +1324,11 @@
             const headerTitle = document.getElementById('mm-month-title');
             if (headerTitle) headerTitle.textContent = monthNames[month] + ' ' + year;
             
-            let html = `<div style="max-width: 340px; margin: 0 auto;">`;
-            html += `<div style="display:grid; grid-template-columns:repeat(7, 1fr); text-align:center; font-size:10px; color:var(--muted); text-transform:uppercase; margin-bottom:10px; letter-spacing:0.05em;">
+            let html = `<div class="cal-weekdays">
                 <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
             </div>`;
             
-            html += `<div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:6px;">`;
+            html += `<div class="cal-grid">`;
             
             for (let i = 0; i < firstDay; i++) {
                 html += `<div></div>`;
@@ -1285,7 +1344,8 @@
                 if (entry) {
                     const eLower = entry.mood_label.toLowerCase();
                     const fD = FACES.find(f => f.e === eLower) || FACES[5];
-                    html += `<div class="cal-day cal-day--mood${todayCls}" style="background:${fD.c};" title="${entry.mood_label} · ${entry.formatted_date}">
+                    html += `<div class="cal-day cal-day--mood${todayCls}" style="background:${fD.c};" title="${entry.mood_label}">
+                        <span class="cal-tooltip">${fD.e}</span>
                         ${d}
                     </div>`;
                 } else {
@@ -1304,8 +1364,6 @@
             if (isCurrentMonth && hasToday) {
                 html += `<a href="/writing" class="write-today-cta"><i class="fas fa-feather-alt"></i> Write today's entry</a>`;
             }
-            
-            html += `</div>`;
             calContainer.innerHTML = html;
         }
     }, 100);
