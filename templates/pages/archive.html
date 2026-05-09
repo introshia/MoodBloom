@@ -699,33 +699,33 @@
     .obo-book-body {
         display: flex; border-radius: 3px;
         box-shadow: 0 24px 64px rgba(0,0,0,0.16), 0 4px 12px rgba(0,0,0,0.07);
-        transform: perspective(900px) rotateX(5deg);
+        transform: perspective(1200px) rotateX(2deg);
     }
     .obo-left {
-        width: 220px; height: 310px; background: #EDE4D2;
+        width: 320px; height: 420px; background: #EDE4D2;
         border-radius: 3px 0 0 3px; flex-shrink: 0;
         display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px;
-        box-shadow: inset -10px 0 24px rgba(0,0,0,0.06);
+        box-shadow: inset -15px 0 30px rgba(0,0,0,0.08);
     }
     .obo-left-text { font-family: 'Lora', serif; font-size: 11px; color: #A09080; letter-spacing: 0.22em; text-transform: uppercase; }
     .obo-left-hr { width: 44px; height: 1px; background: #C8BEAE; }
     
     .obo-right {
-        width: 270px; height: 310px; background: #F8F4EE;
+        width: 400px; height: 420px; background: #F8F4EE;
         flex-shrink: 0; position: relative; overflow: hidden;
         border-left: 1px solid rgba(0,0,0,0.05);
     }
     .obo-lines {
         position: absolute; inset: 0;
-        background-image: repeating-linear-gradient(to bottom, transparent, transparent 25px, #E4DDD4 25px, #E4DDD4 26px);
+        background-image: repeating-linear-gradient(to bottom, transparent, transparent 28px, #E4DDD4 28px, #E4DDD4 29px);
         padding-top: 44px;
     }
     .obo-crease { position: absolute; top:0; left: 54px; bottom: 0; width: 1px; background: rgba(200, 155, 135, 0.22); }
-    .obo-shadow { position: absolute; top:0; left: 0; width: 20px; height: 100%; background: linear-gradient(to right, rgba(0,0,0,0.07), transparent); }
+    .obo-shadow { position: absolute; top:0; left: 0; width: 30px; height: 100%; background: linear-gradient(to right, rgba(0,0,0,0.07), transparent); }
     .obo-right-title { position: absolute; top: 17px; left: 18px; font-family: 'Lora', serif; font-style: italic; font-size: 13px; color: #9A9080; letter-spacing: 0.04em; }
-
-    .obo-fanned { position: relative; flex-shrink: 0; width: 42px; height: 310px; align-self: stretch; }
-    .fpage { position: absolute; top: 0; height: 310px; border-radius: 0 3px 3px 0; }
+    
+    .obo-fanned { position: relative; flex-shrink: 0; width: 50px; height: 420px; align-self: stretch; }
+    .fpage { position: absolute; top: 0; height: 420px; border-radius: 0 4px 4px 0; }
 
     /* ── LIBRARY SECTION (View Switcher) ───────────── */
     .library-section {
@@ -1270,12 +1270,88 @@
     const oboModal = document.getElementById('obo-modal');
     const oboCloseBtn = document.getElementById('obo-close-btn');
     
-    function openOverlay(title, pages) {
+    function getSceneSVG(idx) {
+        var s = idx % 10;
+        var scenes = [
+            '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s0sky" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#1A3D28"/><stop offset="100%" stop-color="#4A7840"/></linearGradient><radialGradient id="s0sun" cx="52%" cy="32%" r="55%"><stop offset="0%" stop-color="#FFD080" stop-opacity="0.55"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs><rect fill="url(#s0sky)" width="200" height="200"/><rect fill="url(#s0sun)" width="200" height="200"/><ellipse cx="55" cy="125" rx="32" ry="46" fill="#0E2A1A" opacity="0.92"/><ellipse cx="148" cy="115" rx="36" ry="55" fill="#0A2014" opacity="0.9"/><rect x="51" y="145" width="9" height="55" fill="#2A1A0C"/><rect x="144" y="148" width="9" height="52" fill="#2A1A0C"/><ellipse cx="100" cy="188" rx="85" ry="22" fill="#162E12"/><circle cx="100" cy="162" r="9" fill="#F5C89A"/><ellipse cx="100" cy="173" rx="12" ry="7" fill="#8A6850"/><ellipse cx="76" cy="181" rx="9" ry="5" fill="#C07040"/><ellipse cx="122" cy="183" rx="7" ry="4" fill="#D8D8C8"/><ellipse cx="132" cy="180" rx="5" ry="3" fill="#C0C0B0"/><line x1="100" y1="28" x2="65" y2="155" stroke="rgba(255,220,100,0.14)" stroke-width="20"/><line x1="100" y1="28" x2="135" y2="148" stroke="rgba(255,220,100,0.10)" stroke-width="15"/></svg>',
+            '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s1sky" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#0E1830"/><stop offset="60%" stop-color="#2A3870"/><stop offset="100%" stop-color="#5060A8"/></linearGradient><linearGradient id="s1sea" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#1A2858"/><stop offset="100%" stop-color="#0A1020"/></linearGradient></defs><rect fill="url(#s1sky)" width="200" height="200"/><ellipse cx="100" cy="95" rx="28" ry="28" fill="rgba(255,220,140,0.18)"/><ellipse cx="100" cy="95" rx="16" ry="16" fill="rgba(255,240,180,0.45)"/><rect fill="url(#s1sea)" x="0" y="110" width="200" height="90"/><path d="M0 120 Q50 112 100 120 Q150 128 200 120 L200 200 L0 200Z" fill="rgba(20,40,100,0.6)"/><path d="M0 135 Q40 130 80 135 Q120 140 160 135 Q180 132 200 135" stroke="rgba(100,150,255,0.25)" stroke-width="2" fill="none"/><path d="M20 150 Q60 145 100 150 Q140 155 180 150" stroke="rgba(100,150,255,0.15)" stroke-width="1.5" fill="none"/><circle cx="30" cy="65" r="1.5" fill="rgba(255,255,200,0.8)"/><circle cx="75" cy="40" r="1" fill="rgba(255,255,200,0.7)"/><circle cx="150" cy="55" r="1.5" fill="rgba(255,255,200,0.8)"/><circle cx="170" cy="30" r="1" fill="rgba(255,255,200,0.6)"/><circle cx="55" cy="25" r="1" fill="rgba(255,255,200,0.6)"/></svg>',
+            '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s2bg" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#1A2030"/><stop offset="100%" stop-color="#101520"/></linearGradient></defs><rect fill="url(#s2bg)" width="200" height="200"/><rect x="10" y="10" width="180" height="180" fill="rgba(60,100,140,0.12)" rx="6"/><line x1="100" y1="10" x2="100" y2="190" stroke="rgba(80,120,160,0.3)" stroke-width="3"/><line x1="10" y1="100" x2="190" y2="100" stroke="rgba(80,120,160,0.3)" stroke-width="3"/><g stroke="rgba(160,210,255,0.45)" stroke-width="1.2" stroke-linecap="round"><line x1="30" y1="5" x2="25" y2="30"/><line x1="55" y1="0" x2="50" y2="25"/><line x1="80" y1="8" x2="75" y2="33"/><line x1="120" y1="3" x2="115" y2="28"/><line x1="155" y1="0" x2="150" y2="25"/><line x1="178" y1="6" x2="173" y2="31"/><line x1="40" y1="40" x2="35" y2="65"/><line x1="70" y1="45" x2="65" y2="70"/><line x1="105" y1="38" x2="100" y2="63"/><line x1="140" y1="42" x2="135" y2="67"/><line x1="170" y1="40" x2="165" y2="65"/><line x1="20" y1="80" x2="15" y2="105"/><line x1="60" y1="85" x2="55" y2="110"/><line x1="95" y1="78" x2="90" y2="103"/><line x1="130" y1="82" x2="125" y2="107"/><line x1="165" y1="80" x2="160" y2="105"/><line x1="35" y1="120" x2="30" y2="145"/><line x1="75" y1="125" x2="70" y2="150"/><line x1="115" y1="118" x2="110" y2="143"/><line x1="150" y1="122" x2="145" y2="147"/><line x1="185" y1="120" x2="180" y2="145"/></g><circle cx="50" cy="30" r="2.5" fill="rgba(180,220,255,0.4)"/><circle cx="130" cy="65" r="2" fill="rgba(180,220,255,0.35)"/><circle cx="75" cy="110" r="3" fill="rgba(180,220,255,0.3)"/></svg>',
+            '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s3sky" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#080C20"/><stop offset="100%" stop-color="#1A1A3A"/></linearGradient></defs><rect fill="url(#s3sky)" width="200" height="200"/><polygon points="100,20 45,110 155,110" fill="#1A1A38"/><polygon points="100,20 45,110 155,110" fill="rgba(200,200,255,0.06)"/><polygon points="100,30 55,110 92,110" fill="#E8E8F5" opacity="0.85"/><polygon points="100,30 108,110 155,110" fill="#D0D0E8" opacity="0.7"/><polygon points="40,70 0,140 85,140" fill="#14142E"/><polygon points="40,70 10,140 55,140" fill="#E0E0F0" opacity="0.6"/><polygon points="160,60 115,140 200,140" fill="#14142E"/><polygon points="160,60 148,140 195,140" fill="#E0E0F0" opacity="0.55"/><rect x="0" y="140" width="200" height="60" fill="#0C0C1E"/><path d="M0 145 Q50 140 100 145 Q150 150 200 145 L200 200 L0 200Z" fill="#10101C"/><circle cx="35" cy="25" r="1.2" fill="rgba(255,255,200,0.9)"/><circle cx="80" cy="15" r="0.9" fill="rgba(255,255,200,0.8)"/><circle cx="165" cy="20" r="1.2" fill="rgba(255,255,200,0.9)"/><circle cx="140" cy="10" r="0.9" fill="rgba(255,255,200,0.8)"/></svg>',
+            '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s4sky" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#1A3020"/><stop offset="100%" stop-color="#2A4830"/></linearGradient></defs><rect fill="url(#s4sky)" width="200" height="200"/><ellipse cx="100" cy="110" rx="55" ry="16" fill="rgba(20,60,20,0.7)"/><path d="M85 200 L92 110 L108 110 L115 200Z" fill="#2A3818"/><path d="M88 200 L94 115 L106 115 L112 200Z" fill="#3A5025"/><ellipse cx="20" cy="150" rx="25" ry="35" fill="#0E2210"/><ellipse cx="25" cy="145" rx="20" ry="28" fill="#142E14"/><ellipse cx="180" cy="145" rx="25" ry="35" fill="#0E2210"/><ellipse cx="175" cy="140" rx="20" ry="28" fill="#142E14"/><circle cx="40" cy="130" r="8" fill="#1A3A10"/><circle cx="160" cy="125" r="8" fill="#1A3A10"/><circle cx="50" cy="160" r="5" fill="#FF6080" opacity="0.7"/><circle cx="42" cy="168" r="4" fill="#FF80A0" opacity="0.6"/><circle cx="152" cy="155" r="5" fill="#FF6080" opacity="0.7"/><rect x="0" y="170" width="200" height="30" fill="#1A2810"/><path d="M90 120 Q95 140 100 170 Q105 140 110 120" fill="#2A4018" opacity="0.5"/><circle cx="100" cy="60" r="20" fill="rgba(255,220,100,0.12)"/><circle cx="100" cy="60" r="10" fill="rgba(255,220,100,0.25)"/></svg>',
+            '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="s5bg" cx="50%" cy="50%" r="70%"><stop offset="0%" stop-color="#12183A"/><stop offset="100%" stop-color="#060810"/></radialGradient><radialGradient id="s5glow" cx="30%" cy="25%" r="40%"><stop offset="0%" stop-color="rgba(100,130,255,0.18)"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs><rect fill="url(#s5bg)" width="200" height="200"/><rect fill="url(#s5glow)" width="200" height="200"/><g fill="rgba(255,255,220,1)"><circle cx="20" cy="18" r="1.3"/><circle cx="45" cy="8" r="1.8" opacity="0.9"/><circle cx="70" cy="22" r="1.1"/><circle cx="98" cy="12" r="1.5"/><circle cx="130" cy="5" r="1.2"/><circle cx="158" cy="18" r="1.8" opacity="0.9"/><circle cx="178" cy="9" r="1.1"/><circle cx="12" cy="45" r="1.2"/><circle cx="55" cy="38" r="1.5"/><circle cx="85" cy="50" r="1.1"/><circle cx="115" cy="35" r="1.3"/><circle cx="145" cy="42" r="1.6"/><circle cx="172" cy="32" r="1.2"/><circle cx="30" cy="70" r="1.4"/><circle cx="62" cy="62" r="1.1"/><circle cx="92" cy="75" r="1.5"/><circle cx="122" cy="60" r="1.2"/><circle cx="150" cy="68" r="1.4"/><circle cx="185" cy="55" r="1.1"/></g><path d="M100 30 L102 38 L110 38 L104 43 L106 51 L100 46 L94 51 L96 43 L90 38 L98 38Z" fill="rgba(255,240,160,0.55)" transform="scale(0.7) translate(43,30)"/><ellipse cx="100" cy="175" rx="80" ry="25" fill="#080C18"/><path d="M20 160 Q60 155 100 160 Q140 165 180 160" stroke="rgba(60,80,160,0.2)" stroke-width="1.5" fill="none"/></svg>',
+            '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s6sky" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#1A100C"/><stop offset="100%" stop-color="#2E1808"/></linearGradient></defs><rect fill="url(#s6sky)" width="200" height="200"/><rect x="0" y="165" width="200" height="35" fill="#1A0C08"/><rect x="90" y="100" width="8" height="65" fill="#2A1404"/><ellipse cx="94" cy="90" rx="42" ry="48" fill="#1A1008"/><ellipse cx="80" cy="80" rx="28" ry="32" fill="#1E1208"/><ellipse cx="108" cy="85" rx="24" ry="28" fill="#1A1008"/><g opacity="0.9"><ellipse cx="55" cy="60" rx="12" ry="8" fill="#C04010" transform="rotate(-30 55 60)"/><ellipse cx="145" cy="50" rx="10" ry="7" fill="#E05010" transform="rotate(20 145 50)"/><ellipse cx="35" cy="100" rx="9" ry="6" fill="#A03010" transform="rotate(-45 35 100)"/><ellipse cx="168" cy="85" rx="11" ry="7" fill="#D04810" transform="rotate(35 168 85)"/><ellipse cx="70" cy="145" rx="10" ry="7" fill="#B03808" transform="rotate(-20 70 145)"/><ellipse cx="130" cy="140" rx="9" ry="6" fill="#C04010" transform="rotate(15 130 140)"/><ellipse cx="100" cy="155" rx="8" ry="5" fill="#E06018" transform="rotate(-10 100 155)"/><ellipse cx="50" cy="170" rx="12" ry="8" fill="#A03010" transform="rotate(40 50 170)"/><ellipse cx="155" cy="165" rx="10" ry="7" fill="#D04818" transform="rotate(-25 155 165)"/></g></svg>',
+            '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s7sky" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#1A1E30"/><stop offset="100%" stop-color="#2A3050"/></linearGradient></defs><rect fill="url(#s7sky)" width="200" height="200"/><ellipse cx="100" cy="92" rx="50" ry="50" fill="rgba(230,235,255,0.06)"/><rect x="0" y="130" width="200" height="70" fill="#1A2030"/><path d="M0 130 Q50 122 100 130 Q150 138 200 130 L200 200 L0 200Z" fill="#141820"/><path d="M0 142 Q40 136 80 142 Q120 148 160 142 Q180 139 200 142" stroke="rgba(200,215,255,0.2)" stroke-width="1.5" fill="none"/><g stroke="rgba(200,220,255,0.5)" stroke-linecap="round" stroke-width="1.2"><line x1="30" y1="90" x2="30" y2="100"/><line x1="25" y1="95" x2="35" y2="95"/><line x1="27" y1="91" x2="33" y2="99"/><line x1="33" y1="91" x2="27" y2="99"/><line x1="80" y1="55" x2="80" y2="65"/><line x1="75" y1="60" x2="85" y2="60"/><line x1="77" y1="56" x2="83" y2="64"/><line x1="83" y1="56" x2="77" y2="64"/><line x1="155" y1="80" x2="155" y2="90"/><line x1="150" y1="85" x2="160" y2="85"/><line x1="152" y1="81" x2="158" y2="89"/><line x1="158" y1="81" x2="152" y2="89"/></g><g fill="rgba(220,230,255,0.7)"><circle cx="25" cy="50" r="1.5"/><circle cx="60" cy="35" r="1.2"/><circle cx="110" cy="20" r="1.5"/><circle cx="165" cy="40" r="1.2"/><circle cx="185" cy="70" r="1"/></g><rect x="88" y="80" width="6" height="45" fill="#2A3848"/><ellipse cx="91" cy="76" rx="14" ry="18" fill="#1E2838"/></svg>',
+            '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s8sky" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#1E1028"/><stop offset="100%" stop-color="#301828"/></linearGradient></defs><rect fill="url(#s8sky)" width="200" height="200"/><rect x="0" y="160" width="200" height="40" fill="#180C18"/><rect x="95" y="120" width="7" height="40" fill="#1C1014"/><path d="M98 120 Q70 100 50 70 Q80 80 98 120Z" fill="#1C1014"/><path d="M98 120 Q130 95 155 65 Q125 80 98 120Z" fill="#1C1014"/><path d="M98 120 Q75 85 85 45 Q100 75 98 120Z" fill="#1C1014"/><g opacity="0.85"><circle cx="60" cy="75" r="5" fill="#E8609A"/><circle cx="58" cy="80" r="4.5" fill="#F080B0"/><circle cx="55" cy="72" r="3.5" fill="#E060A0"/><circle cx="65" cy="78" r="4" fill="#F088B8"/><circle cx="85" cy="55" r="5" fill="#E8609A"/><circle cx="83" cy="60" r="4.5" fill="#F080B0"/><circle cx="90" cy="52" r="3.5" fill="#E060A0"/><circle cx="78" cy="58" r="4" fill="#F088B8"/><circle cx="140" cy="68" r="5" fill="#E8609A"/><circle cx="138" cy="73" r="4.5" fill="#F080B0"/><circle cx="145" cy="65" r="3.5" fill="#E060A0"/><circle cx="133" cy="70" r="4" fill="#F088B8"/><circle cx="108" cy="48" r="5" fill="#E8609A"/><circle cx="106" cy="53" r="4.5" fill="#F080B0"/></g><g fill="rgba(240,160,200,0.6)" font-size="6"><text x="30" y="120">❋</text><text x="155" y="130">❋</text><text x="68" y="150">❋</text><text x="120" y="158">❋</text><text x="45" y="165">❋</text><text x="170" y="155">❋</text></g></svg>',
+            '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s9sky" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#080E18"/><stop offset="100%" stop-color="#141C30"/></linearGradient><linearGradient id="s9water" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#0C1828"/><stop offset="100%" stop-color="#060E14"/></linearGradient></defs><rect fill="url(#s9sky)" width="200" height="100"/><rect fill="url(#s9water)" x="0" y="100" width="200" height="100"/><path d="M0 100 Q30 95 60 100 Q90 105 120 100 Q150 95 180 100 Q190 101 200 100" stroke="rgba(80,140,180,0.18)" stroke-width="1" fill="none"/><rect x="0" y="98" width="200" height="4" fill="rgba(40,80,120,0.3)"/><ellipse cx="60" cy="70" rx="22" ry="28" fill="#0A1820"/><ellipse cx="140" cy="65" rx="28" ry="34" fill="#0A1820"/><rect x="56" y="90" width="7" height="10" fill="#0A1018"/><rect x="136" y="90" width="7" height="10" fill="#0A1018"/><path d="M60 105 Q62 112 60 118 Q58 125 60 130 Q62 138 60 145" stroke="rgba(80,140,180,0.3)" stroke-width="18" stroke-linecap="round" fill="none"/><path d="M140 105 Q138 112 140 118 Q142 125 140 130 Q138 138 140 145" stroke="rgba(80,140,180,0.3)" stroke-width="22" stroke-linecap="round" fill="none"/><circle cx="100" cy="30" r="14" fill="rgba(255,220,120,0.18)"/><circle cx="100" cy="30" r="7" fill="rgba(255,220,120,0.4)"/><path d="M90 170 Q100 165 110 170 Q100 175 90 170Z" fill="rgba(255,220,120,0.35)"/><path d="M88 160 Q100 155 112 160" stroke="rgba(255,220,100,0.2)" stroke-width="2" fill="none"/></svg>'
+        ];
+        return scenes[s];
+    }
+
+    function openOverlay(title, pages, entry = null) {
         document.getElementById('obo-dyn-title').textContent = title;
         document.getElementById('obo-dyn-pages').textContent = pages;
-        document.getElementById('obo-dyn-writ').textContent = title;
+        
+        const leftBox = document.querySelector('.obo-left');
+        const rightBox = document.querySelector('.obo-right');
+        
+        if (entry) {
+            // Populate actual content
+            let contentText = "No thoughts recorded for this day.";
+            try {
+                const parsed = JSON.parse(entry.content);
+                contentText = parsed.text || contentText;
+            } catch(e) {
+                contentText = entry.content || contentText;
+            }
+            
+            // Left page: Artwork and Header
+            leftBox.innerHTML = `
+                <div style="padding: 40px; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px;">
+                    <div id="obo-art-container" style="width: 100%; aspect-ratio: 1; opacity: 0.85; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.08);"></div>
+                    <div style="text-align: center;">
+                        <span class="obo-left-text" style="font-size: 15px; letter-spacing: 0.1em;">${title}</span>
+                        <div class="obo-left-hr" style="margin: 10px auto;"></div>
+                        <p style="font-size: 11px; color: #8C8476; font-family: 'DM Sans', sans-serif; text-transform: uppercase; letter-spacing: 0.05em;">${entry.mood_label || 'Neutral'}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Right page: The text with lines
+            rightBox.innerHTML = `
+                <div style="padding: 45px; height: 100%; font-family: 'Lora', serif; font-size: 16px; line-height: 1.9; color: #4A4438; position: relative; overflow: hidden;">
+                    <div class="obo-lines" style="opacity: 0.35; pointer-events: none;"></div>
+                    <div style="position: relative; z-index: 2; height: 100%; overflow-y: auto; padding-right: 15px; scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.1) transparent;">
+                        ${contentText}
+                    </div>
+                </div>
+            `;
+            
+            // Inject art based on entry id for deterministic variety
+            const artContainer = document.getElementById('obo-art-container');
+            if (artContainer) {
+                artContainer.innerHTML = getSceneSVG(entry.id);
+            }
+        } else {
+            // Default placeholder
+            leftBox.innerHTML = `
+                <span class="obo-left-text">EX LIBRIS</span>
+                <div class="obo-left-hr"></div>
+            `;
+            rightBox.innerHTML = `<div class="obo-lines"></div><p id="obo-dyn-writ" style="position:relative; z-index:2; margin: 40px; color: #8C8476; font-style: italic;">Select an entry to view details...</p>`;
+        }
+        
         oboModal.classList.add('visible');
     }
+    
+    window.openEntryFromCalendar = function(id) {
+        const entry = ENTRIES_DATA.find(e => e.id == id);
+        if (entry) {
+            const date = new Date(entry.iso_date);
+            const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const title = `${months[date.getMonth()]} ${date.getDate()}`;
+            openOverlay(title, entry.theme || "Personal Chronicle", entry);
+        }
+    };
 
     function closeOverlay() {
         oboModal.classList.remove('visible');
@@ -1294,7 +1370,9 @@
             if (i !== activeIndex) {
                 item.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
             } else {
-                window.location.href = `/sanctuary?open_journal=true&entry_id=${item.dataset.id}`;
+                const entryId = item.dataset.id;
+                const entry = ENTRIES_DATA.find(e => e.id == entryId);
+                openOverlay(item.dataset.title, item.dataset.pages, entry);
             }
         });
     });
@@ -1403,7 +1481,7 @@
                 if (entry) {
                     const eLower = entry.mood_label.toLowerCase();
                     const fD = FACES.find(f => f.e === eLower) || FACES[5];
-                    out = `<div class="cal-day cal-day--mood${todayCls}" style="background:${fD.c}; overflow:hidden; cursor:pointer;" title="${entry.mood_label}" onclick="window.location.href='/sanctuary?open_journal=true&entry_id=${entry.id}'">
+                    out = `<div class="cal-day cal-day--mood${todayCls}" style="background:${fD.c}; overflow:hidden; cursor:pointer;" title="${entry.mood_label}" onclick="openEntryFromCalendar('${entry.id}')">
                         <svg viewBox="0 0 100 100" style="position:absolute; width:100%; height:100%; top:0; left:0; pointer-events:none; opacity:0.65;">
                            ${FEATS[fD.e] || FEATS['neutral']}
                         </svg>
@@ -1481,7 +1559,7 @@
         const elastic = elastics[idx % elastics.length];
 
         return `
-        <a href="/writing" class="lib-journal-item" data-id="${e.id}">
+        <div class="lib-journal-item" data-id="${e.id}" onclick="openEntryFromCalendar('${e.id}')" style="cursor: pointer;">
             <div class="premium-book" id="lib-book-${e.id}">
                 <div class="book-pages"></div>
                 <div class="book-cover">
@@ -1493,7 +1571,7 @@
                 </div>
             </div>
             <div class="flat-meta"><h3>${e.formatted_date}</h3></div>
-        </a>`;
+        </div>`;
     }
 
     function groupHTML(label, entries) {
