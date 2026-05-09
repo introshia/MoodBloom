@@ -53,33 +53,6 @@
         margin-bottom: 20px;
     }
 
-    .insight-card {
-        background: var(--surface);
-        border: 1px solid var(--rule);
-        border-radius: 12px;
-        padding: 24px;
-        position: relative;
-    }
-
-    .insight-label {
-        font-size: 10px;
-        text-transform: uppercase;
-        letter-spacing: 0.14em;
-        color: var(--muted);
-        margin-bottom: 12px;
-        display: block;
-    }
-
-    .trend-badge {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 50px;
-        font-size: 11px;
-        font-weight: 500;
-        margin-top: 8px;
-        background: var(--surface);
-        color: var(--text);
-    }
 
     .trend-MoodBlooming {
         background: rgba(140, 166, 140, 0.2);
@@ -921,15 +894,12 @@
         <div class="left-column">
             <div class="greeting-block">
                 <h1>{{ greeting }}</h1>
-                <div class="stats-block">{{ stats_msg }}</div>
-            </div>
-
-            <div class="insight-card">
-                <span class="insight-label">AI Sentiment Analysis</span>
-                <div class="trend-badge trend-{{ trend.status }}">Trending: {{ trend.status }}</div>
-                <p style="font-size: 12px; color: var(--muted); margin-top: 12px; line-height: 1.5;">
-                    {{ trend.msg }} Your mood history reflects a {{ trend.status|lower }} pattern.
-                </p>
+                <div class="stats-block">
+                    {{ stats_msg }} 
+                    <span style="color: var(--muted); opacity: 0.8; display: block; margin-top: 4px; font-size: 13px; font-weight: 400; line-height: 1.4;">
+                        {{ trend.msg }}
+                    </span>
+                </div>
             </div>
 
             <div class="blob-card"
