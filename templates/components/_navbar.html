@@ -135,10 +135,12 @@
                         <i class="fa-solid fa-user-gear"></i>
                         Settings
                     </a>
+                    {% if request.endpoint != 'archive' %}
                     <a href="{{ url_for('archive') }}" class="dropdown-item">
                         <i class="fa-solid fa-book-bookmark"></i>
                         My Archive
                     </a>
+                    {% endif %}
                     <div class="dropdown-divider"></div>
                     <a href="{{ url_for('logout') }}" class="dropdown-item logout">
                         <i class="fa-solid fa-arrow-right-from-bracket"></i>
