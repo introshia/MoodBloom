@@ -1349,9 +1349,12 @@
                 if (entry) {
                     const eLower = entry.mood_label.toLowerCase();
                     const fD = FACES.find(f => f.e === eLower) || FACES[5];
-                    out = `<div class="cal-day cal-day--mood${todayCls}" style="background:${fD.c};" title="${entry.mood_label}">
+                    out = `<div class="cal-day cal-day--mood${todayCls}" style="background:${fD.c}; overflow:hidden;" title="${entry.mood_label}">
+                        <svg viewBox="0 0 100 100" style="position:absolute; width:100%; height:100%; top:0; left:0; pointer-events:none; opacity:0.65;">
+                           ${FEATS[fD.e] || FEATS['neutral']}
+                        </svg>
+                        <span style="position:relative; z-index:1; font-weight:600; text-shadow:0 1px 3px rgba(0,0,0,0.25);">${d}</span>
                         <span class="cal-tooltip">${fD.e}</span>
-                        ${d}
                     </div>`;
                 } else {
                     if (isTodayCell) {
