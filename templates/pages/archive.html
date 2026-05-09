@@ -323,6 +323,36 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.06);
     }
 
+    .cal-toggle {
+        display: flex;
+        background: rgba(75, 46, 31, 0.05);
+        border-radius: 20px;
+        padding: 2px;
+    }
+
+    .cal-tab {
+        background: transparent;
+        border: none;
+        border-radius: 18px;
+        padding: 4px 12px;
+        font-size: 10px;
+        color: var(--muted);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .cal-tab.active {
+        background: var(--surface);
+        color: var(--text);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        font-weight: 500;
+    }
+
+    .cal-max-wrapper {
+        max-width: 320px;
+        margin: 0 auto;
+    }
+
     .mbw{font-family:inherit;width: 100%;}
     .mbc{background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:18px 22px;margin-bottom:14px}
     .mbr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px}
@@ -930,7 +960,13 @@
                   <p class="mm-title" id="mm-month-title">Mood Map</p>
                   <p class="mm-subtitle">Your emotional chronicle</p>
                 </div>
-                <button id="emotion-set-toggle" onclick="document.getElementById('emotion-set-container').style.display='block'; this.style.display='none';" style="background:var(--surface); border:1px solid var(--rule); border-radius:20px; padding:5px 14px; font-size:10px; color:var(--muted); cursor:pointer; display:inline-flex; align-items:center; gap:5px; white-space:nowrap;"><i class="fas fa-smile"></i> Legend</button>
+                <div style="display:flex; gap:12px; align-items:center;">
+                  <div class="cal-toggle">
+                    <button id="btn-weekly" class="cal-tab active" onclick="setCalMode('weekly')">Weekly</button>
+                    <button id="btn-monthly" class="cal-tab" onclick="setCalMode('monthly')">Monthly</button>
+                  </div>
+                  <button id="emotion-set-toggle" onclick="document.getElementById('emotion-set-container').style.display='block'; this.style.display='none';" style="background:var(--surface); border:1px solid var(--rule); border-radius:20px; padding:5px 14px; font-size:10px; color:var(--muted); cursor:pointer; display:inline-flex; align-items:center; gap:5px; white-space:nowrap;"><i class="fas fa-smile"></i> Legend</button>
+                </div>
               </div>
 
               <div id="emotion-set-container" style="display:none; margin-bottom:16px;">
@@ -1296,6 +1332,14 @@
             });
         }
 
+        let calMode = 'weekly';
+        window.setCalMode = function(mode) {
+            calMode = mode;
+            document.getElementById('btn-weekly').classList.toggle('active', mode === 'weekly');
+            document.getElementById('btn-monthly').classList.toggle('active', mode === 'monthly');
+            renderCalendar();
+        };
+
         const ENTRIES_DATA = JSON.parse(document.getElementById('entries-data').textContent);
         const entriesByDate = {};
         ENTRIES_DATA.forEach(e => {
@@ -1303,69 +1347,93 @@
         });
 
         const calContainer = document.getElementById('mood-calendar');
-        if (calContainer) {
+        
+        function renderCalendar() {
+            if (!calContainer) return;
+
             let displayDate = new Date();
             if (ENTRIES_DATA.length > 0 && ENTRIES_DATA[0].iso_date) {
                 displayDate = new Date(ENTRIES_DATA[0].iso_date);
             }
             
-            const year = displayDate.getFullYear();
-            const month = displayDate.getMonth();
             const today = new Date();
-            const isCurrentMonth = (today.getFullYear() === year && today.getMonth() === month);
-            const todayDate = today.getDate();
-            
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            
             const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             
-            // Update the header with the month name
-            const headerTitle = document.getElementById('mm-month-title');
-            if (headerTitle) headerTitle.textContent = monthNames[month] + ' ' + year;
-            
-            let html = `<div class="cal-weekdays">
+            let html = `<div class="cal-max-wrapper">`;
+            html += `<div class="cal-weekdays">
                 <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
             </div>`;
             
             html += `<div class="cal-grid">`;
             
-            for (let i = 0; i < firstDay; i++) {
-                html += `<div></div>`;
-            }
-            
             let hasToday = false;
-            for (let d = 1; d <= daysInMonth; d++) {
-                const dateStr = `${year}-${String(month+1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            
+            function renderDay(y, m, d) {
+                const dateStr = `${y}-${String(m+1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                 const entry = entriesByDate[dateStr];
-                const isTodayCell = isCurrentMonth && d === todayDate;
+                const isTodayCell = (today.getFullYear() === y && today.getMonth() === m && today.getDate() === d);
                 const todayCls = isTodayCell ? ' cal-day--today' : '';
                 
+                let out = '';
                 if (entry) {
                     const eLower = entry.mood_label.toLowerCase();
                     const fD = FACES.find(f => f.e === eLower) || FACES[5];
-                    html += `<div class="cal-day cal-day--mood${todayCls}" style="background:${fD.c};" title="${entry.mood_label}">
+                    out = `<div class="cal-day cal-day--mood${todayCls}" style="background:${fD.c};" title="${entry.mood_label}">
                         <span class="cal-tooltip">${fD.e}</span>
                         ${d}
                     </div>`;
                 } else {
                     if (isTodayCell) {
                         hasToday = true;
-                        html += `<div class="cal-day cal-day--today-empty cal-day--today">${d}</div>`;
+                        out = `<div class="cal-day cal-day--today-empty cal-day--today">${d}</div>`;
                     } else {
-                        html += `<div class="cal-day cal-day--empty">${d}</div>`;
+                        out = `<div class="cal-day cal-day--empty">${d}</div>`;
                     }
+                }
+                return out;
+            }
+
+            if (calMode === 'monthly') {
+                const year = displayDate.getFullYear();
+                const month = displayDate.getMonth();
+                const headerTitle = document.getElementById('mm-month-title');
+                if (headerTitle) headerTitle.textContent = monthNames[month] + ' ' + year;
+
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                
+                for (let i = 0; i < firstDay; i++) {
+                    html += `<div></div>`;
+                }
+                for (let d = 1; d <= daysInMonth; d++) {
+                    html += renderDay(year, month, d);
+                }
+            } else {
+                // Weekly mode
+                let weekStart = new Date(displayDate);
+                weekStart.setDate(displayDate.getDate() - displayDate.getDay()); // go to Sunday
+                
+                const headerTitle = document.getElementById('mm-month-title');
+                if (headerTitle) headerTitle.textContent = monthNames[weekStart.getMonth()] + ' ' + weekStart.getFullYear();
+                
+                for (let i = 0; i < 7; i++) {
+                    let cd = new Date(weekStart);
+                    cd.setDate(weekStart.getDate() + i);
+                    html += renderDay(cd.getFullYear(), cd.getMonth(), cd.getDate());
                 }
             }
             
             html += `</div>`;
             
-            // Add "Write Today" CTA if today has no entry
-            if (isCurrentMonth && hasToday) {
+            if (hasToday) {
                 html += `<a href="/writing" class="write-today-cta"><i class="fas fa-feather-alt"></i> Write today's entry</a>`;
             }
+            
+            html += `</div>`;
             calContainer.innerHTML = html;
         }
+
+        renderCalendar();
     }, 100);
 
     // ── VIEW SWITCHER ───────────────────────────────────────────────────
