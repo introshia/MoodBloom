@@ -255,7 +255,7 @@ def sanctuary():
     
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT content FROM journal_entries WHERE user_id = %s ORDER BY entry_date DESC LIMIT 30", (user_id,))
+    cursor.execute("SELECT id, content FROM journal_entries WHERE user_id = %s ORDER BY entry_date DESC LIMIT 30", (user_id,))
     recent_entries = cursor.fetchall()
     
     # Determine the "current journal" style based on the latest entry's collection
@@ -279,10 +279,14 @@ def sanctuary():
     processed_entries = []
     for e in recent_entries:
         text = get_preview_text(e['content'])
-        processed_entries.append({"text": text, "location": "", "cats": [], "fav": False})
+        processed_entries.append({"id": e['id'], "text": text, "location": "", "cats": [], "fav": False})
         
     processed_entries.reverse()
-    return render_template('pages/sanctuary.html', streak_days=streak, recent_entries=processed_entries, active_bg=active_bg, active_art=active_art)
+    
+    open_journal = request.args.get('open_journal') == 'true'
+    target_entry_id = request.args.get('entry_id', '')
+    
+    return render_template('pages/sanctuary.html', streak_days=streak, recent_entries=processed_entries, active_bg=active_bg, active_art=active_art, open_journal=open_journal, target_entry_id=target_entry_id)
 
 @app.route('/archive')
 def archive():

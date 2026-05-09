@@ -423,7 +423,17 @@
         if (i < myRecent.length) journalEntries.push(myRecent[i]);
         else journalEntries.push({ text: '', location: '', cats: [], fav: false });
       }
-      window.currentSpread = Math.min(myRecent.length, TOTAL_SPREADS - 1);
+      var targetId = "{{ target_entry_id|default('') }}";
+      if (targetId) {
+          var targetIndex = myRecent.findIndex(e => e.id == targetId);
+          if (targetIndex !== -1) {
+              window.currentSpread = targetIndex;
+          } else {
+              window.currentSpread = Math.min(myRecent.length, TOTAL_SPREADS - 1);
+          }
+      } else {
+          window.currentSpread = Math.min(myRecent.length, TOTAL_SPREADS - 1);
+      }
     })();
 
     function saveContent() {
@@ -595,7 +605,8 @@
     // Auto-open logic with URL cleanup
     window.addEventListener('load', function() {
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('open') === 'journal') {
+        var forceOpen = "{{ open_journal }}" === "True" || urlParams.get('open') === 'journal' || urlParams.get('open_journal') === 'true';
+        if (forceOpen) {
             document.getElementById('desk-overlay').classList.add('show');
             setTimeout(startOpenJournal, 500);
             
