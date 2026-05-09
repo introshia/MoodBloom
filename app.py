@@ -431,7 +431,8 @@ def archive():
                           chart_scores=chart_scores,
                           chart_colors=chart_colors,
                           chart_moods=chart_moods,
-                          companion=companion_data)
+                          companion=companion_data,
+                          current_streak=calculate_streak(user_id))
 
 
 # ── COLLECTION API ROUTES ──────────────────────────────────────────────────────
