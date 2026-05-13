@@ -587,6 +587,129 @@
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
     }
 
+    /* ── 3D JOURNAL STYLES ── */
+    .journal-spotlight {
+        margin: 60px 0 80px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        perspective: 3000px;
+        perspective-origin: 50% 45%;
+    }
+
+    .journal-spotlight .journal {
+        position: relative;
+        width: 630px;
+        height: 420px;
+        transform-style: preserve-3d;
+        transform: translateX(-157px) rotateX(2deg);
+        transition: transform 1.2s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+        cursor: pointer;
+    }
+
+    .journal-spotlight .journal.spread-open {
+        transform: translateX(0) rotateX(0deg);
+    }
+
+    .journal-spotlight .spine-bar {
+        position: absolute;
+        left: 306px; top: 0; width: 18px; height: 100%; z-index: 5;
+        background: linear-gradient(to right, #0e0905 0%, #20110a 18%, #3d2610 42%, #4c3218 50%, #3d2610 58%, #20110a 82%, #0e0905 100%);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .journal-spotlight .wing {
+        position: absolute;
+        top: 0; width: 306px; height: 100%;
+        transform-style: preserve-3d;
+        transition: transform 1.2s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+    }
+
+    .journal-spotlight .left-half {
+        left: 0;
+        transform-origin: right center;
+        transform: rotateY(180deg);
+        z-index: 6;
+    }
+
+    .journal-spotlight .left-half.wing-open {
+        transform: rotateY(0deg);
+    }
+
+    .journal-spotlight .right-wing {
+        left: 324px;
+        transform-origin: left center;
+        transform: rotateY(0deg);
+        z-index: 4;
+    }
+
+    .journal-spotlight .right-wing.wing-lift {
+        transform: rotateY(-35deg);
+    }
+
+    .journal-spotlight .left-page, .journal-spotlight .right-page {
+        position: absolute;
+        inset: 0;
+        background: #fdfaf3;
+        backface-visibility: hidden;
+        overflow: hidden;
+    }
+
+    .journal-spotlight .left-page { border-radius: 6px 0 0 6px; box-shadow: inset -10px 0 30px rgba(0,0,0,0.05); }
+    .journal-spotlight .right-page { border-radius: 0 6px 6px 0; box-shadow: inset 10px 0 30px rgba(0,0,0,0.05); }
+
+    .journal-spotlight .style-lined { background-image: repeating-linear-gradient(transparent, transparent 31px, rgba(150, 128, 96, 0.15) 31px, rgba(150, 128, 96, 0.15) 32px); background-size: 100% 32px; background-position: 0 10px; }
+    .journal-spotlight .style-grid { background-image: repeating-linear-gradient(to bottom, transparent 0px, transparent 23px, rgba(150, 128, 96, 0.15) 23px, rgba(150, 128, 96, 0.15) 24px), repeating-linear-gradient(to right, transparent 0px, transparent 23px, rgba(150, 128, 96, 0.1) 23px, rgba(150, 128, 96, 0.1) 24px); background-size: 24px 24px; }
+
+    .journal-spotlight .cover {
+        position: absolute;
+        inset: 0;
+        transform-style: preserve-3d;
+        transform-origin: left center;
+        transition: transform 1.2s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+        z-index: 10;
+    }
+
+    .journal-spotlight .cover.wing-open {
+        transform: rotateY(-176deg);
+    }
+
+    .journal-spotlight .cover-front {
+        position: absolute;
+        inset: 0;
+        background: #3D2B1F;
+        border-radius: 0 6px 6px 0;
+        box-shadow: -15px 0 35px rgba(0, 0, 0, 0.4);
+    }
+
+    .journal-spotlight .elastic { position: absolute; right: 22px; top: 0; bottom: 0; width: 9px; background: linear-gradient(to right, #0a0a0a, #1c1c1c 50%, #0a0a0a); border-radius: 3px; z-index: 3; }
+
+    .journal-spotlight .cover-label {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        text-align: center;
+        z-index: 20; /* Ensure text is on top of the leather background */
+        pointer-events: none;
+    }
+    .journal-spotlight .lbl-small { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 300; font-size: 13px; color: rgba(255, 255, 255, 0.5); letter-spacing: 1px; margin-bottom: 4px; display: block; }
+    .journal-spotlight .lbl-big { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 32px; color: rgba(255, 255, 255, 0.9); line-height: 1; display: block; }
+
+    .btn-journal {
+        background: #3D2B1F; color: #fdfaf3; border: none; padding: 12px 30px; border-radius: 30px;
+        font-family: 'Balsamiq Sans', cursive; font-size: 14px; letter-spacing: 2px; text-transform: uppercase;
+        cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    .btn-journal:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); opacity: 0.9; }
+
+    .picker-wrap-3d {
+        display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 24px;
+        opacity: 0; transform: translateY(10px); transition: all 0.4s ease; pointer-events: none;
+    }
+    .picker-wrap-3d.visible { opacity: 1; transform: translateY(0); pointer-events: all; }
+
     /* ── LIBRARY GRID ────────────────────────── */
     .shelf-books {
         display: flex;
@@ -954,6 +1077,52 @@
                     </div>
                 </div>
                 {% endif %}
+
+                <!-- 3D JOURNAL SPOTLIGHT -->
+                <div class="journal-spotlight">
+                    <div class="scene">
+                        <div class="journal" id="journal3d" onclick="toggleJournal3D()">
+                            <div class="wing left-half" id="leftHalf">
+                                <div class="left-page style-lined" id="leftPage">
+                                    <div class="page-content" style="padding: 40px; font-family: 'Caveat', cursive; font-size: 20px; color: #4b3b2a; line-height: 1.6;">
+                                        <p>Dear Diary,</p>
+                                        <p style="margin-top: 20px;">Today feels like a dream. The sun is shining, and I can feel the world blooming around me...</p>
+                                    </div>
+                                </div>
+                                <div style="position:absolute; inset:0; transform:rotateY(180deg); background:#3D2B1F; backface-visibility:hidden; border-radius:6px 0 0 6px;"></div>
+                            </div>
+                            <div class="spine-bar"></div>
+                            <div class="wing right-wing" id="rightWing">
+                                <div class="right-page style-lined" id="rightPage">
+                                    <div class="page-content" style="padding: 40px; font-family: 'Caveat', cursive; font-size: 20px; color: #4b3b2a; line-height: 1.6;">
+                                        <p>I hope to keep this feeling forever. This sanctuary is where my heart rests.</p>
+                                        <p style="margin-top: 40px; text-align: right;">— MoodBlume</p>
+                                    </div>
+                                </div>
+                                <div class="cover" id="cover3d">
+                                    <div class="cover-front">
+                                        <div class="elastic"></div>
+                                        <div class="cover-label">
+                                            <div class="lbl-small">a memory from</div>
+                                            <div class="lbl-big" id="cover-date">{{ all_entries[0].created_at.strftime('%b %d') if all_entries else 'May 13' }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="journal-controls" style="margin-top: 40px; text-align: center;">
+                        <button class="btn-journal" onclick="toggleJournal3D()" id="btn-journal-toggle">Open Journal</button>
+                    </div>
+                    <div class="picker-wrap-3d" id="pickerWrap3D">
+                        <div class="picker-label" style="font-family:'Balsamiq Sans',cursive; font-size:10px; color:rgba(0,0,0,0.3); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px;">page style</div>
+                        <div class="style-picker" style="display:flex; background:white; border:1px solid rgba(0,0,0,0.1); border-radius:50px; overflow:hidden;">
+                            <button class="style-btn" onclick="setStyle3D('lined')" style="padding:8px 20px; border:none; background:transparent; font-family:'Balsamiq Sans',cursive; font-size:12px; cursor:pointer; border-right:1px solid rgba(0,0,0,0.1);">lined</button>
+                            <button class="style-btn" onclick="setStyle3D('grid')" style="padding:8px 20px; border:none; background:transparent; font-family:'Balsamiq Sans',cursive; font-size:12px; cursor:pointer; border-right:1px solid rgba(0,0,0,0.1);">grid</button>
+                            <button class="style-btn" onclick="setStyle3D('blank')" style="padding:8px 20px; border:none; background:transparent; font-family:'Balsamiq Sans',cursive; font-size:12px; cursor:pointer;">blank</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="blob-card"
@@ -1726,5 +1895,65 @@
             if (activeView === 'volumes') renderView('volumes');
         }
     });
+
+    /* ── 3D JOURNAL LOGIC ── */
+    let isOpen3D = false;
+    let isAnimating3D = false;
+    const journal3d = document.getElementById('journal3d');
+    const leftHalf3d = document.getElementById('leftHalf');
+    const rightWing3d = document.getElementById('rightWing');
+    const cover3d = document.getElementById('cover3d');
+    const btnToggle3d = document.getElementById('btn-journal-toggle');
+    const pickerWrap3d = document.getElementById('pickerWrap3D');
+    const leftPage3d = document.getElementById('leftPage');
+    const rightPage3d = document.getElementById('rightPage');
+
+    const OPEN_DUR = 1300;
+    const WING_DUR = 1200;
+    const SHIFT_DUR = 650;
+    const EASE = 'cubic-bezier(0.645, 0.045, 0.355, 1.000)';
+
+    function toggleJournal3D() {
+        if (isAnimating3D) return;
+        isAnimating3D = true;
+        isOpen3D = !isOpen3D;
+
+        if (isOpen3D) {
+            journal3d.style.transition = `transform ${OPEN_DUR}ms ${EASE}`;
+            journal3d.classList.add('spread-open');
+            leftHalf3d.classList.add('wing-open');
+            cover3d.classList.add('wing-open');
+
+            // RIGHT WING PARTICIPATION
+            rightWing3d.classList.add('wing-lift');
+            setTimeout(() => { rightWing3d.classList.remove('wing-lift'); }, OPEN_DUR * 0.75);
+
+            btnToggle3d.textContent = 'Close Journal';
+            setTimeout(() => { isAnimating3D = false; pickerWrap3d.classList.add('visible'); }, OPEN_DUR);
+        } else {
+            pickerWrap3d.classList.remove('visible');
+            leftHalf3d.classList.remove('wing-open');
+            cover3d.classList.remove('wing-open');
+
+            rightWing3d.classList.add('wing-lift');
+            setTimeout(() => rightWing3d.classList.remove('wing-lift'), WING_DUR * 0.8);
+
+            btnToggle3d.textContent = 'Open Journal';
+            setTimeout(() => {
+                journal3d.style.transition = `transform ${SHIFT_DUR}ms ${EASE}`;
+                journal3d.classList.remove('spread-open');
+            }, WING_DUR + 40);
+
+            setTimeout(() => { isAnimating3D = false; }, WING_DUR + SHIFT_DUR + 150);
+        }
+    }
+
+    function setStyle3D(style) {
+        [leftPage3d, rightPage3d].forEach(p => {
+            p.classList.remove('style-grid', 'style-blank');
+            if (style === 'grid') p.classList.add('style-grid');
+            if (style === 'blank') p.classList.add('style-blank');
+        });
+    }
 </script>
 {% endblock %}
