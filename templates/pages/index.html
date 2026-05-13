@@ -1,340 +1,223 @@
 {% extends 'pages/base.html' %}
 
 {% block body_id %}landing-page{% endblock %}
-{% block title %}Welcome{% endblock %}
+{% block title %}MoodBlume — Nurture Your Best Self{% endblock %}
 
 {% block navbar %}{% endblock %}
 
 {% block content %}
-<!-- SCROLL CONTAINER for GSAP Pinning -->
-<div id="journal-scroll-container">
-    <!-- JOURNAL COVER: wraps the hero, GSAP will fold this away -->
-    <div id="journal-cover">
-        <section class="hero-section">
-            <div class="cards-container">
-                <div class="floating-card card-1" id="js-card-1">
-                    <div class="card-chip">MoodBloom</div>
-                    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=320&h=400&fit=crop"
-                        alt="News">
-                </div>
-                <div class="floating-card card-2" id="js-card-2">
-                    <div class="card-chip">Sanctuary</div>
-                    <img src="{{ url_for('static', filename='images/journal-landing.png') }}" alt="Journal">
-                </div>
-                <div class="floating-card card-3" id="js-card-3">
-                    <div class="card-chip">Reflection</div>
-                    <img src="https://images.unsplash.com/photo-1517842645767-c639042777db?w=320&h=400&fit=crop"
-                        alt="Update">
-                </div>
-                <div class="floating-card card-4" id="js-card-4">
-                    <div class="card-chip">Growth</div>
-                    <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=320&h=400&fit=crop"
-                        alt="Impact">
-                </div>
-            </div>
+<style>
+    :root {
+        --color-cream: #F9F7F2;
+        --color-sage: #8A9A70;
+        --color-ink: #3D352F;
+        --color-paper: #FDFCFB;
+    }
 
-            <div class="hero-content">
-                <h1 class="hero-headline">
-                    Where
-                    <span class="hero-word-highlighted">
-                        <span class="hero-word-pill">
-                            <span class="hero-word-pill-text">emotions</span>
-                            <span class="hero-close">×</span>
-                        </span>
-                        <span class="icon-float icon-chat" style="background: var(--color-gold);"><i class="fa-solid fa-heart"></i></span>
-                    </span>
-                    meet
-                    <span class="hero-word-highlighted">
-                        <span class="hero-word-pill">
-                            <span class="hero-word-pill-text">clarity</span>
-                            <span class="hero-close">×</span>
-                        </span>
-                        <span class="icon-float icon-map" style="background: var(--color-gold);"><i class="fa-solid fa-lightbulb"></i></span>
-                    </span>
-                </h1>
-                <p class="hero-subheadline">
-                    Track your mood, understand your patterns, and bloom into your best self through intelligent
-                    journaling and AI-powered sentiment analysis.
-                </p>
-                <div class="hero-cta-group" style="margin-top: 32px;">
-                    <button id="hero-install-btn" class="cta-button">
-                        <i class="fa-solid fa-cloud-arrow-down me-2"></i> Install MoodBloom
-                    </button>
-                    <a href="{{ url_for('register') }}" class="cta-button cta-button-secondary">Get Started</a>
-                </div>
-                <div style="margin-top: 16px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: rgba(82, 44, 14, 0.4);">
-                    Already have an account? <a href="{{ url_for('login') }}" style="color: var(--color-gold); text-decoration: none; font-weight: 500;">Log In</a>
-                </div>
-            </div>
-        </section>
+    body,
+    html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        font-family: 'Inter', cursive;
+        background-color: var(--color-cream);
+    }
+
+    /* ─── FULLSCREEN HERO ─── */
+    .hero-immersive {
+        height: 100vh;
+        width: 100vw;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-image: url("{{ url_for('static', filename='images/moodblume_meadow.png') }}");
+        background-size: cover;
+        background-position: center;
+        padding: 20px;
+    }
+
+    .hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.25));
+        z-index: 1;
+    }
+
+    /* ─── CUSTOM NAVBAR ─── */
+    .nav-simple {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 60px;
+        z-index: 10;
+    }
+
+    .nav-logo {
+        font-family: 'Sunshiney', cursive;
+        font-size: 32px;
+        color: white;
+        text-decoration: none;
+        letter-spacing: -0.02em;
+    }
+
+    .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 32px;
+    }
+
+    .nav-link {
+        font-family: 'Balsamiq Sans', cursive;
+        font-size: 11px;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .nav-link:hover {
+        color: white;
+    }
+
+    .nav-cta {
+        background: #4A4438;
+        color: white;
+        padding: 10px 24px;
+        border-radius: 4px;
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .nav-cta:hover {
+        background: #332F27;
+        transform: translateY(-1px);
+    }
+
+    /* ─── HERO CONTENT ─── */
+    .hero-center {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        max-width: 800px;
+        margin-top: -60px;
+    }
+
+    .hero-headline {
+        font-family: 'Sunshiney', cursive;
+        font-size: clamp(32px, 6vw, 76px);
+        line-height: 1.05;
+        color: white;
+        margin-bottom: 40px;
+        font-weight: 400;
+        text-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .hero-main-cta {
+        display: inline-flex;
+        align-items: center;
+        background: #4A4438;
+        color: white;
+        padding: 14px 36px;
+        border-radius: 6px;
+        font-family: 'Balsamiq Sans', cursive;
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .hero-main-cta:hover {
+        background: #332F27;
+        transform: translateY(-2px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    /* ─── WHIMSICAL PEERING ELEMENT ─── */
+    .peering-journal {
+        position: absolute;
+        bottom: -40px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(90vw, 500px);
+        z-index: 5;
+        transition: bottom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .peering-journal img {
+        width: 100%;
+        display: block;
+        filter: drop-shadow(0 -10px 40px rgba(0, 0, 0, 0.2));
+    }
+
+    .hero-immersive:hover .peering-journal {
+        bottom: -20px;
+    }
+
+    /* ─── MOBILE RESPONSIVE ─── */
+    @media (max-width: 768px) {
+        .nav-simple {
+            padding: 0 30px;
+        }
+
+        .nav-links {
+            display: none;
+        }
+
+        /* Simplified for mobile */
+    }
+</style>
+
+<div class="hero-immersive">
+    <div class="hero-overlay"></div>
+
+    <nav class="nav-simple">
+        <a href="{{ url_for('index') }}" class="nav-logo">
+            <img src="{{ url_for('static', filename='images/moodblume_logo.png') }}?v=1.3" alt="MoodBlume Logo"
+                style="height: 130px; width: auto; display: block;">
+        </a>
+        <div class="nav-links">
+            <a href="#" class="nav-link">About</a>
+            <a href="{{ url_for('archive') }}" class="nav-link">Archive</a>
+            <a href="#" class="nav-link">Feedback</a>
+            <a href="{{ url_for('register') }}" class="nav-cta">Start Journaling</a>
+        </div>
+    </nav>
+
+    <div class="hero-center">
+        <h1 class="hero-headline">nurture your best self, one page at a time.</h1>
+        <a href="{{ url_for('register') }}" class="hero-main-cta">Start Journaling &nbsp;→</a>
     </div>
 
-    <!-- JOURNAL INTERIOR: revealed as the cover folds away -->
-    <section id="journal-interior">
-        <span class="journal-interior-label" style="background: var(--color-gold);">✦ Open your journal</span>
-        <h2 class="journal-interior-heading">
-            Where
-            <span class="hero-word-highlighted">
-                <span class="hero-word-pill">
-                    <span class="hero-word-pill-text">growth</span>
-                    <span class="hero-close">×</span>
-                </span>
-            </span>
-            begins.
-        </h2>
-        <p class="journal-interior-sub">
-            Every page is a new beginning. MoodBloom transforms your daily reflections into meaningful insights that
-            help you understand yourself better, one entry at a time.
-        </p>
-
-    </section>
+    <!-- PEERING JOURNAL GRAPHIC -->
+    <div class="peering-journal">
+        <img src="{{ url_for('static', filename='images/journal-landing.png') }}" alt="Your Journal">
+    </div>
 </div>
 
-<!-- FEATURES SECTION -->
-<section id="features" class="content-section">
-    <h2 class="section-heading">What Makes MoodBloom Different</h2>
-    <p class="section-subheadline">A complete mood tracking and journaling platform designed to help you understand your
-        emotional patterns and grow.</p>
-
-    <div class="features-grid">
-        <div class="feature-item">
-            <div class="feature-item-chip" style="background: var(--color-gold);">Advanced</div>
-            <div class="feature-item-icon"><i class="fa-solid fa-brain"></i></div>
-            <h3>AI Sentiment Analysis</h3>
-            <p>Our intelligent engine analyzes the emotional weight of your words, helping you understand the true
-                nature of your feelings.</p>
-
-            <!-- LIVE AI DEMO -->
-            <div class="ai-demo">
-                <div class="ai-demo-input-group">
-                    <input type="text" id="demo-input" placeholder="How are you feeling today?">
-                    <button class="ai-demo-btn" id="analyze-btn" style="background: var(--color-gold); color: var(--bg-canvas);">Analyze</button>
-                </div>
-                <div class="ai-result" id="demo-result">
-                    <i class="fa-solid fa-sparkles" style="color: var(--color-gold)"></i>
-                    <span>Sentiment: </span>
-                    <span class="sentiment-badge" id="demo-badge">Joyful</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="feature-item">
-            <div class="feature-item-chip" style="background: var(--color-gold);">Secure</div>
-            <div class="feature-item-icon"><i class="fa-solid fa-lock"></i></div>
-            <h3>Immutable Archive</h3>
-            <p>Your entries are permanently preserved with complete data integrity. Your emotional journey is private,
-                honest, and secure.</p>
-        </div>
-
-        <div class="feature-item">
-            <div class="feature-item-chip" style="background: var(--color-gold);">Predictive</div>
-            <div class="feature-item-icon"><i class="fa-solid fa-chart-line"></i></div>
-            <h3>Predictive Trends</h3>
-            <p>Discover patterns in your mood fluctuations and get insights about what drives your emotional landscape.
-            </p>
-        </div>
-
-        <div class="feature-item">
-            <div class="feature-item-chip" style="background: var(--color-gold);">Accessible</div>
-            <div class="feature-item-icon"><i class="fa-solid fa-mobile"></i></div>
-            <h3>Mobile & Desktop</h3>
-            <p>Access your journal anywhere, anytime. Installable as a progressive web app for offline mood tracking.
-            </p>
-        </div>
-    </div>
-</section>
-
-
-
-<!-- HOW IT WORKS -->
-<section id="how-it-works" class="content-section">
-    <h2 class="section-heading">How MoodBloom Works</h2>
-    <div class="how-it-works">
-        <div class="step-card">
-            <div class="step-number" style="color: var(--color-gold);">1</div>
-            <h4>Create an Account</h4>
-            <p><a href="{{ url_for('register') }}"
-                    style="color: var(--color-gold); text-decoration: none; font-weight: 600;">Sign up</a> in seconds.
-                No complex forms—just you and your journey.</p>
-        </div>
-        <div class="step-card">
-            <div class="step-number" style="color: var(--color-gold);">2</div>
-            <h4>Write Your Thoughts</h4>
-            <p><a href="{{ url_for('writing') }}"
-                    style="color: var(--color-gold); text-decoration: none; font-weight: 600;">Open the journal</a> and
-                freely express whatever's on your mind. No judgment, just reflection.</p>
-        </div>
-        <div class="step-card">
-            <div class="step-number" style="color: var(--color-gold);">3</div>
-            <h4>Get AI Insights</h4>
-            <p>Our sentiment analyzer processes your words to identify emotional patterns and give you clarity.</p>
-        </div>
-        <div class="step-card">
-            <div class="step-number" style="color: var(--color-gold);">4</div>
-            <h4>Track & Grow</h4>
-            <p>Watch your mood trends unfold over time. MoodBloom into understanding. MoodBloom into growth.</p>
-        </div>
-    </div>
-</section>
-
-
-
-<!-- CTA SECTION -->
-<section class="cta-section">
-    <h2>Ready to Start MoodBlooming?</h2>
-    <p>Join hundreds of people tracking their emotional journey and discovering clarity through reflection.</p>
-    <a href="{{ url_for('register') }}" class="cta-button cta-button-light">Get Started Free</a>
-    <a href="{{ url_for('install') }}" class="cta-button cta-button-light">Install App</a>
-</section>
-
-<!-- BENEFITS SECTION -->
-<section id="benefits" class="content-section">
-    <h2 class="section-heading">Why Track Your Mood?</h2>
-    <p class="section-subheadline">Understanding yourself is the first step to thriving. MoodBloom helps you:</p>
-    <div class="features-grid">
-        <div class="feature-item">
-            <div class="feature-item-icon"><i class="fa-solid fa-lightbulb"></i></div>
-            <h3>Find Clarity</h3>
-            <p>Understand what triggers your emotions and how your thoughts shape your feelings.</p>
-        </div>
-        <div class="feature-item">
-            <div class="feature-item-icon"><i class="fa-solid fa-circle-nodes"></i></div>
-            <h3>Identify Patterns</h3>
-            <p>Spot recurring emotional cycles and the events that influence your wellbeing.</p>
-        </div>
-        <div class="feature-item">
-            <div class="feature-item-icon"><i class="fa-solid fa-heart"></i></div>
-            <h3>Practice Self-Care</h3>
-            <p>Use insights to make intentional choices that support your mental health journey.</p>
-        </div>
-        <div class="feature-item">
-            <div class="feature-item-icon"><i class="fa-solid fa-rocket"></i></div>
-            <h3>Grow & Thrive</h3>
-            <p>Transform self-awareness into personal growth and emotional resilience.</p>
-        </div>
-    </div>
-</section>
-
-
-
-<!-- TACTILE SOUND DESIGN -->
-<audio id="page-turn-sound" src="https://www.soundjay.com/print/sounds/paper-slide-6.mp3" preload="auto"></audio>
-{% endblock %}
-
-{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script>
-    gsap.registerPlugin(ScrollTrigger);
-
-    function initJournalAnimation() {
-        var container = document.getElementById('journal-scroll-container');
-        var cover = document.getElementById('journal-cover');
-        var interior = document.getElementById('journal-interior');
-        var card1 = document.getElementById('js-card-1');
-        var card2 = document.getElementById('js-card-2');
-        var card3 = document.getElementById('js-card-3');
-        var card4 = document.getElementById('js-card-4');
-
-        if (!container || !cover || !interior) return;
-
-        gsap.timeline({
-            scrollTrigger: {
-                trigger: container,
-                start: 'top top',
-                end: '+=120%',
-                pin: true,
-                scrub: 1,
-                invalidateOnRefresh: true,
-                anticipatePin: 1,
-                onEnter: () => {
-                    const sound = document.getElementById('page-turn-sound');
-                    if (sound) {
-                        sound.currentTime = 0;
-                        sound.play().catch(e => console.log("Audio play blocked by browser policy. Interaction required."));
-                    }
-                }
-            }
-        })
-            .fromTo(cover,
-                { rotateX: 0, opacity: 1 },
-                {
-                    rotateX: 90,
-                    transformOrigin: 'bottom center',
-                    opacity: 0,
-                    ease: 'power2.inOut',
-                    duration: 1,
-                }
-            );
-
-        if (card1) gsap.to(card1, { y: -80, x: -10, ease: 'none', scrollTrigger: { trigger: container, start: 'top top', end: '+=120%', scrub: 2 } });
-        if (card2) gsap.to(card2, { y: -40, x: 20, ease: 'none', scrollTrigger: { trigger: container, start: 'top top', end: '+=120%', scrub: 3 } });
-        if (card3) gsap.to(card3, { y: -20, x: 10, ease: 'none', scrollTrigger: { trigger: container, start: 'top top', end: '+=120%', scrub: 3.5 } });
-        if (card4) gsap.to(card4, { y: -60, x: -20, ease: 'none', scrollTrigger: { trigger: container, start: 'top top', end: '+=120%', scrub: 2.4 } });
-    }
-
-    function initContentAnimations() {
-        gsap.utils.toArray('.features-grid').forEach(grid => {
-            gsap.from(grid.querySelectorAll('.feature-item'), {
-                y: 40,
-                opacity: 0,
-                stagger: 0.15,
-                ease: "power2.out",
-                duration: 0.8,
-                scrollTrigger: { trigger: grid, start: "top 85%" }
-            });
-        });
-
-        gsap.from('.step-card', {
-            scale: 0.9, opacity: 0, stagger: 0.2, ease: "power3.out", duration: 1,
-            scrollTrigger: { trigger: '.how-it-works', start: "top 80%" }
-        });
-
-        gsap.from('.cta-section', {
-            opacity: 0, y: 30, duration: 1.2, ease: "power1.out",
-            scrollTrigger: { trigger: '.cta-section', start: "top 90%" }
-        });
-    }
-
-    function initAIDemo() {
-        const input = document.getElementById('demo-input');
-        const btn = document.getElementById('analyze-btn');
-        const result = document.getElementById('demo-result');
-        const badge = document.getElementById('demo-badge');
-
-        const moods = [
-            { words: ['happy', 'great', 'love', 'amazing', 'good'], label: 'Joyful', color: 'var(--color-gold)' },
-            { words: ['sad', 'bad', 'cry', 'lonely', 'terrible'], label: 'Melancholy', color: 'var(--color-amber)' },
-            { words: ['stress', 'hard', 'tired', 'busy', 'work'], label: 'Stressed', color: 'var(--color-amber)' }
-        ];
-
-        btn.addEventListener('click', () => {
-            const text = input.value.toLowerCase();
-            if (!text) return;
-
-            btn.innerText = 'Analyzing...';
-            btn.disabled = true;
-            result.style.display = 'none';
-
-            setTimeout(() => {
-                let match = moods.find(m => m.words.some(w => text.includes(w)));
-                let finalMood = match ? match.label : 'Calm';
-                let finalColor = match ? match.color : 'var(--color-gold)';
-
-                badge.innerText = finalMood;
-                badge.style.background = finalColor;
-
-                btn.innerText = 'Analyze';
-                btn.disabled = false;
-                result.style.display = 'flex';
-
-                gsap.from(result, { y: 10, opacity: 0, duration: 0.5, ease: "power2.out" });
-            }, 800);
-        });
-    }
-
-    if (window.innerWidth >= 1025) {
-        initJournalAnimation();
-        initContentAnimations();
-        initAIDemo();
-    }
+    document.addEventListener('DOMContentLoaded', () => {
+        const tl = gsap.timeline();
+        tl.from('.nav-logo', { opacity: 0, x: -20, duration: 1, delay: 0.5 })
+            .from('.nav-link', { opacity: 0, y: -10, stagger: 0.1, duration: 0.8 }, "-=0.8")
+            .from('.nav-cta', { opacity: 0, scale: 0.9, duration: 0.8 }, "-=0.6")
+            .from('.hero-headline', { opacity: 0, y: 30, duration: 1.2, ease: "power2.out" }, "-=0.4")
+            .from('.hero-main-cta', { opacity: 0, y: 20, duration: 1 }, "-=0.8")
+            .from('.peering-journal', { y: 100, opacity: 0, duration: 1.5, ease: "power3.out" }, "-=1");
+    });
 </script>
 {% endblock %}

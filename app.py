@@ -20,14 +20,14 @@ analyzer = SentimentIntensityAnalyzer()
 app.debug = True
 
 # This keeps the user's login session secure!
-app.secret_key = 'super_secret_moodbloom_key'
+app.secret_key = 'super_secret_moodblume_key'
 
 # --- DATABASE CONFIGURATION ---
 db_config = {
     'host': 'localhost',
     'user': 'root',
     'password': os.getenv('DB_PASSWORD'), 
-    'database': 'moodbloom_db'
+    'database': 'moodblume_db'
 }
 
 def get_db_connection():
@@ -78,6 +78,7 @@ def analyze_sentiment(content):
 
     return {
         "score": final_score,
+        "compound": compound,
         "pillar": pillar.lower(),
         "reflection": reflection
     }
@@ -99,14 +100,38 @@ def calculate_mood_trend(entries):
     if len(entries) < 2: 
         return {"status": "Seeding", "slope": 0, "msg": "The pages are fresh.", "consistency": "Write your first entry."}
     
-    # Linear Regression Logic
+    # Linear Regression Logic - Using Valence (Compound Score) for technical accuracy
+    # If content is available, we use the raw sentiment decimal (-1.0 to 1.0)
+    # This fulfills the scientific requirement for linear regression on continuous data.
     X = np.array(range(len(entries))).reshape(-1, 1)
-    y = np.array([e['mood_score'] for e in reversed(entries)])
+    
+    y = []
+    for e in reversed(entries):
+        # Fallback to mood_score mapped to -1 to 1 if content is missing
+        val = e.get('mood_score', 5) / 4.5 - 1.0 
+        if e.get('content'):
+            try:
+                # Re-calculate or use stored compound if we had it
+                text = e['content']
+                if isinstance(text, str) and (text.startswith('{') or text.startswith('[')):
+                    import json
+                    text = json.loads(text).get('text', text)
+                val = analyzer.polarity_scores(text)['compound']
+            except: pass
+        y.append(val)
+        
+    y = np.array(y)
     model = LinearRegression().fit(X, y)
     slope = model.coef_[0]
     
-    status = "Blooming" if slope > 0.1 else "Cloudy" if slope < -0.1 else "Steady"
-    return {"status": status, "slope": round(slope, 2), "msg": "Trend Verified.", "consistency": "Consistent."}
+    # Map technical slope to Whimsical Status
+    status = "Bluming" if slope > 0.05 else "Cloudy" if slope < -0.05 else "Steady"
+    return {
+        "status": status, 
+        "slope": round(slope, 4), 
+        "msg": f"Your emotional rhythm is {status}.", 
+        "consistency": "Consistent."
+    }
 def calculate_energy_data(content):
     if not content:
         return {"score": 50, "mood": "neutral", "label": "Resting", "color": "#F5C842"}
@@ -355,6 +380,8 @@ def archive():
     # Build JSON-serialisable snapshots for the client-side view switcher
     all_entries_json = [{
         'id': e['id'],
+        'content': e['content'],
+        'display_text': e['display_text'],
         'color_class': e['color_class'],
         'formatted_date': e['formatted_date'],
         'iso_date': e['entry_date'].strftime("%Y-%m-%d"),
@@ -737,7 +764,7 @@ def serve_sw():
 # --- ERROR HANDLERS ---
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template('pages/404.html'), 404
+    return render_template('errors/404.html'), 404
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

@@ -1,4 +1,4 @@
-# How to Test MoodBloom on a Mobile Device
+# How to Test MoodBlume on a Mobile Device
 
 To view the local Flask development server on a mobile phone (or any other device), both the host computer (Mac) and the mobile device must be connected to the **same Wi-Fi network**.
 

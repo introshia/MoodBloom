@@ -1,4 +1,4 @@
-# MoodBloom - Project Setup & Tech Stack Record
+# MoodBlume - Project Setup & Tech Stack Record
 **Developer:** Danna
 **Course:** Programming Languages (Universidad de Dagupan)
 
@@ -12,7 +12,7 @@ These are the core applications installed on the MacBook to make development and
 ## 2. Database & Security Environment
 * **MySQL Community Server (Version 8.4.8):** The local relational database used to store journal entries and user accounts.
 * **Secret Management (.env):** Implementation of `python-dotenv` to isolate sensitive database credentials from the source code.
-* **Database Name:** `moodbloom_db`
+* **Database Name:** `moodblume_db`
 * **Tables:** Includes `users` (storing hashed credentials) and `journal_entries` (storing content linked to specific user IDs).
 
 ## 3. Python Backend & Machine Learning

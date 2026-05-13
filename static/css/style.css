@@ -1,5 +1,5 @@
 /* 
-    MoodBloom Global Style System
+    MoodBlume Global Style System
     Color Palette: miki+ (Old Lace · Freshly Roasted · Butter · Oyster Bay)
 */
 
@@ -44,8 +44,8 @@ body.dark-theme {
 body {
     background-color: var(--bg-canvas);
     color: var(--text-black);
-    font-family: 'DM Sans', -apple-system, sans-serif;
-    font-size: 16px;
+    font-family: 'Balsamiq Sans', cursive;
+    font-size: 17px;
     line-height: 1.6;
     overflow-x: hidden;
     position: relative;
@@ -56,7 +56,7 @@ h1,
 h2,
 h3,
 .serif-font {
-    font-family: 'Lora', serif;
+    font-family: 'Sunshiney', cursive;
 }
 
 html,
@@ -87,14 +87,11 @@ main {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 44px;
-    /* Slightly tighter vertical padding */
+    padding: 15px 44px;
     position: fixed;
     top: 0;
     width: 100%;
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(14px) saturate(190%);
-    -webkit-backdrop-filter: blur(14px) saturate(190%);
+    background: transparent;
     z-index: 1000;
     transition: var(--transition);
 }
@@ -124,7 +121,7 @@ main {
 }
 
 .navbar-logo {
-    font-family: 'Lora', serif;
+    font-family: 'Jacquarda 12 Charted', serif;
     font-weight: 500;
     font-size: 1.35rem;
     color: var(--text-black);

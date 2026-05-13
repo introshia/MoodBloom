@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>MoodBloom · Sanctuary</title>
+  <title>MoodBlume · Sanctuary</title>
   <link
-    href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Sunshiney&family=Balsamiq+Sans:wght@400;700&display=swap"
     rel="stylesheet" />
   <style>
     * {
@@ -20,7 +20,8 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: #0A0402
+      background: #0A0402;
+      font-family: 'Balsamiq Sans', cursive;
     }
 
     #c {
@@ -47,7 +48,7 @@
     }
 
     .logo {
-      font-family: 'Lora', serif;
+      font-family: 'Sunshiney', cursive;
       font-size: 17px;
       color: #2D332A;
       /* Deep Forest */
@@ -88,10 +89,10 @@
 
     .dock-link {
       display: flex;
-      flex-direction: column;
       align-items: center;
+      justify-content: center;
       gap: 3px;
-      padding: 4px 22px;
+      padding: 12px 28px;
       cursor: pointer;
       text-decoration: none;
       border-right: 1px solid rgba(255, 200, 140, 0.18);
@@ -110,8 +111,8 @@
     }
 
     .dock-link .dock-label {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 9px;
+      font-family: 'Balsamiq Sans', cursive;
+      font-size: 11px;
       letter-spacing: 0.14em;
       text-transform: uppercase;
       color: rgba(255, 210, 160, 0.72);
@@ -162,7 +163,7 @@
     }
 
     #tip .tt {
-      font-family: 'Lora', serif;
+      font-family: 'Lora', cursive;
       font-size: 12px;
       color: #2D332A;
       /* Deep Forest */
@@ -212,7 +213,7 @@
     }
 
     .m-card h2 {
-      font-family: 'Lora', serif;
+      font-family: 'Lora', cursive;
       font-size: 22px;
       color: #FFBA60;
       font-weight: 400;
@@ -237,7 +238,7 @@
       letter-spacing: .1em;
       cursor: pointer;
       transition: .2s;
-      font-family: 'DM Sans', sans-serif
+      font-family: 'Balsamiq Sans', cursive
     }
 
     .m-btn:hover {
@@ -273,7 +274,7 @@
       font-size: 11px;
       letter-spacing: .12em;
       cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Balsamiq Sans', cursive;
       transition: .2s
     }
 
@@ -322,7 +323,7 @@
       position: fixed;
       bottom: 28px;
       left: 44px;
-      font-family: 'Lora', serif;
+      font-family: 'Lora', cursive;
       font-style: italic;
       font-size: 12px;
       color: rgba(180, 100, 30, .38);
@@ -335,7 +336,7 @@
       left: 44px;
       font-size: 10px;
       color: rgba(160, 90, 30, .3);
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Balsamiq Sans', cursive;
       letter-spacing: .1em;
       pointer-events: none
     }
@@ -347,20 +348,17 @@
   <canvas id="c"></canvas>
 
   <nav id="nav">
-    <div class="logo" id="logo-btn">MoodBloom</div>
+    <div class="logo" id="logo-btn">MoodBlume</div>
   </nav>
 
   <div id="bottom-dock" onclick="event.stopPropagation()">
     <a class="dock-link" href="/archive">
-      <span class="dock-icon">&#128218;</span>
       <span class="dock-label">Archive</span>
     </a>
     <a class="dock-link" href="/writing">
-      <span class="dock-icon">&#9997;</span>
       <span class="dock-label">Journal</span>
     </a>
     <a class="dock-link" href="/profile">
-      <span class="dock-icon">&#9775;</span>
       <span class="dock-label">Profile</span>
     </a>
   </div>
@@ -471,7 +469,7 @@
       { title: 'Infinite Sky', icon: '✦', time: '11:45 PM', quote: 'I am more than my worries. There is a vastness inside me that fear has never touched.', caption: 'Stars that remember every wish.', scene: 5 },
       { title: 'Let Go', icon: '◉', time: '5:30 PM', quote: 'I release what has already passed. Every ending creates space for something beautiful.', caption: 'Leaves that dance on their way down.', scene: 6 },
       { title: 'Be Here', icon: '◎', time: '10:00 AM', quote: 'This moment is enough. I do not need to be anywhere else or anyone other than who I am right now.', caption: 'A field that holds its own warmth.', scene: 7 },
-      { title: 'MoodBloom Gently', icon: '◈', time: '6:15 AM', quote: 'I do not have to rush my becoming. Growth has its own perfect timing, and I trust mine.', caption: 'Petals that know their own season.', scene: 8 },
+      { title: 'MoodBlume Gently', icon: '◈', time: '6:15 AM', quote: 'I do not have to rush my becoming. Growth has its own perfect timing, and I trust mine.', caption: 'Petals that know their own season.', scene: 8 },
       { title: 'Still Waters', icon: '◉', time: '8:00 PM', quote: 'Beneath all the noise, there is a quiet part of me that has always known what matters.', caption: 'A reflection that tells the truth.', scene: 9 }
     ];
 
@@ -979,15 +977,15 @@
         ctx.translate(px(pos.x), py(pos.y));
         ctx.rotate(0); // Perfect straight alignment
 
-        // Shadow
-        ctx.fillStyle = 'rgba(0,0,0,0.30)';
-        ctx.beginPath(); ctx.ellipse(0, py(0.005 * sc), px(jW * 0.52), py(jD * 0.52), 0, 0, Math.PI * 2); ctx.fill();
+        var jX = -jW * 0.5, jY = -jD * 0.5;
+
+        // Shadow (More subtle, rectangular to match the book)
+        ctx.fillStyle = 'rgba(0,0,0,0.12)';
+        ctx.fillRect(px(jX + 0.006 * sc), py(jY + 0.006 * sc), px(jW), py(jD));
 
         // Journal Body (Active Theme)
         var activeBg = "{{ active_bg|default('#C8D898') }}";
         var activeArt = "{{ active_art|default('botanical') }}";
-        
-        var jX = -jW * 0.5, jY = -jD * 0.5;
         
         // Base color
         ctx.fillStyle = activeBg; 
@@ -1296,7 +1294,7 @@
         ctx.save();
         ctx.translate(px(nbX + nbW * 0.5), py(nbTop + nbH * 0.46));
         ctx.rotate(-Math.PI / 2);
-        ctx.font = 'bold ' + Math.max(6, Math.round(W * 0.009)) + 'px "DM Sans", sans-serif';
+        ctx.font = 'bold ' + Math.max(6, Math.round(W * 0.009)) + 'px "Balsamiq Sans", cursive';
         ctx.fillStyle = 'rgba(255,255,255,0.55)';
         ctx.textAlign = 'center';
         ctx.fillText(nb.label.toUpperCase(), 0, 0);

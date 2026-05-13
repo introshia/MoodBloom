@@ -1,6 +1,6 @@
 {
-    "name": "MoodBloom Journal",
-    "short_name": "MoodBloom",
+    "name": "MoodBlume Journal",
+    "short_name": "MoodBlume",
     "start_url": "/login",
     "display": "standalone",
     "background_color": "#fff9e6",

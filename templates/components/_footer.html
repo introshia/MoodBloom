@@ -1,57 +1,62 @@
-    <!-- SITE FOOTER -->
-    <footer class="site-footer">
-        <h2 class="footer-headline">Thank you for blooming with us.</h2>
+<style>
+    .minimal-footer {
+        padding: 80px 20px 60px 20px;
+        text-align: center;
+        background-color: transparent; /* Seamless with page background */
+    }
 
-        <div class="footer-grid">
-            <!-- Column 1: Brand -->
-            <div class="footer-col">
-                <a href="{{ url_for('index') }}" class="navbar-logo" style="display: block; margin-bottom: 20px;">MoodBloom</a>
-                <p class="footer-tagline">Track your mood, understand your patterns, and grow into your best self.</p>
-            </div>
+    .footer-signature {
+        font-family: 'Dancing Script', cursive;
+        font-size: 28px;
+        color: #4A4438;
+        text-decoration: none;
+        display: block;
+        margin-bottom: 12px;
+        opacity: 0.8;
+        transition: opacity 0.3s ease;
+    }
 
-            <!-- Column 2: Explore -->
-            <div class="footer-col">
-                <div class="footer-col-header">Explore</div>
-                <ul class="footer-links">
-                    <li><a href="#">Dashboard</a></li>
-                    <li><a href="#">Journal</a></li>
-                    <li><a href="#">Profile</a></li>
-                    <li><a href="#">Subscriptions</a></li>
-                </ul>
-            </div>
+    .footer-signature:hover {
+        opacity: 1;
+    }
 
-            <!-- Column 3: Learn -->
-            <div class="footer-col">
-                <div class="footer-col-header">Learn</div>
-                <ul class="footer-links">
-                    <li><a href="#">About Us</a></li>
-                    <li><a href="#">The Science</a></li>
-                    <li><a href="#">FAQ</a></li>
-                    <li><a href="#">Contact</a></li>
-                </ul>
-            </div>
+    .footer-bottom-line {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 10px;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: #8A8070;
+        opacity: 0.6;
+    }
 
-            <!-- Column 4: Newsletter -->
-            <div class="footer-col">
-                <div class="footer-col-header">Newsletter</div>
-                <p class="footer-newsletter-text">Join 25,000+ others tracking their journey and gaining emotional
-                    clarity.</p>
-                <form class="newsletter-form">
-                    <input type="email" placeholder="Your email address" required>
-                    <button type="submit">
-                        <i class="fa-solid fa-arrow-right"></i>
-                    </button>
-                </form>
-            </div>
-        </div>
+    .footer-bottom-line a {
+        color: inherit;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
 
-        <div class="sub-footer">
-            <div class="footer-legal">
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Service</a>
-            </div>
-            <div class="footer-copyright">
-                &copy; 2024 MoodBloom. All rights reserved.
-            </div>
-        </div>
-    </footer>
+    .footer-bottom-line a:hover {
+        color: #4A4438;
+    }
+
+    .footer-dot {
+        font-size: 8px;
+        opacity: 0.4;
+    }
+</style>
+
+<footer class="minimal-footer">
+    <a href="{{ url_for('index') }}" class="footer-signature">
+        <img src="{{ url_for('static', filename='images/moodblume_logo.png') }}?v=1.3" alt="MoodBlume Logo" style="height: 65px; width: auto; margin: 0 auto; display: block; opacity: 0.8;">
+    </a>
+    
+    <div class="footer-bottom-line">
+        <span>&copy; 2026 MOODBLUME</span>
+        <span class="footer-dot">&mdash;</span>
+        <a href="#">TERMS</a>
+    </div>
+</footer>

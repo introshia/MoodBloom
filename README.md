@@ -1,7 +1,7 @@
-# 🌸 MoodBloom
+# 🌸 MoodBlume
 **The modern almanac of a wandering mind.**
 
-MoodBloom is a full-stack digital journaling application crafted to help users understand their emotional trends. By combining a chic, vintage interface with a heuristic sentiment engine, the application naturally categorizes entries and maps emotional journeys through the art of journaling.
+MoodBlume is a full-stack digital journaling application crafted to help users understand their emotional trends. By combining a chic, vintage interface with a heuristic sentiment engine, the application naturally categorizes entries and maps emotional journeys through the art of journaling.
 
 *Developed by **Danna** for Programming Languages at **Universidad de Dagupan** (March 2026).*
 
@@ -29,10 +29,10 @@ MoodBloom is a full-stack digital journaling application crafted to help users u
 
 ```bash
 # 1. Clone the repository
-git clone [https://github.com/introshia/MoodBloom.git](https://github.com/introshia/MoodBloom.git)
+git clone [https://github.com/introshia/MoodBlume.git](https://github.com/introshia/MoodBlume.git)
 
 # 2. Navigate into the directory
-cd MoodBloom
+cd MoodBlume
 
 # 3. Install the Python dependencies
 pip3 install -r requirements.txt
@@ -42,7 +42,7 @@ pip3 install -r requirements.txt
 echo "DB_PASSWORD=your_mysql_password" > .env
 
 # 5. Configure the Database
-# Create a local MySQL database named 'moodbloom_db'
+# Create a local MySQL database named 'moodblume_db'
 # The app will automatically use the password from your .env
 
 # 6. Start the server

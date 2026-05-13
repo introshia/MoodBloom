@@ -4,7 +4,7 @@ db_config = {
     'host': 'localhost',
     'user': 'root',
     'password': 'password',
-    'database': 'moodbloom_db'
+    'database': 'moodblume_db'
 }
 
 try:
