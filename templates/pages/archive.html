@@ -694,11 +694,10 @@
     /* Covers & Wings */
     .journal-spotlight .left-half {
         left: 0;
-        transform-origin: calc(100% + 9px) center;
+        transform-origin: right center;
         transform: rotateY(180deg) translateZ(-5px);
         z-index: 1;
         background: #3D2B1F;
-        /* Persistent leather shell */
         border-radius: 20px 0 0 20px;
     }
 
@@ -718,16 +717,24 @@
 
     .journal-spotlight .left-half .cover-inside {
         left: 8px;
-        /* Leather visible on outer edge */
-        right: 2px;
-        /* Small gap from spine */
+        /* Outer leather bleed */
+        right: 0;
+        /* Continuous to spine */
         border-radius: 15px 0 0 15px;
     }
 
     .journal-spotlight .front-cover-design {
         position: absolute;
         inset: 0;
+        /* Slimmer Visual Spine: Rounded leather binding + Hinge crease */
         background: #3D2B1F;
+        background: linear-gradient(to right,
+                rgba(0, 0, 0, 0.3) 0%,
+                rgba(255, 255, 255, 0.05) 2%,
+                transparent 5%,
+                rgba(0, 0, 0, 0.2) 6%,
+                rgba(0, 0, 0, 0.4) 7%,
+                transparent 9%), #3D2B1F;
         border-radius: 0 20px 20px 0;
         box-shadow: 15px 0 35px rgba(0, 0, 0, 0.4);
         transform: rotateY(180deg);
@@ -758,13 +765,13 @@
     }
 
     .journal-spotlight .right-wing {
-        left: 324px;
+        left: 306px;
+        /* Perfect 0px gap */
         transform-origin: left center;
         transform: rotateY(0deg) translateZ(-5px);
         z-index: 1;
         transform-style: preserve-3d;
         background: #3D2B1F;
-        /* Persistent leather shell */
         border-radius: 0 20px 20px 0;
     }
 
@@ -782,10 +789,10 @@
         top: 10px;
         bottom: 10px;
         background: #f4eee0;
-        left: 2px;
-        /* Small gap from spine */
+        left: 0;
+        /* Continuous to spine */
         right: 8px;
-        /* Leather visible on outer edge */
+        /* Outer leather bleed */
         border-radius: 0 15px 15px 0;
         transform: rotateY(180deg);
         backface-visibility: hidden;
@@ -795,17 +802,17 @@
     /* Page Stack Base */
     .journal-spotlight .page {
         position: absolute;
-        left: 324px;
+        left: 306px;
         top: 0;
         width: 306px;
         height: 100%;
-        transform-origin: -9px center;
+        transform-origin: left center;
+        /* Pivot exactly at the meeting line */
         transform-style: preserve-3d;
         transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
         cursor: pointer;
         user-select: none;
         overflow: hidden;
-        /* Prevent pattern bleed while keeping spine sharp */
     }
 
     .journal-spotlight .page.flipped {
@@ -825,22 +832,16 @@
     }
 
     .journal-spotlight .page-front {
-        left: 2px;
-        /* Small gap from spine */
+        left: 0;
         right: 8px;
-        /* Leather visible on outer edge */
         border-radius: 0 15px 15px 0;
-        /* Slightly tighter radius for smaller page */
         z-index: 2;
     }
 
     .journal-spotlight .page-back {
         left: 8px;
-        /* Leather visible on outer edge */
-        right: 2px;
-        /* Small gap from spine */
+        right: 0;
         border-radius: 15px 0 0 15px;
-        /* Mirror radius */
         transform: rotateY(180deg);
         z-index: 1;
     }
@@ -857,12 +858,45 @@
 
     .journal-spotlight .page-front .spine-shadow {
         left: 0;
-        background: linear-gradient(to right, rgba(0, 0, 0, 0.08), transparent);
+        background: linear-gradient(to right, rgba(0, 0, 0, 0.1), transparent);
+        box-shadow: none;
+        /* No spillover */
     }
 
     .journal-spotlight .page-back .spine-shadow {
         right: 0;
-        background: linear-gradient(to left, rgba(0, 0, 0, 0.08), transparent);
+        background: linear-gradient(to left, rgba(0, 0, 0, 0.1), transparent);
+        box-shadow: none;
+        /* No spillover */
+    }
+
+    /* Add a rich "Leather Valley" transition to the linings */
+    .journal-spotlight .left-half .cover-inside::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        width: 35px;
+        /* Wider transition */
+        background: linear-gradient(to left, #3D2B1F 0%, rgba(61, 43, 31, 0.4) 30%, transparent 100%);
+        border-right: 1px solid rgba(0, 0, 0, 0.2);
+        /* Soft crease line */
+        pointer-events: none;
+    }
+
+    .journal-spotlight .right-wing .cover-inside::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 35px;
+        /* Wider transition */
+        background: linear-gradient(to right, #3D2B1F 0%, rgba(61, 43, 31, 0.4) 30%, transparent 100%);
+        border-left: 1px solid rgba(0, 0, 0, 0.2);
+        /* Soft crease line */
+        pointer-events: none;
     }
 
     /* Paper Styles - Specific to Pages */
@@ -909,15 +943,7 @@
         display: block;
     }
 
-    .journal-spotlight .spine-bar {
-        position: absolute;
-        left: 306px;
-        top: 0;
-        width: 18px;
-        height: 100%;
-        z-index: 5;
-        background: linear-gradient(to right, #0e0905 0%, #20110a 18%, #3d2610 42%, #4c3218 50%, #3d2610 58%, #20110a 82%, #0e0905 100%);
-    }
+
 
     .btn-journal {
         background: #3D2B1F;
@@ -1657,7 +1683,6 @@
                                 </div>
                             </div>
 
-                            <div class="spine-bar"></div>
                         </div>
                     </div>
                     <div class="journal-controls" style="margin-top: 40px; text-align: center;">
