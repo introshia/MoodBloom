@@ -678,6 +678,33 @@
         transform: translateX(-157px) rotateX(2deg);
     }
 
+    /* The Central Binding Seam - Refined Floating Stitches (3 Parts) */
+    .journal-spotlight .journal::before {
+        content: '';
+        position: absolute;
+        left: 306px;
+        /* Precise Pivot Point */
+        top: 35px;
+        /* Inset from edges */
+        bottom: 35px;
+        width: 1px;
+        /* Three balanced 80px 'floating' stitches */
+        background: linear-gradient(to bottom,
+                rgba(0, 0, 0, 0.3) 0,
+                rgba(0, 0, 0, 0.3) 80px,
+                transparent 80px,
+                transparent 135px,
+                rgba(0, 0, 0, 0.3) 135px,
+                rgba(0, 0, 0, 0.3) 215px,
+                transparent 215px,
+                transparent 270px,
+                rgba(0, 0, 0, 0.3) 270px,
+                rgba(0, 0, 0, 0.3) 350px);
+        transform: translateX(-50%);
+        z-index: 100;
+        pointer-events: none;
+    }
+
     .journal-spotlight .journal.spread-open {
         transform: rotateX(10deg);
     }
@@ -693,7 +720,11 @@
 
     /* Covers & Wings */
     .journal-spotlight .left-half {
+        position: absolute;
+        top: 0;
         left: 0;
+        width: 306px;
+        height: 100%;
         transform-origin: right center;
         transform: rotateY(180deg) translateZ(-5px);
         z-index: 1;
@@ -710,9 +741,9 @@
         top: 10px;
         bottom: 10px;
         background: #f4eee0;
-        backface-visibility: hidden;
         z-index: 1;
-        background-image: none !important;
+        transform: translateZ(2px);
+        /* Stable 3D layer */
     }
 
     .journal-spotlight .left-half .cover-inside {
@@ -769,8 +800,11 @@
     }
 
     .journal-spotlight .right-wing {
+        position: absolute;
+        top: 0;
         left: 306px;
-        /* Perfect 0px gap */
+        width: 306px;
+        height: 100%;
         transform-origin: left center;
         transform: rotateY(0deg) translateZ(-5px);
         z-index: 1;
@@ -792,18 +826,18 @@
         position: absolute;
         top: 10px;
         bottom: 10px;
-        background: #f4eee0;
         left: 0;
         /* Continuous to spine */
         right: 8px;
         /* Outer leather bleed */
         border-radius: 0 28px 28px 0;
-        transform: rotateY(180deg);
+        transform: translateZ(2px);
+        /* Facing forward */
         backface-visibility: hidden;
         z-index: 2;
     }
 
-    /* Page Stack Base */
+    /* Page Stack Base - Original Stable Setup */
     .journal-spotlight .page {
         position: absolute;
         left: 306px;
@@ -823,16 +857,34 @@
         transform: rotateY(-180deg);
     }
 
-    /* Faces */
+    /* Faces - Original top: 10px offset with Gutter Margin */
     .journal-spotlight .page-front,
     .journal-spotlight .page-back {
         position: absolute;
         top: 10px;
         bottom: 10px;
-        background: #fdfaf3;
+        background-color: #fdfaf3;
+        /* Solid Ivory Base */
         backface-visibility: hidden;
         box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.02);
         overflow: hidden;
+    }
+
+    .journal-spotlight .page-front,
+    .journal-spotlight .right-wing .cover-inside {
+        padding-left: 12px;
+        /* Sleek Gutter Margin */
+    }
+
+    .journal-spotlight .page-back,
+    .journal-spotlight .left-half .cover-inside {
+        padding-right: 12px;
+        /* Sleek Gutter Margin */
+    }
+
+    .journal-spotlight .cover-inside {
+        background-color: #f4eee0;
+        /* Rich Cream Lining */
     }
 
     .journal-spotlight .page-front {
@@ -851,74 +903,30 @@
     }
 
     /* Spine Polish */
-    .journal-spotlight .spine-shadow {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 40px;
-        pointer-events: none;
-        z-index: 10;
-    }
-
-    .journal-spotlight .page-front .spine-shadow {
-        left: 0;
-        background: linear-gradient(to right, rgba(0, 0, 0, 0.1), transparent);
-        box-shadow: none;
-        /* No spillover */
-    }
-
-    .journal-spotlight .page-back .spine-shadow {
-        right: 0;
-        background: linear-gradient(to left, rgba(0, 0, 0, 0.1), transparent);
-        box-shadow: none;
-        /* No spillover */
-    }
-
-    /* Add a rich "Leather Valley" transition to the linings */
-    .journal-spotlight .left-half .cover-inside::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        right: 0;
-        width: 35px;
-        /* Wider transition */
-        background: linear-gradient(to left, #3D2B1F 0%, rgba(61, 43, 31, 0.4) 30%, transparent 100%);
-        border-right: 1px solid rgba(0, 0, 0, 0.2);
-        /* Soft crease line */
-        pointer-events: none;
-    }
-
-    .journal-spotlight .right-wing .cover-inside::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        width: 35px;
-        /* Wider transition */
-        background: linear-gradient(to right, #3D2B1F 0%, rgba(61, 43, 31, 0.4) 30%, transparent 100%);
-        border-left: 1px solid rgba(0, 0, 0, 0.2);
-        /* Soft crease line */
-        pointer-events: none;
-    }
-
     /* Paper Styles - Specific to Pages */
-    .journal-spotlight .page.style-lined,
-    .journal-spotlight .page-front.style-lined,
-    .journal-spotlight .page-back.style-lined {
-        background-image: repeating-linear-gradient(transparent, transparent 31px, rgba(150, 128, 96, 0.18) 31px, rgba(150, 128, 96, 0.18) 32px);
-        background-size: 100% 32px;
-        background-position: 0 10px;
+    .journal-spotlight .page-front,
+    .journal-spotlight .page-back {
+        background-origin: content-box;
     }
 
-    .journal-spotlight .page.style-grid,
-    .journal-spotlight .page-front.style-grid,
-    .journal-spotlight .page-back.style-grid {
+    .journal-spotlight .style-lined {
+        background-image:
+            repeating-linear-gradient(transparent, transparent 31px, rgba(150, 128, 96, 0.18) 31px, rgba(150, 128, 96, 0.18) 32px),
+            linear-gradient(#fdfaf3, #fdfaf3);
+        background-size: 100% 32px, 100% 100%;
+        background-position: 0 10px, 0 0;
+        background-origin: content-box, padding-box;
+        background-clip: content-box, padding-box;
+    }
+
+    .journal-spotlight .style-grid {
         background-image:
             linear-gradient(to right, rgba(150, 128, 96, 0.15) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(150, 128, 96, 0.15) 1px, transparent 1px);
-        background-size: 24px 24px;
+            linear-gradient(to bottom, rgba(150, 128, 96, 0.15) 1px, transparent 1px),
+            linear-gradient(#fdfaf3, #fdfaf3);
+        background-size: 24px 24px, 24px 24px, 100% 100%;
+        background-origin: content-box, content-box, padding-box;
+        background-clip: content-box, content-box, padding-box;
     }
 
     .journal-spotlight .page.style-blank,
@@ -1648,10 +1656,8 @@
                             <!-- STACKED PAGES (5) -->
                             <div class="page" style="z-index: 10;" data-page="1">
                                 <div class="page-front style-lined">
-                                    <div class="spine-shadow"></div>
                                 </div>
                                 <div class="page-back style-lined">
-                                    <div class="spine-shadow"></div>
                                 </div>
                             </div>
                             <div class="page" style="z-index: 9;" data-page="2">
