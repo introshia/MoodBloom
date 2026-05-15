@@ -7,17 +7,16 @@
     "theme_color": "#7a1d1d",
     "icons": [
         {
-            "src": "/static/images/icon-192.png",
+            "src": "/static/images/moodblume_app_icon.png",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "any"
         },
         {
-            "src": "/static/images/icon-512.png",
+            "src": "/static/images/moodblume_splash_icon.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "any"
         }
     ]
-
 }

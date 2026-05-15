@@ -1,5 +1,5 @@
 // Service Worker v2 - Force Clear Cache
-const CACHE_NAME = 'moodblume-cache-v2';
+const CACHE_NAME = 'moodblume-cache-v7';
 
 self.addEventListener('install', (e) => {
     console.log('[Service Worker] Installed v2');

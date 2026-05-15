@@ -14,8 +14,10 @@
         href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&family=Dancing+Script:wght@400;500&family=Sunshiney&family=Balsamiq+Sans:wght@400;700&family=Caveat:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,300;1,400&display=swap"
         rel="stylesheet">
 
-    <!-- App Manifest -->
-    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <!-- App Manifest & Icons -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}?v=1.5">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/moodblume_app_icon.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/moodblume_app_icon.png') }}">
 
     <!-- Core Styles -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=9">
